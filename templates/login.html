@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% block content %}
 {% load crispy_forms_tags %}
     <div class="container">
@@ -9,5 +8,12 @@
             {{ form | crispy }}
             <button type="submit" class="btn btn-warning">Login</button>
         </form>
+<div class="card-footer text-center bg-light">
+            <small>Don't have an account? 
+                <a href="{% url 'register' %}" class="text-warning fw-bold">Register here</a>
+            </small>
+        </div>
+       
+
     </div>
 {% endblock %}

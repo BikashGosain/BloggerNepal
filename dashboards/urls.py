@@ -6,7 +6,7 @@ urlpatterns = [
     # Dashboard Home
     path('', login_required(views.dashboard, login_url='login'), name='dashboard'),
     # Category CRUD
-    path('categories/', login_required(views.catagories, login_url='login'), name='categories'),
+    path('categories/', login_required(views.categories, login_url='login'), name='categories'),
     path('categories/add/', login_required(views.add_category, login_url='login'), name='add_category'),
     path('categories/edit/<int:pk>/', login_required(views.edit_category, login_url='login'), name='edit_category'),
     path('categories/delete/<int:pk>/', login_required(views.delete_category, login_url='login'), name='delete_category'),

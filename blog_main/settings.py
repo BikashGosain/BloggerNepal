@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -45,6 +49,7 @@ INSTALLED_APPS = [
     'dashboards',
     'ckeditor',
     'ckeditor_uploader',
+    'contact',
 
 ]
 
@@ -72,6 +77,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'blogs.context_processors.get_categories',
                 'blogs.context_processors.get_social_links',
+                'blogs.context_processors.user_roles',
             ],
         },
     },
@@ -159,3 +165,15 @@ CKEDITOR_CONFIGS = {
         'width': '100%',
     },
 }
+
+
+# contact through email
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+

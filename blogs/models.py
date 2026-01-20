@@ -7,6 +7,7 @@ from ckeditor_uploader.fields import RichTextUploadingField
 
 class Category(models.Model):
     category_name = models.CharField(max_length=100, unique=True)
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

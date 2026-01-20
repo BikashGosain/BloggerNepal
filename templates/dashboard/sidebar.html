@@ -1,13 +1,22 @@
 <div class="col-md-3">
     <div class="nav flex-column nav-pills bg-light" aria-orientation="vertical">
         <a href="{% url 'dashboard' %}" class="nav-link text-dark {% if '/dashboard/' == request.path %}bg-warning{% endif %}">Dashboard</a>
+        <a href="{% url 'users' %}" class="nav-link text-dark {% if '/users/' in request.path %}bg-warning{% endif %}">Profile</a>
         {% if perms.auth.view_user %}
         <a href="{% url 'users' %}" class="nav-link text-dark {% if '/users/' in request.path %}bg-warning{% endif %}">Users</a>
         {% endif %}
+        {% if can_see_all%}
         <a href="{% url 'categories' %}" class="nav-link text-dark {% if '/categories/' in request.path %}bg-warning{% endif %}">Categories</a>
+        {% endif %}
         <a href="{% url 'posts' %}" class="nav-link text-dark {% if '/posts/' in request.path %}bg-warning{% endif %}">Posts</a>
-        <a href="{% url 'logout' %}" class="nav-link text-dark {% if '/logout/' in request.path %}bg-warning{% endif %}">Logout</a>
+        <a href="{% url 'logout' %}" class="nav-link text-dark {% if '/logout/' in request.path %}bg-warning{% endif %}" onclick="return confirmLogout();" >Logout</a>
     </div>
+    <script>
+function confirmLogout() {
+    return confirm("Are you sure you want to logout?");
+}
+</script>
+
 </div>
 {% if messages %}
   <div id="toast-container">

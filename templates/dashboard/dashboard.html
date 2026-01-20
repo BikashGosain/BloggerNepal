@@ -11,6 +11,7 @@
     <div class="col-md-9">
         <span>Logged in as <b>{{ user }}</b></span>
         <div class="row">
+            {% if can_see_all %}
             <div class="col">
                 <div class="card border-default mb-3">
                     <div class="card-header text-center text-uppercase font-weight-bold">All Categories</div>
@@ -19,7 +20,7 @@
                     </div>
                 </div>
             </div>
-
+{% endif %}
             <div class="col">
                 <div class="card border-default mb-3">
                     <div class="card-header text-center text-uppercase font-weight-bold">All posts</div>

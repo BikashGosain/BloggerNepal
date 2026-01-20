@@ -1,6 +1,90 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<!-- Contact email message success or error -->
+{% if messages %}
+    <div id="messages-container">
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+                {{ message }}
+                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<style>
+/* Container for all messages */
+#messages-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    width: 300px;
+}
+
+/* Base alert style */
+.alert {
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    position: relative;
+    opacity: 1;
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    cursor: default;
+}
+
+/* Success alert (green) */
+.alert-success {
+    background-color: #4CAF50;
+}
+
+/* Error alert (red) */
+.alert-error {
+    background-color: #f44336;
+}
+
+/* Close button (×) */
+.close-btn {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    color: white;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+    color: #ddd;
+}
+
+/* Fade out animation */
+.alert.fade-out {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+</style>
+
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    // Auto-close after 5 seconds
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            alert.classList.add('fade-out');  // apply fade out CSS
+            setTimeout(() => alert.style.display = 'none', 500); // hide after fade
+        });
+    }, 5000);
+});
+</script>
+
+<!-- upto here Contact email message success or error -->
 
 {% for post in featured_posts %}
 {% if forloop.first %}
@@ -59,6 +143,61 @@
         <h4 class="font-italic">{{ about.about_heading }}</h4>
         <p class="mb-0"><em>{{ about.about_description }}</em></p>
       </div>
+
+<!-- Contact through email
+
+<h4 class="mb-4">Contact Us</h4>
+
+<form method="POST" action="{% url 'contact' %}">
+    {% csrf_token %}
+
+    <label>Subject:</label><br>
+    <input type="text" name="subject" required
+           {% if not user.is_authenticated %}disabled{% endif %}>
+    <br><br>
+
+    <label>Message:</label><br>
+    <textarea name="message" rows="5" required
+              {% if not user.is_authenticated %}disabled{% endif %}></textarea>
+    <br><br>
+
+    {% if user.is_authenticated %}
+        <button type="submit">Send Message</button>
+    {% else %}
+        <a href="{% url 'login' %}" class="btn btn-warning">
+            Login First
+        </a>
+    {% endif %}
+</form> -->
+<!-- Contact through email -->
+<h4 class="mb-4" style="font-family: Arial, sans-serif; color: #333;">Contact Us</h4>
+
+<form method="POST" action="{% url 'contact' %}" style="max-width: 500px; margin: auto;">
+    {% csrf_token %}
+
+    <label style="font-weight: bold; color: #555;">Subject:</label><br>
+    <input type="text" name="subject" required
+           {% if not user.is_authenticated %}disabled{% endif %}
+           style="width: 100%; padding: 10px; margin: 5px 0 15px 0; border-radius: 5px; border: 1px solid #ccc;">
+
+    <label style="font-weight: bold; color: #555;">Message:</label><br>
+    <textarea name="message" rows="5" required
+              {% if not user.is_authenticated %}disabled{% endif %}
+              style="width: 100%; padding: 10px; margin: 5px 0 15px 0; border-radius: 5px; border: 1px solid #ccc;"></textarea>
+
+    {% if user.is_authenticated %}
+        <button type="submit" 
+                style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+            Send Message
+        </button>
+    {% else %}
+        <a href="{% url 'login' %}" 
+           style="display: inline-block; background-color: #f0ad4e; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;">
+            Login First
+        </a>
+    {% endif %}
+</form>
+
 
 
       {% if social_links %}

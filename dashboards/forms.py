@@ -7,7 +7,7 @@ from django.contrib.auth.forms import UserCreationForm
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ('category_name',)
     
     # to show exact error in edit catagory field when try to edited to already exixted category: f"Category '{category_name}' already exists."
     # also show error in addnew category too: f"Category '{category_name}' already exists."

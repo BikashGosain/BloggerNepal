@@ -22,6 +22,7 @@
                 <th>Status</th>
                 <th>Featured</th>
                 <th>Action</th>
+                <th>Post</th>
               </tr>
             </thead>
             <tbody>
@@ -33,11 +34,25 @@
                 <td>{{ post.author }}</td>
                 <td>{{ post.status }}</td>
                 <td>{% if post.is_featured %}<i class="fa fa-check text-success"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</td>
-                <td>
-                    <a href="{% url 'edit_post' post.id %}"><i class="fa fa-edit text-success"></i></a>
-                    &nbsp;
-                    <a href="{% url 'delete_post' post.id %}"><i class="fa fa-trash text-danger"></i></a>
-                </td>
+               <td>
+    {% if post.author == user or can_see_all %}
+        <a href="{% url 'edit_post' post.id %}"><i class="fa fa-edit text-success"></i></a>
+        &nbsp;
+        <a href="{% url 'delete_post' post.id %}"><i class="fa fa-trash text-danger"></i></a>
+    {% else %}
+        <span class="text-muted">—</span>
+    {% endif %}
+</td>
+  {% if can_see_all %}
+    <td>
+        {% if post.author == user %}
+            <span class="badge bg-primary">Your Post</span>
+        {% elif can_see_all %}
+            <span class="badge bg-warning">Admin/Editor View</span>
+        {% endif %}
+        
+    </td>
+{% endif %}
               </tr>
             {% endfor %}
               
@@ -47,3 +62,4 @@
 </div>
 
 {% endblock %}
+

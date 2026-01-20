@@ -37,5 +37,7 @@ urlpatterns = [
     path('dashboard/', include('dashboards.urls')),
     # TinyMCE (REQUIRED)
     path('ckeditor/', include('ckeditor_uploader.urls')),
+    # for contact email
+    path('', include('contact.urls')),
 
 ] +static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT )

@@ -78,9 +78,15 @@ function toggleReplyForm(commentId) {
                     <a class="btn btn-sm btn-outline-secondary" href="{% url 'register' %}">Register</a>
                     {% else %}
                     <span> <a class="btn btn-sm btn-outline-secondary" href="{% url 'dashboard' %}">Dashboard</a></span> &nbsp;
-                    <span><a class="btn btn-sm btn-outline-secondary" href="{% url 'logout' %}">Logout</a></span>
+                    <span><a class="btn btn-sm btn-outline-secondary" href="{% url 'logout' %}" onclick="return confirmLogout();">Logout</a></span>
                     {% endif %}
                 </div>
+                <script>
+function confirmLogout() {
+    return confirm("Are you sure you want to logout?");
+}
+</script>
+
             </div>
         </header>
 

@@ -4,24 +4,46 @@ from django.contrib.auth.decorators import permission_required
 from .forms import BlogPostForm, CategoryForm, AddUserForm, EditUserForm
 from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
-# edited agian edited
-# for message
+
+from django.contrib import messages
+from django.core.exceptions import PermissionDenied
+
 from django.contrib import messages
 # Create your views here.
 
+# def dashboard(request):
+#     category_count = Category.objects.all().count()
+#     blogs_count = Blog.objects.all().count()
+
+#     context = {
+#         'category_count': category_count,
+#         'blogs_count': blogs_count,
+#     }
+
+#     return render(request, 'dashboard/dashboard.html',context)
+
+
 def dashboard(request):
-    category_count = Category.objects.all().count()
-    blogs_count = Blog.objects.all().count()
+    user = request.user
+
+    # Categories count (only self for normal users)
+    if user.is_superuser or user.groups.filter(name__in=['Editor','Manager']).exists():
+        category_count = Category.objects.all().count()
+        blogs_count = Blog.objects.all().count()
+    else:
+        category_count = Category.objects.filter(author=user).count()
+        blogs_count = Blog.objects.filter(author=user).count()
 
     context = {
         'category_count': category_count,
         'blogs_count': blogs_count,
     }
 
-    return render(request, 'dashboard/dashboard.html',context)
+    return render(request, 'dashboard/dashboard.html', context)
 
-def catagories(request):
-    return render(request, 'dashboard/catagories.html')
+
+def categories(request):
+    return render(request, 'dashboard/categories.html')
 
 # def add_category(request):
 #     if request.method == 'POST':
@@ -39,7 +61,10 @@ def add_category(request):
     form = CategoryForm(request.POST or None)
 
     if request.method == 'POST' and form.is_valid():
-        category = form.save()  # ← THIS line is required
+        category = form.save(commit=False)  # ← don't save yet
+        category.author = request.user      # ← set the logged-in user as author
+        category.save()                     # ← now save to DB
+
         messages.success(
             request,
             f"✅ Category '{category.category_name}' added successfully."
@@ -60,7 +85,7 @@ def edit_category(request, pk):
     if request.method == 'POST':
         form = CategoryForm(request.POST, instance=category)
         if form.is_valid():
-            category = form.save()
+            form.save()  # Author remains the same
             messages.success(
                 request,
                 f"✅ Category edited to '{category.category_name}' successfully."
@@ -77,25 +102,40 @@ def edit_category(request, pk):
     )
 
 
-@permission_required('auth.delete_user', raise_exception=True)
+
+
+
 def delete_category(request, pk):
     category = get_object_or_404(Category, pk=pk)
+
+    # Only allow superuser or users in Editor/Manager groups
+    if not (request.user.is_superuser or request.user.groups.filter(name__in=['Manager']).exists()):
+        messages.error(request, "❌ You do not have permission to delete this category.")
+        return redirect('categories')  # redirect to safe page
+
     category.delete()
-    messages.success(
-                request,
-                f"✅ Category '{category.category_name}' deleted successfully."
-            )
+    messages.success(request, f"✅ Category '{category.category_name}' deleted successfully.")
     return redirect('categories')
+
 
 
 # blog post crud
 
 def posts(request):
-    posts = Blog.objects.all()
+    user = request.user
+
+    # Show all posts if admin/editor/manager, otherwise only own posts
+    if user.is_superuser or user.groups.filter(name__in=['Editor', 'Manager']).exists():
+        posts = Blog.objects.all()
+    else:
+        posts = Blog.objects.filter(author=user)
+
     context = {
-        'posts': posts,
+        'posts': posts
     }
+
     return render(request, 'dashboard/posts.html', context)
+
 
 def add_post(request):
     if request.method == 'POST':
@@ -109,7 +149,7 @@ def add_post(request):
             post.save()  # saving again to update the slug
             messages.success(
                 request,
-                f"✅ New Post titled '{post.title}' added successfully."
+                f"✅ New Post title '{post.title}' added successfully."
             )
             return redirect('posts')
         else:
@@ -150,15 +190,20 @@ def edit_post(request, pk):
     }
     return render(request, 'dashboard/edit_post.html', context)
 
-@permission_required('auth.delete_user', raise_exception=True)
 def delete_post(request, pk):
     post = get_object_or_404(Blog, pk=pk)
+
+    if not (request.user.is_superuser or request.user.groups.filter(name__in=['Manager']).exists()):
+        messages.error(request, "❌ You do not have permission to delete this post.")
+        return redirect('posts')
+    
     post.delete()
     messages.success(
                 request,
                 f"✅Post with Title '{post.title}' deleted successfully."
             )
     return redirect('posts')
+
 
 def users(request):
     users = User.objects.all()
