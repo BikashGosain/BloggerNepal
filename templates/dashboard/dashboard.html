@@ -9,7 +9,26 @@
 
     <!-- Right side content -->
     <div class="col-md-9">
+        <hr>
         <span>Logged in as <b>{{ user }}</b></span>
+        <hr>
+<!-- message of roles -->
+{% if is_editor %}
+    <div class="alert alert-info">
+        <strong>Note:</strong> As an Editor, you can edit any post and category, 
+        but you <strong>cannot delete other users' posts</strong> or any category. 
+        You can delete only your own posts.
+    </div>
+{% elif is_manager %}
+    <div class="alert alert-warning"><strong>Note:</strong> As an Manager, you can add, edit and delete any post and category as well as user.
+       </div>
+{% elif user.is_superuser %}
+    <div class="alert alert-success"><strong>Note:</strong> As an Admin, you can add, edit and delete any post and category as well as user, 
+        but you <strong>cannot delete other users' posts</strong> or any category. 
+        You can delete only your own posts.</div>
+    {%else%}
+    <div class="alert alert-success">{{ user }}! You can delete, edit and create your post...</div>
+{% endif %}
         <div class="row">
             {% if can_see_all %}
             <div class="col">
@@ -20,10 +39,15 @@
                     </div>
                 </div>
             </div>
+            
 {% endif %}
             <div class="col">
                 <div class="card border-default mb-3">
-                    <div class="card-header text-center text-uppercase font-weight-bold">All posts</div>
+                    <div class="card-header text-center text-uppercase font-weight-bold">{% if can_see_all %}
+                All Posts
+            {% else %}
+                My Posts
+            {% endif %}</div>
                     <div class="card-body text-dark">
                         <h5 class="card-title text-center">{{ blogs_count }}</h5>
                     </div>
@@ -32,5 +56,15 @@
         </div>
     </div>
 </div>
+{% if can_see_all %}
+<div class="card border-default mb-3">
+    <div class="card-header text-center text-uppercase font-weight-bold">My Posts</div>
+    <div class="card-body text-dark">
+        <h5 class="card-title text-center">{{ self_posts_count }}</h5>
+    </div>
+</div>
+{% endif %}
+
+
 
 {% endblock %}

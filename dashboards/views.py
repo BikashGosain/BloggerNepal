@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from blogs.models import Category, Blog
 from django.contrib.auth.decorators import permission_required
-from .forms import BlogPostForm, CategoryForm, AddUserForm, EditUserForm
+from .forms import BlogPostForm, CategoryForm, AddUserForm, EditUserForm, ProfileEditForm  
 from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
 
@@ -9,6 +9,8 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 
 from django.contrib import messages
+
+from django.urls import reverse # If email is missing, show a clickable link 
 # Create your views here.
 
 # def dashboard(request):
@@ -192,16 +194,24 @@ def edit_post(request, pk):
 
 def delete_post(request, pk):
     post = get_object_or_404(Blog, pk=pk)
+    user = request.user
 
-    if not (request.user.is_superuser or request.user.groups.filter(name__in=['Manager']).exists()):
+    # Superuser or Manager can delete any post
+    if user.is_superuser or user.groups.filter(name__in=['Manager']).exists():
+        post.delete()
+        messages.success(request, f"✅ Post '{post.title}' deleted successfully.")
+        return redirect('posts')
+
+    # Editors and normal users can delete ONLY their own post
+    elif post.author == user:
+        post.delete()
+        messages.success(request, f"✅ Your post '{post.title}' deleted successfully.")
+        return redirect('posts')
+
+    # Anyone else cannot delete
+    else:
         messages.error(request, "❌ You do not have permission to delete this post.")
         return redirect('posts')
-    
-    post.delete()
-    messages.success(
-                request,
-                f"✅Post with Title '{post.title}' deleted successfully."
-            )
     return redirect('posts')
 
 
@@ -257,3 +267,48 @@ def delete_user(request, pk):
     user.delete()
     messages.success(request, f'Username "{user}" deleted successfully. ✅')
     return redirect('users')
+
+
+
+def profile(request):
+    """
+    Display logged-in user's profile and posts
+    """
+    user = request.user
+    if not user.email:
+        messages.info(
+            request, 
+            '⚠️ Your account has no email address. '
+            'Please <a href="{}">add your email here</a>.'.format(
+                reverse('edit_profile')
+            )
+        )
+    # Get all posts by this user
+    posts = Blog.objects.filter(author=user)
+
+    context = {
+        'user': user,
+        'posts': posts,
+    }
+    return render(request, 'dashboard/profile.html', context)
+
+
+def edit_profile(request):
+    """
+    Edit logged-in user's profile
+    """
+    user = request.user
+
+    if request.method == 'POST':
+        form = ProfileEditForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "✅ Your profile has been updated successfully.")
+            return redirect('profile')
+    else:
+        form = ProfileEditForm(instance=user)
+
+    context = {
+        'form': form,
+    }
+    return render(request, 'dashboard/edit_profile.html', context)

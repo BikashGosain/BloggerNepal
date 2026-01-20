@@ -5,20 +5,27 @@ from django.contrib.auth.decorators import login_required
 
 import threading
 from django.core.mail import EmailMessage
+from django.urls import reverse
 
 def send_email_async(email):
     email.send(fail_silently=False)
 
 @login_required
 def contact_view(request):
+    user = request.user  # always get user first
+
+    # Check if user has email before processing POST
+    if not user.email:
+        messages.info(
+            request,
+            '⚠️ Your account has no email address. '
+            'Please <a href="{}">add your email here</a>.'.format(reverse('edit_profile'))
+        )  # send them to edit profile page
+        return redirect("home")
+    
     if request.method == "POST":
         subject = request.POST.get("subject")
         message = request.POST.get("message")
-        user = request.user
-
-        if not user.email:
-            messages.error(request, "Your account has no email address.")
-            return redirect("home")
 
         email = EmailMessage(
             subject=f"{subject}",

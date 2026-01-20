@@ -1,7 +1,7 @@
 <div class="col-md-3">
     <div class="nav flex-column nav-pills bg-light" aria-orientation="vertical">
         <a href="{% url 'dashboard' %}" class="nav-link text-dark {% if '/dashboard/' == request.path %}bg-warning{% endif %}">Dashboard</a>
-        <a href="{% url 'users' %}" class="nav-link text-dark {% if '/users/' in request.path %}bg-warning{% endif %}">Profile</a>
+        <a href="{% url 'profile' %}" class="nav-link text-dark {% if '/profile/' in request.path %}bg-warning{% endif %}">Profile</a>
         {% if perms.auth.view_user %}
         <a href="{% url 'users' %}" class="nav-link text-dark {% if '/users/' in request.path %}bg-warning{% endif %}">Users</a>
         {% endif %}
@@ -22,7 +22,7 @@ function confirmLogout() {
   <div id="toast-container">
     {% for message in messages %}
       <div class="toast toast-{{ message.tags }}">
-        <span class="toast-message">{{ message }}</span>
+        <span class="toast-message">{{ message|safe }}</span>
         <span class="toast-close" onclick="closeToast(this)">&times;</span>
       </div>
     {% endfor %}

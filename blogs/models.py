@@ -36,7 +36,7 @@ class Blog(models.Model):
     short_description = models.TextField(max_length=200)
     # blog_body = models.TextField(max_length=5000)
     # blog_body = HTMLField()
-    blog_body = RichTextUploadingField()
+    blog_body = RichTextUploadingField(blank=True, null=True)
     status = models.CharField(max_length=20, default='Draft', choices=STATUS_CHOICES)  # draft = 0, published = 1 status may be draft or published so we made dropdown
     is_featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -22,7 +22,10 @@
                 <th>Status</th>
                 <th>Featured</th>
                 <th>Action</th>
-                <th>Post</th>
+                {% if can_see_all %}
+                <th>Created By</th>
+                {% endif %}
+
               </tr>
             </thead>
             <tbody>

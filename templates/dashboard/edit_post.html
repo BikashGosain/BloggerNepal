@@ -18,6 +18,7 @@
             {{ form.media }}
             {{ form | crispy }}
             <button type="submit" class="btn btn-warning">Submit</button>
+            <a href="{% url 'posts' %}" class="btn btn-secondary">Cancel</a>
         </form>
         <br>
     </div>

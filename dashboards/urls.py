@@ -22,4 +22,8 @@ urlpatterns = [
     path('users/add/', login_required(views.add_user, login_url='login'), name='add_user'),
     path('users/edit/<int:pk>/', login_required(views.edit_user, login_url='login'), name='edit_user'),
     path('users/delete/<int:pk>/', login_required(views.delete_user, login_url='login'), name='delete_user'),
+    # profile
+    path('profile/', login_required(views.profile, login_url='login'), name='profile'),
+    path('profile/edit/', login_required(views.edit_profile, login_url='login'), name='edit_profile'),
+
 ]
