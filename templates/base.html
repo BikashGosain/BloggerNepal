@@ -1,6 +1,4 @@
-<!-- header part -->
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,119 +7,442 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Django Blogs</title>
-    <link href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap 4 CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
     <link href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900" rel="stylesheet">
     <link href="{% static 'css/blog.css' %}" rel="stylesheet">
-
     <link href="{% static 'css/message.css' %}" rel="stylesheet">
 
-
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const toasts = document.querySelectorAll(".toast");
+    <!-- TinyMCE -->
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 
-    toasts.forEach((toast) => {
-        setTimeout(() => {
+    <style>
+        .category-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .category-dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 180px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+
+        .category-dropdown-content a {
+            color: #6c757d;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.2s;
+        }
+
+        .category-dropdown-content a:hover {
+            background-color: #f1f1f1;
+            color: #343a40;
+        }
+
+        .category-dropdown:hover .category-dropdown-content {
+            display: block;
+        }
+
+        .category-btn {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Hamburger Menu Styles */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            color: #333;
+        }
+
+        .mobile-menu {
+            display: none;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin-top: 15px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-menu.active {
+            display: block;
+        }
+
+        .mobile-menu .search-section {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .mobile-menu .nav-section {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .mobile-menu .auth-section {
+            text-align: center;
+        }
+
+        .mobile-menu .nav-link-mobile {
+            display: block;
+            padding: 8px 12px;
+            color: #6c757d;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .mobile-menu .nav-link-mobile:hover {
+            background-color: #e9ecef;
+            color: #343a40;
+        }
+
+        .mobile-menu .nav-link-mobile.active {
+            font-weight: bold;
+            color: #212529;
+        }
+
+        .mobile-menu .category-list {
+            margin-top: 10px;
+            padding-left: 15px;
+        }
+
+        .mobile-menu .category-toggle {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .mobile-category-list {
+            display: none;
+            margin-top: 8px;
+        }
+
+        .mobile-category-list.active {
+            display: block;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .desktop-header {
+                display: none !important;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .nav-scroller {
+                display: none;
+            }
+
+            .category-dropdown-content {
+                position: fixed;
+                left: 50%;
+                transform: translateX(-50%);
+                min-width: 90%;
+                max-width: 300px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-header {
+                display: none;
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toasts = document.querySelectorAll(".toast");
+
+            toasts.forEach((toast) => {
+                setTimeout(() => {
+                    toast.classList.add("hide");
+                    setTimeout(() => toast.remove(), 400);
+                }, 5000);
+            });
+
+            // Init TinyMCE only if textarea exists
+            if (document.getElementById("id_blog_body")) {
+                tinymce.init({
+                    selector: '#id_blog_body',
+                    height: 400,
+                    menubar: true,
+                    plugins: 'lists link image code preview',
+                    toolbar:
+                        'undo redo | bold italic | alignleft aligncenter alignright | bullist numlist | code preview',
+                });
+            }
+
+            // Mobile menu toggle
+            const menuToggle = document.getElementById('mobile-menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            if (menuToggle && mobileMenu) {
+                menuToggle.addEventListener('click', function () {
+                    mobileMenu.classList.toggle('active');
+                    const icon = this.querySelector('i');
+                    if (mobileMenu.classList.contains('active')) {
+                        icon.classList.remove('fa-bars');
+                        icon.classList.add('fa-times');
+                    } else {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                });
+            }
+
+            // Mobile category toggle
+            const categoryToggle = document.getElementById('mobile-category-toggle');
+            const categoryList = document.getElementById('mobile-category-list');
+
+            if (categoryToggle && categoryList) {
+                categoryToggle.addEventListener('click', function () {
+                    categoryList.classList.toggle('active');
+                    const icon = this.querySelector('i');
+                    if (categoryList.classList.contains('active')) {
+                        icon.classList.remove('fa-caret-right');
+                        icon.classList.add('fa-caret-down');
+                    } else {
+                        icon.classList.remove('fa-caret-down');
+                        icon.classList.add('fa-caret-right');
+                    }
+                });
+            }
+
+            // Desktop category dropdown for mobile
+            const categoryBtn = document.querySelector('.category-btn');
+            const categoryDropdown = document.querySelector('.category-dropdown-content');
+
+            if (categoryBtn && categoryDropdown && window.innerWidth <= 768) {
+                categoryBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    categoryDropdown.style.display =
+                        categoryDropdown.style.display === 'block' ? 'none' : 'block';
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function (e) {
+                    if (!e.target.closest('.category-dropdown')) {
+                        categoryDropdown.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        function closeToast(element) {
+            const toast = element.parentElement;
             toast.classList.add("hide");
             setTimeout(() => toast.remove(), 400);
-        }, 5000); // auto close after 5 seconds
-    });
-});
+        }
 
-function closeToast(element) {
-    const toast = element.parentElement;
-    toast.classList.add("hide");
-    setTimeout(() => toast.remove(), 400);
-}
+        function toggleReplyForm(commentId) {
+            const form = document.getElementById(`reply-form-${commentId}`);
+            if (form) {
+                form.classList.toggle('d-none');
+            }
+        }
 
-// it only show or hides the reply box when the user clicks Reply.
-// also form submit reply without page reload
-function toggleReplyForm(commentId) {
-    const form = document.getElementById(`reply-form-${commentId}`);
-    form.classList.toggle('d-none');
-}
-
-
-
-
-</script>
-
-
+        function confirmLogout() {
+            return confirm("Are you sure you want to logout?");
+        }
+    </script>
 </head>
 
 <body>
     <div class="container">
-        <header class="blog-header py-3">
-            <div class="row flex-nowrap justify-content-between align-items-center">
-                <div class="col-8 pt-1">
+
+        <!-- DESKTOP HEADER -->
+        <header class="blog-header py-3 desktop-header">
+            <div class="row align-items-center">
+                <div class="col-md-4">
                     <a class="blog-header-logo text-dark" href="/">Django Blog</a>
                 </div>
 
-                <!-- search -->
-                <div class="col-4 d-flex justify-content-center align-items-center">
-                    <form class="form-inline" method="GET" action="{% url 'search' %}">
+                <!-- Search -->
+                <div class="col-md-4">
+                    <form class="form-inline justify-content-center" method="GET" action="{% url 'search' %}">
+                        <input class="form-control mr-2" type="text" name="keyword" placeholder="Search..."
+                            value="{{ keyword }}">
+                        <button class="btn btn-outline-success" type="submit">Search</button>
+                    </form>
+                </div>
+
+                <!-- Auth buttons -->
+                <div class="col-md-4 text-right">
+                    {% if not user.is_authenticated %}
+                    <a class="btn btn-sm btn-warning" href="{% url 'login' %}">Login</a>
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'register' %}">Register</a>
+                    {% else %}
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'dashboard' %}">Dashboard</a>
+                    <a class="btn btn-sm btn-outline-danger" href="{% url 'logout' %}"
+                        onclick="return confirmLogout();">Logout</a>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+
+        <!-- MOBILE HEADER -->
+        <header class="blog-header py-3 mobile-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <a class="blog-header-logo text-dark" href="/">Django Blog</a>
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                    <i class="fa fa-bars"></i>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div class="mobile-menu" id="mobile-menu">
+                <!-- Search Section -->
+                <div class="search-section">
+                    <form method="GET" action="{% url 'search' %}">
                         <div class="input-group">
-                            <input class="form-control" type="text" name="keyword" placeholder="Enter search term..."
-                                aria-label="Search" value="{{keyword}}">
-                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                            <input class="form-control" type="text" name="keyword" placeholder="Search..."
+                                value="{{ keyword }}">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-success" type="submit">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
 
-                <div class="col-4 d-flex justify-content-end align-items-center">
+                <!-- Navigation Links -->
+                <div class="nav-section">
+                    <a class="nav-link-mobile active" href="{% url 'home' %}">
+                        <i class="fa fa-home"></i> Home
+                    </a>
+                    <a class="nav-link-mobile" href="">
+                        <i class="fa fa-clock-o"></i> Latest
+                    </a>
+                    <a class="nav-link-mobile" href="">
+                        <i class="fa fa-fire"></i> Popular
+                    </a>
+                    <a class="nav-link-mobile" href="">
+                        <i class="fa fa-info-circle"></i> About
+                    </a>
+                    <a class="nav-link-mobile" href="">
+                        <i class="fa fa-envelope"></i> Contact
+                    </a>
 
-                    {%if not user.is_authenticated %}
-                    <a class="btn btn-sm btn-warning" href="{% url 'login' %}">Login</a> &nbsp;
-                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'register' %}">Register</a>
+                    <!-- Categories -->
+                    <div class="nav-link-mobile category-toggle" id="mobile-category-toggle">
+                        <i class="fa fa-caret-right"></i> Categories
+                    </div>
+                    <div class="mobile-category-list" id="mobile-category-list">
+                        {% for cate in categories %}
+                        <a class="nav-link-mobile" href="{% url 'posts_by_category' cate.id %}"
+                            style="padding-left: 30px;">
+                            {{ cate.category_name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Auth Buttons -->
+                <div class="auth-section">
+                    {% if not user.is_authenticated %}
+                    <a class="btn btn-warning btn-block mb-2" href="{% url 'login' %}">
+                        <i class="fa fa-sign-in"></i> Login
+                    </a>
+                    <a class="btn btn-outline-secondary btn-block" href="{% url 'register' %}">
+                        <i class="fa fa-user-plus"></i> Register
+                    </a>
                     {% else %}
-                    <span> <a class="btn btn-sm btn-outline-secondary" href="{% url 'dashboard' %}">Dashboard</a></span> &nbsp;
-                    <span><a class="btn btn-sm btn-outline-secondary" href="{% url 'logout' %}" onclick="return confirmLogout();">Logout</a></span>
+                    <a class="btn btn-outline-secondary btn-block mb-2" href="{% url 'dashboard' %}">
+                        <i class="fa fa-tachometer"></i> Dashboard
+                    </a>
+                    <a class="btn btn-outline-danger btn-block" href="{% url 'logout' %}"
+                        onclick="return confirmLogout();">
+                        <i class="fa fa-sign-out"></i> Logout
+                    </a>
                     {% endif %}
                 </div>
-                <script>
-function confirmLogout() {
-    return confirm("Are you sure you want to logout?");
-}
-</script>
-
             </div>
         </header>
 
-        <div class="nav-scroller py-1 mb-2">
-            <nav class="nav d-flex justify-content-between">
-                {% for cate in categories %}
-                <a class="p-2 text-muted" href="{% url 'posts_by_category' cate.id %}">{{ cate.category_name }}</a>
-                {% endfor %}
-                <!-- <a class="p-2 text-muted" href="#">{{ cate.created_at }}</a> -->
+        <!-- CATEGORY NAV (Desktop only) -->
+        <div class="nav-scroller py-1 mb-3">
+            <nav class="nav d-flex justify-content-start flex-wrap align-items-center">
+
+                <!-- Static links -->
+                <a class="p-2 font-weight-bold text-dark" href="{% url 'home' %}">
+                    Home
+                </a>
+
+                <a class="p-2 text-muted" href="">
+                    Latest
+                </a>
+
+                <a class="p-2 text-muted" href="">
+                    Popular
+                </a>
+
+                <a class="p-2 text-muted" href="">
+                    About
+                </a>
+
+                <a class="p-2 text-muted" href="">
+                    Contact
+                </a>
+
+                <!-- Divider -->
+                <span class="p-2 text-muted">|</span>
+
+                <!-- Categories Dropdown -->
+                <div class="category-dropdown p-2">
+                    <a class="text-muted category-btn">
+                        Categories <i class="fa fa-caret-down"></i>
+                    </a>
+                    <div class="category-dropdown-content">
+                        {% for cate in categories %}
+                        <a href="{% url 'posts_by_category' cate.id %}">
+                            {{ cate.category_name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
 
             </nav>
         </div>
 
 
+        <!-- MAIN CONTENT -->
+        {% block content %}{% endblock %}
 
-
-        <!-- main content part -->
-        {% block content %}
-        {% endblock %}
-
-
-        <!-- footer part -->
-        <footer class="blog-footer">
-            <p>Django blog built with � by <a href="#"></a>Bikash Gosain</a></p>
+        <!-- FOOTER -->
+        <footer class="blog-footer text-center mt-4">
+            <p>
+                Django blog built with ❤️ by
+                <strong>Bikash Gosain</strong>
+            </p>
         </footer>
 
-        <script>
-tinymce.init({
-    selector: '#id_blog_body',
-    height: 400,
-    menubar: true,
-    plugins: 'lists link image code preview',
-    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | bullist numlist | code preview',
-});
-</script>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 
 </html>

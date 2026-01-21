@@ -29,6 +29,7 @@ def posts_by_category(request, category_id):
 
 
 def blogs(request, slug):
+    user = request.user
     single_blog = get_object_or_404(Blog, slug=slug, status='Published')
 
     if request.method == 'POST':
@@ -56,6 +57,7 @@ def blogs(request, slug):
         'single_blog': single_blog,
         'comments': comments,
         'comment_count': comment_count,
+        'user' : user
     }
     return render(request, 'blogs.html', context)
 
