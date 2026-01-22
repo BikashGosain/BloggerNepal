@@ -2,8 +2,9 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-from .models import Blog, Category, Comment
+from .models import Blog, Category, Comment, Report
 from django.db.models import Q
+from django.contrib import messages
 
 # Create your views here.
 
@@ -31,6 +32,7 @@ def posts_by_category(request, category_id):
 def blogs(request, slug):
     user = request.user
     single_blog = get_object_or_404(Blog, slug=slug, status='Published')
+    user_reported = single_blog.reports.filter(user=request.user).exists()
 
     if request.method == 'POST':
         text = request.POST.get('comment', '').strip()
@@ -57,9 +59,62 @@ def blogs(request, slug):
         'single_blog': single_blog,
         'comments': comments,
         'comment_count': comment_count,
-        'user' : user
+        'user' : user,
+        'user_reported': user_reported,
     }
     return render(request, 'blogs.html', context)
+@login_required
+def blog_like(request, blog_id):
+    blog = get_object_or_404(Blog, id=blog_id)
+    user = request.user
+
+    # Remove dislike if exists
+    if user in blog.dislikes.all():
+        blog.dislikes.remove(user)
+
+    # Toggle like
+    if user in blog.likes.all():
+        blog.likes.remove(user)
+    else:
+        blog.likes.add(user)
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required
+def blog_dislike(request, blog_id):
+    blog = get_object_or_404(Blog, id=blog_id)
+    user = request.user
+
+    # Remove like if exists
+    if user in blog.likes.all():
+        blog.likes.remove(user)
+
+    # Toggle dislike
+    if user in blog.dislikes.all():
+        blog.dislikes.remove(user)
+    else:
+        blog.dislikes.add(user)
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required
+def report_blog(request, blog_id):
+    blog = get_object_or_404(Blog, id=blog_id)
+    user = request.user
+
+    # Only allow one report per user per blog
+    if blog.reports.filter(user=user).exists():
+        messages.info(request, "You have already reported this blog.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+
+    if request.method == 'POST':
+        reason = request.POST.get('reason', '').strip()
+        Report.objects.create(blog=blog, user=user, reason=reason)
+        messages.success(request, "Your report has been submitted.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+    
+    # fallback redirect
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
 @login_required

@@ -13,7 +13,120 @@
                     <!-- Post title-->
                     <h1 class="fw-bolder mb-1">{{ single_blog.title }}</h1>
                     <!-- Post meta content-->
-                    <div class="text-muted fst-italic mb-2">{{ single_blog.created_at | timesince}} ago | BY {{single_blog.author}}</div>
+                    <div class="text-muted fst-italic mb-2">{{ single_blog.created_at | timesince}} ago | By {{single_blog.author}}
+                        <!-- for like and dislike -->
+                         <!-- Like Button -->
+    <a 
+        href="{% url 'blog_like' single_blog.id %}" 
+        style="
+            display:inline-block;
+            padding:8px 16px;
+            color:white;
+            text-decoration:none;
+            border-radius:5px;
+            font-weight:bold;
+            {% if user in single_blog.likes.all %}
+                background-color:#28a745;
+            {% else %}
+                background-color:#6c757d;
+            {% endif %}
+        "
+    >
+        👍 Like ({{ single_blog.total_likes }})
+    </a>
+
+    <!-- Dislike Button -->
+    <a 
+        href="{% url 'blog_dislike' single_blog.id %}" 
+        style="
+            display:inline-block;
+            padding:8px 16px;
+            color:white;
+            text-decoration:none;
+            border-radius:5px;
+            font-weight:bold;
+            {% if user in single_blog.dislikes.all %}
+                background-color:#dc3545;
+            {% else %}
+                background-color:#6c757d;
+            {% endif %}
+        "
+    >
+        👎 Dislike ({{ single_blog.total_dislikes }})
+    </a>
+
+    <!-- Report Button -->
+    {% if user_reported %}
+    <span style="
+        display:inline-block;
+        padding:8px 16px;
+        color:white;
+        background-color:#6c757d;
+        border-radius:5px;
+        font-weight:bold;
+        margin-left:10px;
+        cursor:not-allowed;
+    ">
+        🚩 Already Reported
+    </span>
+{% else %}
+    <button style="
+        display:inline-block;
+        padding:8px 16px;
+        color:white;
+        border:none;
+        border-radius:5px;
+        font-weight:bold;
+        background-color:#ffc107;
+        cursor:pointer;
+        margin-left:10px;
+    " onclick="openReportModal()">
+        🚩 Report
+    </button>
+{% endif %}
+
+                    </div>
+
+                    <!-- Report Modal -->
+<div id="reportModal" style="
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index:1000;
+    justify-content:center;
+    align-items:center;
+">
+    <div style="
+        background:white;
+        padding:20px;
+        border-radius:10px;
+        width:90%;
+        max-width:400px;
+        position:relative;
+    ">
+        <h4>Report Blog</h4>
+        <form method="POST" action="{% url 'report_blog' single_blog.id %}">
+            {% csrf_token %}
+            <textarea name="reason" rows="4" style="width:100%; padding:8px; margin-bottom:10px;" placeholder="Enter reason (optional)"></textarea>
+            <div style="text-align:right;">
+                <button type="button" onclick="closeReportModal()" style="margin-right:10px; padding:6px 12px;">Cancel</button>
+                <button type="submit" style="padding:6px 12px; background-color:#ffc107; border:none; border-radius:5px;">Submit</button>
+            </div>
+        </form>
+        <span style="position:absolute; top:10px; right:15px; cursor:pointer; font-weight:bold;" onclick="closeReportModal()">×</span>
+    </div>
+</div>
+
+<script>
+function openReportModal() {
+    document.getElementById('reportModal').style.display = 'flex';
+}
+function closeReportModal() {
+    document.getElementById('reportModal').style.display = 'none';
+}
+</script>
                         
                     <!-- Post category-->
                     <a class="badge bg-warning text-decoration-none text-light"

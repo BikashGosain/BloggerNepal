@@ -1,3 +1,125 @@
+{% if messages %}
+<style>
+/* =========================
+   TOAST CONTAINER
+   ========================= */
+#toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* =========================
+   BASE TOAST
+   ========================= */
+.custom-toast {
+    min-width: 280px;
+    max-width: 380px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    animation: slideIn 0.4s ease;
+}
+
+/* MESSAGE TEXT */
+.toast-message {
+    padding-right: 30px;
+    line-height: 1.4;
+}
+
+/* CLOSE BUTTON */
+.toast-close {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 20px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.toast-close:hover {
+    color: #ffffff;
+    transform: scale(1.2);
+}
+
+/* TOAST TYPES */
+.custom-toast-success {
+    background: linear-gradient(135deg, #28a745, #218838);
+}
+
+.custom-toast-error {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+}
+
+.custom-toast-warning {
+    background: linear-gradient(135deg, #ffc107, #e0a800);
+    color: #212529;
+}
+
+.custom-toast-info {
+    background: linear-gradient(135deg, #17a2b8, #117a8b);
+}
+
+/* ANIMATIONS */
+@keyframes slideIn {
+    from {
+        transform: translateX(120%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.custom-toast.hide {
+    opacity: 0;
+    transform: translateX(120%);
+    transition: all 0.4s ease;
+}
+</style>
+
+<div id="toast-container">
+    {% for message in messages %}
+        <div class="custom-toast custom-toast-{{ message.tags }}">
+            <span class="toast-message">{{ message|safe }}</span>
+            <span class="toast-close" onclick="closeToast(this)">&times;</span>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".custom-toast").forEach((toast) => {
+        setTimeout(() => {
+            toast.classList.add("hide");
+            setTimeout(() => toast.remove(), 400);
+        }, 5000);
+    });
+});
+
+function closeToast(element) {
+    const toast = element.parentElement;
+    toast.classList.add("hide");
+    setTimeout(() => toast.remove(), 400);
+}
+
+function confirmLogout() {
+    return confirm("Are you sure you want to logout?");
+}
+</script>
 <div class="col-md-3">
     <div class="nav flex-column nav-pills bg-light" aria-orientation="vertical">
         <a href="{% url 'dashboard' %}" class="nav-link text-dark {% if '/dashboard/' == request.path %}bg-warning{% endif %}">Dashboard</a>
@@ -18,13 +140,3 @@ function confirmLogout() {
 </script>
 
 </div>
-{% if messages %}
-  <div id="toast-container">
-    {% for message in messages %}
-      <div class="toast toast-{{ message.tags }}">
-        <span class="toast-message">{{ message|safe }}</span>
-        <span class="toast-close" onclick="closeToast(this)">&times;</span>
-      </div>
-    {% endfor %}
-  </div>
-{% endif %}
