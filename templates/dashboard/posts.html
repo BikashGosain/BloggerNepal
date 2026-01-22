@@ -10,7 +10,23 @@
 
     <!-- Right side content -->
     <div class="col-md-9">
+        
         <h2>All Posts</h2>
+        <!-- search box -->
+        <div class="row mb-3">
+    <div class="col-md-8">
+        <form method="GET" class="d-flex">
+            <input type="text" name="q" value="{{ query }}" class="form-control me-2" placeholder="Search posts...">
+            <select name="status" class="form-select me-2">
+                <option value="">All Status</option>
+                <option value="Draft" {% if status_filter == "Draft" %}selected{% endif %}>Draft</option>
+                <option value="Published" {% if status_filter == "Published" %}selected{% endif %}>Published</option>
+            </select>
+            <button type="submit" class="btn btn-dark">Search</button>
+        </form>
+    </div>
+</div>
+
         <a href="{% url 'add_post' %}" class="btn btn-dark text-light float-right mb-2">Add New</a>
         <table class="table table-hover">
             <thead>

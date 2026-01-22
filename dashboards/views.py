@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import permission_required
 from .forms import BlogPostForm, CategoryForm, AddUserForm, EditUserForm, ProfileEditForm  
 from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
+from django.db.models import Q
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
@@ -125,6 +126,8 @@ def delete_category(request, pk):
 
 def posts(request):
     user = request.user
+    query = request.GET.get('q', '')  # search keyword
+    status_filter = request.GET.get('status', '')  # filter by status
 
     # Show all posts if admin/editor/manager, otherwise only own posts
     if user.is_superuser or user.groups.filter(name__in=['Editor', 'Manager']).exists():
@@ -132,8 +135,22 @@ def posts(request):
     else:
         posts = Blog.objects.filter(author=user)
 
+     # Filter by search keyword
+    if query:
+        posts = posts.filter(
+            Q(title__icontains=query) |
+            Q(short_description__icontains=query) |
+            Q(blog_body__icontains=query)
+        )
+
+    # Filter by status if provided
+    if status_filter:
+        posts = posts.filter(status=status_filter)
+
     context = {
-        'posts': posts
+        'posts': posts,
+        'query': query,
+        'status_filter': status_filter,
     }
 
     return render(request, 'dashboard/posts.html', context)
