@@ -1,132 +1,73 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row mt-4">
-    <!-- Sidebar -->
-    <div class="col-md-3">
-        {% include 'dashboard/sidebar.html' %}
-    </div>
+<div class="container mt-5">
+    <div class="row">
+        <!-- User info -->
+        <div class="col-md-4">
+            <div class="card profile-card mb-4 shadow">
+                <div class="card-body text-center">
+                    <!-- Profile Avatar -->
+                    <div class="profile-avatar mb-3">
+                        <div class="avatar-circle">
+                            <span class="avatar-initials">{{ user_obj.first_name.0|upper }}{{ user_obj.last_name.0|upper }}</span>
+                        </div>
+                    </div>
+                    
+                    <h3 class="profile-username mb-1">{{ user_obj.username }}</h3>
+                    <p class="text-muted mb-3">{{ user_obj.first_name }} {{ user_obj.last_name }}</p>
+                    
+                    <div class="profile-info mb-3">
+                        <p class="mb-2"><i class="fas fa-envelope text-primary"></i> {{ user_obj.email }}</p>
+                    </div>
 
-    <!-- Profile content -->
-    <div class="col-md-9">
-        <!-- Profile Card -->
-        <div class="card profile-info-card mb-4 shadow-sm">
-            <div class="card-header profile-header">
-                <i class="fas fa-user-circle"></i> My Profile
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <!-- Left Column -->
-                    <div class="col-md-6">
-                        <div class="profile-detail">
-                            <i class="fas fa-user text-primary"></i>
-                            <div>
-                                <span class="detail-label">Full Name</span>
-                                <span class="detail-value">{{ user.first_name }} {{ user.last_name }}</span>
-                            </div>
-                        </div>
-                        
-                        <div class="profile-detail">
-                            <i class="fas fa-at text-success"></i>
-                            <div>
-                                <span class="detail-label">Username</span>
-                                <span class="detail-value">{{ user.username }}</span>
-                            </div>
-                        </div>
-                        
-                        <div class="profile-detail">
-                            <i class="fas fa-envelope text-danger"></i>
-                            <div>
-                                <span class="detail-label">Email</span>
-                                <span class="detail-value">{{ user.email }}</span>
-                            </div>
+                    <!-- Followers / Following counts -->
+                    <div class="stats-container d-flex justify-content-around mb-3">
+                        <a href="{% url 'followers_list' user_obj.username %}" class="stat-item text-decoration-none">
+                            <div class="stat-number">{{ user_obj.followers.count }}</div>
+                            <div class="stat-label">Followers</div>
+                        </a>
+                        <div class="stat-divider"></div>
+                        <a href="{% url 'following_list' user_obj.username %}" class="stat-item text-decoration-none">
+                            <div class="stat-number">{{ user_obj.following.count }}</div>
+                            <div class="stat-label">Following</div>
+                        </a>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <div class="stat-number">{{ posts.count }}</div>
+                            <div class="stat-label">Posts</div>
                         </div>
                     </div>
 
-                    <!-- Right Column -->
-                    <div class="col-md-6">
-                        <div class="profile-detail">
-                            <i class="fas fa-user-tag text-warning"></i>
-                            <div>
-                                <span class="detail-label">Role / Group</span>
-                                <span class="detail-value">
-                                    {% if user.is_superuser %}
-                                    <span class="badge bg-danger">Admin</span>
-                                    {% if user.groups.all %}, {% endif %}
-                                    {% endif %}
-                                    {% for group in user.groups.all %}
-                                    <span class="badge bg-info">{{ group.name }}</span>{% if not forloop.last %}, {% endif %}
-                                    {% empty %}
-                                    {% if not user.is_superuser %}
-                                    <span class="badge bg-secondary">None</span>
-                                    {% endif %}
-                                    {% endfor %}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="profile-detail">
-                            <i class="fas fa-users text-info"></i>
-                            <div>
-                                <span class="detail-label">Social Stats</span>
-                                <span class="detail-value">
-                                    <a href="{% url 'followers_list' request.user.username %}" class="social-link">
-                                        <i class="fas fa-user-friends"></i> {{ my_followers_count }} Followers
-                                    </a>
-                                    <span class="mx-2">|</span>
-                                    <a href="{% url 'following_list' request.user.username %}" class="social-link">
-                                        <i class="fas fa-user-check"></i> {{ my_following_count }} Following
-                                    </a>
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="profile-detail">
-                            <i class="fas fa-user-plus text-secondary"></i>
-                            <div>
-                                <span class="detail-label">Account Created By</span>
-                                <span class="detail-value">
-                                    {% if user.profile.created_by %}
-                                    {{ user.profile.created_by.username }}
-                                    {% else %}
-                                    Self
-                                    {% endif %}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="profile-detail">
-                            <i class="fas fa-blog text-primary"></i>
-                            <div>
-                                <span class="detail-label">Posts Uploaded</span>
-                                <span class="detail-value">
-                                    <span class="badge bg-primary">{{ user.blog_set.count }}</span>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Edit Profile Button -->
-                <div class="mt-4 text-center">
-                    <a href="{% url 'edit_profile' %}" class="btn btn-edit-profile">
-                        <i class="fas fa-user-edit"></i> Edit Profile
-                    </a>
+                    <!-- Follow / Unfollow button -->
+                    {% if request.user.is_authenticated and request.user != user_obj %}
+                        {% if is_following %}
+                            <a href="{% url 'unfollow_user' user_obj.id %}" class="btn btn-unfollow btn-block">
+                                <i class="fas fa-user-minus"></i> Unfollow
+                            </a>
+                        {% else %}
+                            <a href="{% url 'follow_user' user_obj.id %}" class="btn btn-follow btn-block">
+                                <i class="fas fa-user-plus"></i> Follow
+                            </a>
+                        {% endif %}
+                    {% endif %}
                 </div>
             </div>
         </div>
 
-        <!-- My Posts Section -->
-        <div class="posts-section">
-            <h3 class="posts-section-title">
-                <i class="fas fa-blog"></i> My Posts
-                <span class="badge bg-primary ms-2">{{ posts.count }}</span>
-            </h3>
+        <!-- User posts -->
+        <div class="col-md-8">
+            <div class="posts-header mb-4">
+                <h4 class="section-title">
+                    <i class="fas fa-blog"></i> Posts by {{ user_obj.username }}
+                    <span class="badge bg-primary ms-2">{{ posts.count }}</span>
+                </h4>
+            </div>
 
             {% if posts %}
                 <div class="row blog-grid">
                     {% for post in posts %}
-                        <div class="col-md-6 col-lg-4 mb-4 blog-item">
+                        <div class="col-md-6 col-lg-6 mb-4 blog-item">
                             <div class="blog-card h-100 shadow-sm">
                                 <div class="blog-image-wrapper">
                                     {% if post.featured_image %}
@@ -135,7 +76,7 @@
                                         <img src="https://via.placeholder.com/600x400?text=No+Image" class="blog-image" alt="{{ post.title }}">
                                     {% endif %}
                                     <div class="blog-overlay">
-                                        <a href="{% url 'blogs' post.slug %}" class="read-more-btn">
+                                        <a href="{{ post.get_absolute_url }}" class="read-more-btn">
                                             <i class="fas fa-arrow-right"></i>
                                         </a>
                                     </div>
@@ -144,7 +85,7 @@
                                 
                                 <div class="blog-content">
                                     <h5 class="blog-title">
-                                        <a href="{% url 'blogs' post.slug %}" class="text-decoration-none text-dark">
+                                        <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
                                             {{ post.title|truncatewords:8 }}
                                         </a>
                                     </h5>
@@ -154,7 +95,7 @@
                                     
                                     <div class="blog-meta">
                                         <span class="meta-item">
-                                            <i class="far fa-clock"></i> {{ post.created_at|timesince }} ago
+                                            <i class="far fa-calendar"></i> {{ post.created_at|date:"M d, Y" }}
                                         </span>
                                     </div>
 
@@ -170,17 +111,19 @@
                                         </span>
                                     </div>
 
-                                    <div class="blog-actions mt-3">
-                                        <a href="{% url 'edit_post' post.id %}" class="action-btn edit-btn" onclick="event.stopPropagation();">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </a>
-                                        <a href="{% url 'delete_post' post.id %}" class="action-btn delete-btn" onclick="event.stopPropagation();">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </a>
-                                        <a href="{% url 'blogs' post.slug %}" class="action-btn view-btn" onclick="event.stopPropagation();">
-                                            <i class="fas fa-eye"></i> View
-                                        </a>
-                                    </div>
+                                    {% if post.author == user or can_see_all %}
+                                        <div class="blog-actions mt-3">
+                                            <a href="{% url 'edit_post' post.id %}" class="action-btn edit-btn" onclick="event.stopPropagation();">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <a href="{% url 'delete_post' post.id %}" class="action-btn delete-btn" onclick="event.stopPropagation();">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </a>
+                                            <a href="{% url 'blogs' post.slug %}" class="action-btn view-btn" onclick="event.stopPropagation();">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -192,121 +135,133 @@
                         <i class="fas fa-inbox"></i>
                     </div>
                     <h5>No Posts Yet</h5>
-                    <p class="text-muted">You haven't created any posts yet. Start writing!</p>
-                    <a href="{% url 'add_post' %}" class="btn btn-primary mt-3">
-                        <i class="fas fa-plus"></i> Create Your First Post
-                    </a>
+                    <p class="text-muted">{{ user_obj.username }} hasn't posted anything yet.</p>
                 </div>
             {% endif %}
         </div>
+        
     </div>
 </div>
 
 <style>
-    /* Profile Info Card */
-    .profile-info-card {
+    /* Profile Card Styles */
+    .profile-card {
         border: none;
         border-radius: 15px;
         overflow: hidden;
+        transition: all 0.3s ease;
     }
 
-    .profile-header {
+    .profile-card:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+
+    .profile-avatar {
+        margin-top: 10px;
+    }
+
+    .avatar-circle {
+        width: 120px;
+        height: 120px;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        font-weight: 600;
-        font-size: 18px;
-        letter-spacing: 1px;
-        padding: 15px 20px;
-    }
-
-    .profile-header i {
-        margin-right: 10px;
-    }
-
-    .profile-detail {
+        border-radius: 50%;
         display: flex;
-        align-items: flex-start;
-        gap: 15px;
-        padding: 15px 0;
-        border-bottom: 1px solid #f0f0f0;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        transition: transform 0.3s ease;
     }
 
-    .profile-detail:last-child {
-        border-bottom: none;
+    .avatar-circle:hover {
+        transform: scale(1.05);
     }
 
-    .profile-detail > i {
+    .avatar-initials {
+        font-size: 48px;
+        font-weight: bold;
+        color: white;
+    }
+
+    .profile-username {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    /* Stats Container */
+    .stats-container {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    .stat-item {
+        text-align: center;
+        color: inherit;
+    }
+
+    .stat-number {
         font-size: 24px;
-        margin-top: 5px;
+        font-weight: bold;
+        color: #667eea;
     }
 
-    .profile-detail > div {
-        flex: 1;
-    }
-
-    .detail-label {
-        display: block;
+    .stat-label {
         font-size: 12px;
         color: #6c757d;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin-bottom: 5px;
-        font-weight: 600;
     }
 
-    .detail-value {
-        display: block;
-        font-size: 15px;
-        color: #2c3e50;
-        font-weight: 500;
+    .stat-divider {
+        width: 1px;
+        background: #dee2e6;
     }
 
-    .social-link {
-        text-decoration: none;
-        color: #667eea;
-        font-weight: 600;
-        transition: color 0.3s ease;
-    }
-
-    .social-link:hover {
-        color: #764ba2;
-    }
-
-    .btn-edit-profile {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 12px 40px;
+    /* Follow Buttons */
+    .btn-follow, .btn-unfollow {
+        padding: 10px 30px;
         border-radius: 25px;
         font-weight: 600;
-        border: none;
         transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
+        border: none;
     }
 
-    .btn-edit-profile:hover {
+    .btn-follow {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-follow:hover {
         background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         color: white;
     }
 
-    /* Posts Section */
-    .posts-section {
-        margin-top: 30px;
+    .btn-unfollow {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
     }
 
-    .posts-section-title {
+    .btn-unfollow:hover {
+        background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        color: white;
+    }
+
+    /* Posts Section */
+    .section-title {
         color: #2c3e50;
         font-weight: 600;
         display: flex;
         align-items: center;
         padding-bottom: 15px;
         border-bottom: 3px solid #667eea;
-        margin-bottom: 30px;
     }
 
-    .posts-section-title i {
+    .section-title i {
         margin-right: 10px;
         color: #667eea;
     }
@@ -488,7 +443,7 @@
         margin-right: 5px;
     }
 
-    /* Blog Actions */
+    /* Blog Actions - Updated for 3 buttons */
     .blog-actions {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -582,19 +537,26 @@
     }
 
     /* Responsive */
-    @media (max-width: 992px) {
-        .blog-actions {
-            grid-template-columns: 1fr;
-        }
-    }
-
     @media (max-width: 768px) {
-        .profile-detail {
-            padding: 10px 0;
+        .avatar-circle {
+            width: 100px;
+            height: 100px;
+        }
+
+        .avatar-initials {
+            font-size: 40px;
+        }
+
+        .stat-number {
+            font-size: 20px;
         }
 
         .blog-image-wrapper {
             height: 200px;
+        }
+
+        .blog-actions {
+            grid-template-columns: 1fr;
         }
 
         .action-btn {
@@ -654,6 +616,12 @@
             opacity: 0;
         }
     }
+
+    /* Smooth transitions for all interactive elements */
+    * {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
 </style>
 
 <script>
@@ -687,7 +655,7 @@
             observer.observe(item);
         });
 
-        // Delete confirmation
+        // Delete confirmation with custom styling
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -729,20 +697,6 @@
             
             badge.addEventListener('mouseleave', function() {
                 this.style.transform = 'translateY(0) scale(1)';
-            });
-        });
-
-        // Smooth scroll for profile sections
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
             });
         });
     });

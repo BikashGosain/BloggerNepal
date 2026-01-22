@@ -42,6 +42,8 @@ class Blog(models.Model):
     is_featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # View tracking
+    views = models.PositiveIntegerField(default=0)
     # for like and dislike
     likes = models.ManyToManyField(User, related_name='blog_likes', blank=True)
     dislikes = models.ManyToManyField(User, related_name='blog_dislikes', blank=True)

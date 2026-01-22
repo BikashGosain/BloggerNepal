@@ -34,6 +34,9 @@ def posts_by_category(request, category_id):
 def blogs(request, slug):
     user = request.user
     single_blog = get_object_or_404(Blog, slug=slug, status='Published')
+    # Increment view count
+    single_blog.views += 1
+    single_blog.save(update_fields=['views'])
     is_following = False
     if request.user.is_authenticated and request.user != single_blog.author:
         is_following = Follow.objects.filter(

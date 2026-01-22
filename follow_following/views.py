@@ -1,6 +1,8 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+
+from blogs.models import Blog
 from .models import Follow
 
 # FOLLOW USER
@@ -78,3 +80,25 @@ def following_list(request, username):
     })
 
 
+def profile(request, username):
+    """
+    Display public profile for any user
+    """
+    user_obj = get_object_or_404(User, username=username)
+
+    posts = Blog.objects.filter(author=user_obj).order_by('-created_at')
+
+    # Check if logged-in user follows this user
+    is_following = False
+    if request.user.is_authenticated and request.user != user_obj:
+        is_following = Follow.objects.filter(
+            follower=request.user,
+            following=user_obj
+        ).exists()
+
+    context = {
+        'user_obj': user_obj,
+        'posts': posts,
+        'is_following': is_following,
+    }
+    return render(request, 'profile.html', context)
