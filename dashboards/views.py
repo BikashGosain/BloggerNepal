@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render, redirect
-from blogs.models import Category, Blog
+from blogs.models import Category, Blog, Notification
 from django.contrib.auth.decorators import permission_required
 from .forms import BlogPostForm, CategoryForm, AddUserForm, EditUserForm, ProfileEditForm  
 from django.contrib.auth.models import User
@@ -312,3 +312,27 @@ def edit_profile(request):
         'form': form,
     }
     return render(request, 'dashboard/edit_profile.html', context)
+
+
+def dashboardnotifications(request):
+    # Mark a notification as read if `mark_read` parameter is present
+    note_id = request.GET.get('mark_read')
+    next_url = request.GET.get('next')  # Optional: redirect to blog after marking read
+
+    if note_id:
+        try:
+            note = request.user.notifications.get(id=note_id)
+            note.read = True
+            note.save()
+            if next_url:
+                return redirect(next_url)
+        except Notification.DoesNotExist:
+            pass
+
+    # Load all notifications
+    user_notifications = request.user.notifications.all().order_by('-created_at')
+    context = {
+        'notifications': user_notifications,
+        'unread_count': request.user.notifications.filter(read=False).count(),
+    }
+    return render(request, 'dashboard/dashboardnotification.html', context)
