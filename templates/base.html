@@ -292,6 +292,15 @@
                     <a class="btn btn-sm btn-warning" href="{% url 'login' %}">Login</a>
                     <a class="btn btn-sm btn-outline-secondary" href="{% url 'register' %}">Register</a>
                     {% else %}
+
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'notifications' %}">
+    Notifications
+    {% if unread_count > 0 %}
+        <span style="color:red; font-weight:bold;">({{ unread_count }})</span>
+    {% endif %}
+</a>
+
+
                     <a class="btn btn-sm btn-outline-secondary" href="{% url 'dashboard' %}">Dashboard</a>
                     <a class="btn btn-sm btn-outline-danger" href="{% url 'logout' %}"
                         onclick="return confirmLogout();">Logout</a>
@@ -368,6 +377,14 @@
                         <i class="fa fa-user-plus"></i> Register
                     </a>
                     {% else %}
+
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'notifications' %}">
+    Notifications
+    {% if unread_count > 0 %}
+        <span style="color:red; font-weight:bold;">({{ unread_count }})</span>
+    {% endif %}
+</a>
+
                     <a class="btn btn-outline-secondary btn-block mb-2" href="{% url 'dashboard' %}">
                         <i class="fa fa-tachometer"></i> Dashboard
                     </a>

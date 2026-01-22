@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-from .models import Blog, Category, Comment, Report
+from .models import Blog, Category, Comment, Notification, Report
 from django.db.models import Q
 from django.contrib import messages
 
@@ -32,7 +32,13 @@ def posts_by_category(request, category_id):
 def blogs(request, slug):
     user = request.user
     single_blog = get_object_or_404(Blog, slug=slug, status='Published')
-    user_reported = single_blog.reports.filter(user=request.user).exists()
+    if request.user.is_authenticated:
+        user_reported = single_blog.reports.filter(user=request.user).exists()
+    else:
+        user_reported = False
+    unread_count = 0
+    if request.user.is_authenticated:
+        unread_count = request.user.notifications.filter(read=False).count()
 
     if request.method == 'POST':
         text = request.POST.get('comment', '').strip()
@@ -61,6 +67,7 @@ def blogs(request, slug):
         'comment_count': comment_count,
         'user' : user,
         'user_reported': user_reported,
+        'unread_count': unread_count,
     }
     return render(request, 'blogs.html', context)
 @login_required
@@ -97,24 +104,63 @@ def blog_dislike(request, blog_id):
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
+
 @login_required
 def report_blog(request, blog_id):
     blog = get_object_or_404(Blog, id=blog_id)
     user = request.user
 
-    # Only allow one report per user per blog
+    # Prevent owner from reporting their own blog
+    if blog.author == user:
+        messages.error(request, "You cannot report your own blog.")
+        return redirect(blog.get_absolute_url())
+
+    # Check if already reported
     if blog.reports.filter(user=user).exists():
         messages.info(request, "You have already reported this blog.")
-        return redirect(request.META.get('HTTP_REFERER', '/'))
+        return redirect(blog.get_absolute_url())
 
     if request.method == 'POST':
         reason = request.POST.get('reason', '').strip()
-        Report.objects.create(blog=blog, user=user, reason=reason)
-        messages.success(request, "Your report has been submitted.")
-        return redirect(request.META.get('HTTP_REFERER', '/'))
-    
-    # fallback redirect
-    return redirect(request.META.get('HTTP_REFERER', '/'))
+        # Create report
+        Report.objects.create(blog=blog, user=user, reason=reason if reason else None)
+
+        # Create notification for blog owner
+        if reason:
+            message = f"Your blog '{blog.title}' has been reported. Reason: {reason}"
+        else:
+            message = f"Your blog '{blog.title}' has been reported."
+        Notification.objects.create(user=blog.author, blog=blog, message=message)
+
+        messages.success(request, "Report submitted.")
+        return redirect(blog.get_absolute_url())
+
+@login_required
+def notifications(request):
+    # Mark a notification as read if `mark_read` parameter is present
+    note_id = request.GET.get('mark_read')
+    next_url = request.GET.get('next')  # Optional: redirect to blog after marking read
+
+    if note_id:
+        try:
+            note = request.user.notifications.get(id=note_id)
+            note.read = True
+            note.save()
+            if next_url:
+                return redirect(next_url)
+        except Notification.DoesNotExist:
+            pass
+
+    # Load all notifications
+    user_notifications = request.user.notifications.all().order_by('-created_at')
+    context = {
+        'notifications': user_notifications,
+        'unread_count': request.user.notifications.filter(read=False).count(),
+    }
+    return render(request, 'notification.html', context)
+
+
+
 
 
 @login_required

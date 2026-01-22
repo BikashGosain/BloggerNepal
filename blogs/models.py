@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from ckeditor_uploader.fields import RichTextUploadingField
+from django.urls import reverse
 
 
 # Create your models here.
@@ -54,6 +55,9 @@ class Blog(models.Model):
 
     def __str__(self):
         return self.title
+    def get_absolute_url(self):
+        return reverse('blogs', kwargs={'slug': self.slug})
+    
 # report option on blog
 class Report(models.Model):
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='reports')
@@ -63,6 +67,19 @@ class Report(models.Model):
 
     def __str__(self):
         return f"Report by {self.user} on {self.blog.title}"
+    
+    
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, 
+    related_name='notifications')  # Who receives it
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE, null=True, blank=True)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    read = models.BooleanField(default=False)  # optional: mark as read
+
+    def __str__(self):
+        return f"Notification for {self.user.username}"
+    
 
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE) # on delete user all comments related user will be deleted

@@ -1,7 +1,5 @@
 from django.urls import path
-
 from blogs import views
-
 
 urlpatterns = [
     path('<int:category_id>/', views.posts_by_category, name='posts_by_category'),
@@ -11,5 +9,6 @@ urlpatterns = [
     path('like/<int:blog_id>/', views.blog_like, name='blog_like'),
     path('dislike/<int:blog_id>/', views.blog_dislike, name='blog_dislike'),
     path('report/<int:blog_id>/', views.report_blog, name='report_blog'),
-
+    # for notification
+    path('notifications/', views.notifications, name='notifications'),
 ]

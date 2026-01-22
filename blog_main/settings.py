@@ -78,6 +78,7 @@ TEMPLATES = [
                 'blogs.context_processors.get_categories',
                 'blogs.context_processors.get_social_links',
                 'blogs.context_processors.user_roles',
+                'blogs.context_processors.unread_notifications_count',
             ],
         },
     },

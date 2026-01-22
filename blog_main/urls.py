@@ -25,8 +25,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
     path('category/', include('blogs.urls')),
-    path('blog/<slug:slug>/', BlogsView.blogs, name='blogs'),
     path('blog/search/', BlogsView.search, name='search'),
+    path('blog/<slug:slug>/', BlogsView.blogs, name='blogs'),
+    
 
     # authentication, authorization urls and permissions
     path('register/', views.register, name='register'),

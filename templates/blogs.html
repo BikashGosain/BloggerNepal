@@ -15,7 +15,7 @@
                     <!-- Post meta content-->
                     <div class="text-muted fst-italic mb-2">{{ single_blog.created_at | timesince}} ago | By {{single_blog.author}}
                         <!-- for like and dislike -->
-                         <!-- Like Button -->
+                         <!-- Like Button -->{% if user.is_authenticated %}
     <a 
         href="{% url 'blog_like' single_blog.id %}" 
         style="
@@ -56,33 +56,40 @@
     </a>
 
     <!-- Report Button -->
+     
+{% if user.is_authenticated and user != single_blog.author %}
     {% if user_reported %}
-    <span style="
-        display:inline-block;
-        padding:8px 16px;
-        color:white;
-        background-color:#6c757d;
-        border-radius:5px;
-        font-weight:bold;
-        margin-left:10px;
-        cursor:not-allowed;
-    ">
-        🚩 Already Reported
-    </span>
+        <span style="
+            display:inline-block;
+            padding:8px 16px;
+            color:white;
+            background-color:#6c757d;
+            border-radius:5px;
+            font-weight:bold;
+            margin-left:10px;
+            cursor:not-allowed;
+        ">
+            🚩 Already Reported
+        </span>
+    {% else %}
+        <button style="
+            display:inline-block;
+            padding:8px 16px;
+            color:white;
+            border:none;
+            border-radius:5px;
+            font-weight:bold;
+            background-color:#ffc107;
+            cursor:pointer;
+            margin-left:10px;
+        " onclick="openReportModal()">
+            🚩 Report
+        </button>
+    {% endif %}
+{% endif %}
+
 {% else %}
-    <button style="
-        display:inline-block;
-        padding:8px 16px;
-        color:white;
-        border:none;
-        border-radius:5px;
-        font-weight:bold;
-        background-color:#ffc107;
-        cursor:pointer;
-        margin-left:10px;
-    " onclick="openReportModal()">
-        🚩 Report
-    </button>
+    <a href="{% url 'login' %}" class="btn btn-sm btn-warning">Login to report, Like or Dislike</a>
 {% endif %}
 
                     </div>

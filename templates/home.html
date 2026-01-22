@@ -108,8 +108,7 @@ window.addEventListener('DOMContentLoaded', () => {
     <div class="card border-0">
       <div class="card-body">
         <h3> <a href="{% url 'blogs' post.slug %}" class="text-dark">{{ post.title }} </a> </h3>
-        <small class="mb-1 text-muted">{{ post.created_at | timesince}} ago | {{ post.author }} | Updated at: {{
-          post.updated_at }}</small>
+        <small class="mb-1 text-muted">{{ post.created_at | timesince}} ago | {{ post.author }} | Updated at: {{ post.updated_at|timesince }} ago</small>
         <p class="card-text">{{ post.short_description|truncatewords:20 }}...</p>
       </div>
     </div>
@@ -127,8 +126,7 @@ window.addEventListener('DOMContentLoaded', () => {
       <div class="card border-0">
         <div class="card-body">
           <h3><a href="{% url 'blogs' post.slug %}" class="text-dark">{{ post.title }} </a></h3>
-          <small class="mb-1 text-muted">{{ post.created_at | timesince}} ago | {{ post.author }} | Updated at: {{
-            post.updated_at }}</small>
+          <small class="mb-1 text-muted">{{ post.created_at | timesince}} ago | {{ post.author }} | Updated at: {{post.updated_at|timesince}}</small>
           <p class="card-text">{{ post.short_description|truncatechars:20 }}...</p>
         </div>
       </div>

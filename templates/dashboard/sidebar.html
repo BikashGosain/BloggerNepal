@@ -124,6 +124,7 @@ function confirmLogout() {
     <div class="nav flex-column nav-pills bg-light" aria-orientation="vertical">
         <a href="{% url 'dashboard' %}" class="nav-link text-dark {% if '/dashboard/' == request.path %}bg-warning{% endif %}">Dashboard</a>
         <a href="{% url 'profile' %}" class="nav-link text-dark {% if '/profile/' in request.path %}bg-warning{% endif %}">Profile</a>
+        <a href="{% url 'notification' %}" class="nav-link text-dark {% if '/notification/' in request.path %}bg-warning{% endif %}">Notification</a>
         {% if perms.auth.view_user %}
         <a href="{% url 'users' %}" class="nav-link text-dark {% if '/users/' in request.path %}bg-warning{% endif %}">Users</a>
         {% endif %}
