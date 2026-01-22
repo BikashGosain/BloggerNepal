@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'contact',
+    'follow_following',
 
 ]
 
@@ -79,6 +80,7 @@ TEMPLATES = [
                 'blogs.context_processors.get_social_links',
                 'blogs.context_processors.user_roles',
                 'blogs.context_processors.unread_notifications_count',
+                'follow_following.context_processors.follow_counts',
             ],
         },
     },

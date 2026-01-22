@@ -38,6 +38,10 @@
                             {% endfor %}
                         </p>
 
+<p>Followers: {{ my_followers_count }}</p>
+<p>Following: {{ my_following_count }}</p>
+
+
                         <p><strong>Account Created By:</strong>
                             {% if user.profile.created_by %}
                             {{ user.profile.created_by.username }}

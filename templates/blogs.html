@@ -12,6 +12,29 @@
                 <header class="mb-4">
                     <!-- Post title-->
                     <h1 class="fw-bolder mb-1">{{ single_blog.title }}</h1>
+
+                    {% if user.is_authenticated and user != single_blog.author %}
+
+    {% if is_following %}
+        <a href="{% url 'unfollow_user' single_blog.author.id %}"
+           class="btn btn-danger btn-sm">
+            Unfollow
+        </a>
+    {% else %}
+        <a href="{% url 'follow_user' single_blog.author.id %}"
+           class="btn btn-primary btn-sm">
+            Follow
+        </a>
+    {% endif %}
+
+{% endif %}
+
+
+<p>Followers: {{ single_blog.author.followers.count }}</p>
+<p>Following: {{ single_blog.author.following.count }}</p>
+
+
+
                     <!-- Post meta content-->
                     <div class="text-muted fst-italic mb-2">{{ single_blog.created_at | timesince}} ago | By {{single_blog.author}}
                         <!-- for like and dislike -->

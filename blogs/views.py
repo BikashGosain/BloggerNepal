@@ -2,6 +2,8 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+
+from follow_following.models import Follow
 from .models import Blog, Category, Comment, Notification, Report
 from django.db.models import Q
 from django.contrib import messages
@@ -32,6 +34,13 @@ def posts_by_category(request, category_id):
 def blogs(request, slug):
     user = request.user
     single_blog = get_object_or_404(Blog, slug=slug, status='Published')
+    is_following = False
+    if request.user.is_authenticated and request.user != single_blog.author:
+        is_following = Follow.objects.filter(
+            follower=request.user,
+            following=single_blog.author
+        ).exists()
+    
     if request.user.is_authenticated:
         user_reported = single_blog.reports.filter(user=request.user).exists()
     else:
@@ -68,6 +77,7 @@ def blogs(request, slug):
         'user' : user,
         'user_reported': user_reported,
         'unread_count': unread_count,
+        'is_following': is_following,
     }
     return render(request, 'blogs.html', context)
 @login_required
@@ -209,3 +219,16 @@ def search(request):
         'keyword': keyword,
     }
     return render(request, 'search.html', context)
+
+@login_required
+def following_feed(request):
+    followed_users = Follow.objects.filter(
+        follower=request.user
+    ).values_list('following', flat=True)
+
+    blogs = Blog.objects.filter(
+        author__in=followed_users,
+        status='Published'
+    ).order_by('-created_at')
+
+    return render(request, 'blog/following_feed.html', {'blogs': blogs})

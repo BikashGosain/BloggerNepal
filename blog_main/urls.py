@@ -41,4 +41,7 @@ urlpatterns = [
     # for contact email
     path('', include('contact.urls')),
 
+    path('accounts/', include('follow_following.urls')),
+
+
 ] +static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT )
