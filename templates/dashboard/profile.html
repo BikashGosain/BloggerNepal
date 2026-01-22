@@ -42,6 +42,18 @@
 <p>Following: {{ my_following_count }}</p>
 
 
+<a href="{% url 'followers_list' request.user.username %}">
+    Followers: {{ my_followers_count }}
+</a>
+
+<a href="{% url 'following_list' request.user.username %}">
+    Following: {{ my_following_count }}
+</a>
+
+
+
+
+
                         <p><strong>Account Created By:</strong>
                             {% if user.profile.created_by %}
                             {{ user.profile.created_by.username }}

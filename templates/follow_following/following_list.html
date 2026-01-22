@@ -1,0 +1,28 @@
+<h2>{{ user_obj.username }} is Following</h2>
+
+{% if following %}
+    <ul>
+        {% for item in following %}
+            <li>
+               <a href="{% url 'profile' %}?username={{ item.following.username }}">
+    {{ item.following.username }}
+</a>
+
+
+                {% if request.user.is_authenticated and request.user != item.following %}
+                    {% if item.following.id in user_following_ids %}
+                        <a href="{% url 'unfollow_user' item.following.id %}" class="btn btn-danger btn-sm ms-2">
+                            Unfollow
+                        </a>
+                    {% else %}
+                        <a href="{% url 'follow_user' item.following.id %}" class="btn btn-primary btn-sm ms-2">
+                            Follow
+                        </a>
+                    {% endif %}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Not following anyone yet.</p>
+{% endif %}

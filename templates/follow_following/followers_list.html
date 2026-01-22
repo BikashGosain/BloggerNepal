@@ -1,0 +1,15 @@
+<h2>{{ user_obj.username }}'s Followers</h2>
+
+{% if followers %}
+    <ul>
+        {% for item in followers %}
+            <li>
+                <a href="{% url 'profile' %}?username={{ item.following.username }}">
+    {{ item.following.username }}
+</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No followers yet.</p>
+{% endif %}
