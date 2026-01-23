@@ -1,6 +1,8 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from blogs.models import Category, Blog, Notification
 from django.contrib.auth.decorators import permission_required
+
+from follow_following.models import Follow
 from .forms import BlogPostForm, CategoryForm, AddUserForm, EditUserForm, ProfileEditForm  
 from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
@@ -353,3 +355,58 @@ def dashboardnotifications(request):
         'unread_count': request.user.notifications.filter(read=False).count(),
     }
     return render(request, 'dashboardnotification.html', context)
+
+def dashboardfollowers_list(request, username):
+    user_obj = get_object_or_404(User, username=username)
+
+    # Base queryset
+    followers = Follow.objects.filter(
+        following=user_obj
+    ).select_related('follower')
+
+    # Handle search
+    search_query = request.GET.get('search', '').strip()
+    if search_query:
+        followers = followers.filter(
+            follower__username__icontains=search_query
+        )
+
+    # IDs of users current logged-in user is following
+    user_following_ids = []
+    if request.user.is_authenticated:
+        user_following_ids = Follow.objects.filter(
+            follower=request.user
+        ).values_list('following_id', flat=True)
+
+    return render(request, 'dashboardfollowers_list.html', {
+        'user_obj': user_obj,
+        'followers': followers,
+        'user_following_ids': list(user_following_ids),
+    })
+
+# FOLLOWING LIST
+def dashboardfollowing_list(request, username):
+    user_obj = get_object_or_404(User, username=username)
+
+    following = Follow.objects.filter(
+        follower=user_obj
+    ).select_related('following')
+    # Handle search
+    search_query = request.GET.get('search', '').strip()
+    if search_query:
+        following = following.filter(
+            follower__username__icontains=search_query
+        )
+
+    # IDs of users current logged-in user is following
+    user_following_ids = []
+    if request.user.is_authenticated:
+        user_following_ids = Follow.objects.filter(
+            follower=request.user
+        ).values_list('following_id', flat=True)
+
+    return render(request, 'dashboardfollowing_list.html', {
+        'user_obj': user_obj,
+        'following': following,
+        'user_following_ids': list(user_following_ids),
+    })

@@ -125,12 +125,48 @@
 
         <!-- My Posts Section -->
         <div class="posts-section">
-            <h3 class="posts-section-title">
-                <i class="fas fa-blog"></i> My Posts
-                <span class="badge bg-primary ms-2">{{ posts.count }}</span>
-            </h3>
+            <ul class="nav nav-tabs profile-tabs" id="profileTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts-content" type="button" role="tab" aria-controls="posts-content" aria-selected="true">
+                        
+                        <a href="{% url 'mypost' %}" class="nav-link">
+                        <i class="fas fa-user-friends "></i> My Posts
+                        <span class="badge bg-success ms-2">{{ posts.count }}</span>
+                    </a> 
+                        
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a href="{% url 'followers_list' request.user.username %}" class="nav-link">
+                        <i class="fas fa-user-friends"></i> Followers
+                        <span class="badge bg-success ms-2">{{ my_followers_count }}</span>
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a href="{% url 'following_list' request.user.username %}" class="nav-link">
+                        <i class="fas fa-user-check"></i> Following
+                        <span class="badge bg-info ms-2">{{ my_following_count }}</span>
+                    </a>
+                </li>
+            </ul>
 
             {% if posts %}
+                <!-- Items Per Page Selector -->
+                <div class="d-flex justify-content-end my-3">
+                    <div class="items-per-page">
+                        <label for="items-per-page">
+                            <i class="fas fa-th"></i> Posts per page:
+                        </label>
+                        <select id="items-per-page" class="form-select-sm">
+                            <option value="6" selected>6</option>
+                            <option value="9">9</option>
+                            <option value="12">12</option>
+                            <option value="18">18</option>
+                            <option value="24">24</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="row blog-grid">
                     {% for post in posts %}
                         <div class="col-md-6 col-lg-4 mb-4 blog-item">
@@ -193,6 +229,10 @@
                         </div>
                     {% endfor %}
                 </div>
+
+                <!-- Pagination Container -->
+                <div id="pagination-container" class="pagination-container"></div>
+
             {% else %}
                 <div class="no-posts-container">
                     <div class="no-posts-icon">

@@ -102,3 +102,13 @@ def profile(request, username):
         'is_following': is_following,
     }
     return render(request, 'public_profile.html', context)
+
+def mypost(request):
+    user = request.user
+    posts = Blog.objects.filter(author=user)
+
+    context = {
+        'user': user,
+        'posts': posts,
+    }
+    return render(request, 'My_Posts.html', context)

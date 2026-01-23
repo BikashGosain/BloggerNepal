@@ -27,5 +27,7 @@ urlpatterns = [
     path('profile/edit/', login_required(views.edit_profile, login_url='login'), name='edit_profile'),
 
     path('dashboardnotification/', login_required(views.dashboardnotifications, login_url='login'), name='dashboardnotification'),
+    path('dashboardfollowers_list/<str:username>/', login_required(views.dashboardfollowers_list, login_url='login'), name='dashboardfollowers_list'),
+    path('dashboardfollowing_list/<str:username>/', login_required(views.dashboardfollowing_list, login_url='login'), name='dashboardfollowing_list'),
 
 ]

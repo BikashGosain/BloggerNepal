@@ -12,4 +12,6 @@ urlpatterns = [
 
     # **Public profile view for any user**
     path('profile/<str:username>/', views.profile, name='profile'),
+    path('mypost', views.mypost, name='mypost'),
+
 ]

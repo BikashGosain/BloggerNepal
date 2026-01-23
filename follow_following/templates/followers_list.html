@@ -2,46 +2,107 @@
 
 
 {% block extra_css %}
-<link href="{% static 'css/profile.css' %}" rel="stylesheet">
+
 {% endblock %}
+
 
 {% block content %}
-<div class="col-md-3">
+<div class="followers-page">
+    <div class="sidebar-column">
         {% include 'profile.html' %}
     </div>
-<h2>{{ user_obj.username }}'s Followers</h2>
 
-{% if followers %}
-    <ul class="list-group">
-        {% for item in followers %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <!-- Username clickable -->
-                <a href="{% url 'profile' item.follower.username %}">
-                    {{ item.follower.username }}
-                </a>
+    <div class="followers-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2>
+                <i class="fas fa-user-friends"></i>
+                {{ user_obj.username }}'s Followers
+                <span class="followers-count">({{ followers.count }})</span>
+            </h2>
+        </div>
 
-                <!-- Follow / Unfollow button -->
-                {% if request.user.is_authenticated and request.user != item.follower %}
-                    {% if item.follower.id in user_following_ids %}
-                        <a href="{% url 'unfollow_user' item.follower.id %}" class="btn btn-danger btn-sm">
-                            Unfollow
-                        </a>
-                    {% else %}
-                        <a href="{% url 'follow_user' item.follower.id %}" class="btn btn-primary btn-sm">
-                            Follow
-                        </a>
+        <!-- Search Form -->
+        <div class="search-container">
+            <form class="search-form" method="GET" action="">
+                <div class="search-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input 
+                        type="text" 
+                        name="search" 
+                        id="follower-search" 
+                        class="search-input"
+                        placeholder="Search followers by username..."
+                        value="{{ request.GET.search|default:'' }}"
+                        autocomplete="off"
+                    >
+                    {% if request.GET.search %}
+                        <button type="button" class="clear-search" id="clearSearchBtn">
+    <i class="fas fa-times"></i>
+</button>
+
                     {% endif %}
-                {% endif %}
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No followers yet.</p>
-{% endif %}
+                </div>
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </form>
+        </div>
 
+        <!-- Followers List -->
+        {% if followers %}
+            <div class="followers-list">
+                {% for item in followers %}
+                    <div class="follower-item">
+                        <div class="follower-info">
+                            <div class="follower-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <a href="{% url 'profile' item.follower.username %}" class="follower-username">
+                                {{ item.follower.username }}
+                            </a>
+                        </div>
+
+                        <!-- Follow / Unfollow button -->
+                        {% if request.user.is_authenticated and request.user != item.follower %}
+                            <div class="follower-actions">
+                                {% if item.follower.id in user_following_ids %}
+                                    <a href="{% url 'unfollow_user' item.follower.id %}" class="action-btn unfollow-btn">
+                                        <i class="fas fa-user-minus"></i> Unfollow
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'follow_user' item.follower.id %}" class="action-btn follow-btn">
+                                        <i class="fas fa-user-plus"></i> Follow
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-user-slash"></i>
+                </div>
+                <h3>No followers found</h3>
+                {% if request.GET.search %}
+                    <p>No followers match "{{ request.GET.search }}"</p>
+                    <a href="{% url 'dashboardfollowers_list' user_obj.username %}" class="clear-filter-btn" >
+                        <i class="fas fa-redo"></i> Clear Search
+                    </a>
+
+                {% else %}
+                    <p>{{ user_obj.username }} doesn't have any followers yet.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
 
 {% endblock %}
 
+
 {% block extra_js %}
-<script src="{% static 'js/profile.js' %}"></script>
+<script src="{% static 'js/dashboardfollowers_list.js' %}"></script>
 {% endblock %}
