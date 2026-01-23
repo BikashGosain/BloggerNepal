@@ -7,6 +7,7 @@ from follow_following.models import Follow
 from .models import Blog, Category, Comment, Notification, Report
 from django.db.models import Q
 from django.contrib import messages
+from django.http import JsonResponse
 
 # Create your views here.
 
@@ -148,8 +149,31 @@ def report_blog(request, blog_id):
         messages.success(request, "Report submitted.")
         return redirect(blog.get_absolute_url())
 
+
+
 @login_required
 def notifications(request):
+    # Handle delete single notification
+    if 'delete' in request.GET:
+        notification_id = request.GET.get('delete')
+        try:
+            note = request.user.notifications.get(id=notification_id)
+            note.delete()
+            
+            # Return JSON response for AJAX requests
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'success'})
+            return redirect('notifications')
+        except Notification.DoesNotExist:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'error', 'message': 'Notification not found'}, status=404)
+            return redirect('notifications')
+    
+    # Handle delete all notifications
+    if 'delete_all' in request.GET:
+        request.user.notifications.all().delete()
+        return redirect('notifications')
+    
     # Mark a notification as read if `mark_read` parameter is present
     note_id = request.GET.get('mark_read')
     next_url = request.GET.get('next')  # Optional: redirect to blog after marking read

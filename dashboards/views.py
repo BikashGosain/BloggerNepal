@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from blogs.models import Category, Blog, Notification
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django.contrib.auth.decorators import permission_required
 
 from follow_following.models import Follow
@@ -12,6 +13,8 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 
 from django.contrib import messages
+from django.http import JsonResponse
+
 
 from django.urls import reverse # If email is missing, show a clickable link 
 # Create your views here.
@@ -137,7 +140,7 @@ def posts(request):
     else:
         posts = Blog.objects.filter(author=user)
 
-     # Filter by search keyword
+    # Filter by search keyword
     if query:
         posts = posts.filter(
             Q(title__icontains=query) |
@@ -367,29 +370,47 @@ def edit_profile(request):
     }
     return render(request, 'edit_profile.html', context)
 
-
 def dashboardnotifications(request):
-    # Mark a notification as read if `mark_read` parameter is present
-    note_id = request.GET.get('mark_read')
-    next_url = request.GET.get('next')  # Optional: redirect to blog after marking read
+    user = request.user
 
+    # Delete single notification
+    if 'delete' in request.GET:
+        notification_id = request.GET.get('delete')
+        try:
+            note = user.notifications.get(id=notification_id)
+            note.delete()
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'success'})
+        except Notification.DoesNotExist:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'error', 'message': 'Notification not found'}, status=404)
+        return redirect('dashboardnotification')
+
+    # Delete all notifications
+    if request.method == 'POST' and 'delete_all' in request.POST:
+        user.notifications.all().delete()
+        return redirect('dashboardnotification')
+
+    # Mark as read
+    note_id = request.GET.get('mark_read')
+    next_url = request.GET.get('next')
     if note_id:
         try:
-            note = request.user.notifications.get(id=note_id)
+            note = user.notifications.get(id=note_id)
             note.read = True
             note.save()
-            if next_url:
-                return redirect(next_url)
         except Notification.DoesNotExist:
             pass
+        return redirect(next_url or 'dashboardnotification')
 
-    # Load all notifications
-    user_notifications = request.user.notifications.all().order_by('-created_at')
+    # Load notifications
+    user_notifications = user.notifications.all().order_by('-created_at')
     context = {
         'notifications': user_notifications,
-        'unread_count': request.user.notifications.filter(read=False).count(),
+        'unread_count': user.notifications.filter(read=False).count(),
     }
     return render(request, 'dashboardnotification.html', context)
+
 
 def dashboardfollowers_list(request, username):
     user_obj = get_object_or_404(User, username=username)

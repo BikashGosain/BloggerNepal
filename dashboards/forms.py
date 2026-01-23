@@ -1,4 +1,5 @@
 from django import forms
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from blogs.models import Blog, Category
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
@@ -29,6 +30,8 @@ class CategoryForm(forms.ModelForm):
         
 
 class BlogPostForm(forms.ModelForm):
+    blog_body = forms.CharField(widget=CKEditorUploadingWidget())  # CKEditor only
+
     class Meta:
         model = Blog
         fields = ('title', 'category', 'featured_image', 'short_description', 'blog_body', 'status', 'is_featured')

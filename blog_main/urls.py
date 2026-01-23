@@ -36,7 +36,7 @@ urlpatterns = [
 
     # Dashboard URLs
     path('dashboard/', include('dashboards.urls')),
-    # TinyMCE (REQUIRED)
+# for image uploads
     path('ckeditor/', include('ckeditor_uploader.urls')),
     # for contact email
     path('', include('contact.urls')),
