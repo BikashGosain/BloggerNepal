@@ -1,18 +1,4 @@
-{% load static %}
 
-
-{% block extra_css %}
-{% endblock %}
-
-
-{% block content %}
-<div class="followers-page">
-    <div class="sidebar-column">
-        {% include 'profile.html' %}
-    </div>
-
-    <!-- My Posts Section -->
-        <div class="posts-section">
            
 
             {% if posts %}
@@ -110,11 +96,5 @@
                     </a>
                 </div>
             {% endif %}
-        </div>
 
-{% endblock %}
-
-{% block extra_js %}
-<script src="{% static 'js/dashboardfollowers_list.js' %}"></script>
-{% endblock %}
 

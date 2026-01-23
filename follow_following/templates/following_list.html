@@ -1,51 +1,50 @@
-{% load static %}
 
-
-{% block extra_css %}
-{% endblock %}
-
-
-{% block content %}
 <div class="followers-page">
-    <div class="sidebar-column">
-        {% include 'profile.html' %}
-    </div>
+    
 
     <div class="followers-content">
         <!-- Page Header -->
         <div class="page-header">
             <h2>
                 <i class="fas fa-user-friends"></i>
-                {{ user_obj.username }}'s Following
+                {{ user.username }}'s Following
                 <span class="followers-count">({{ my_following_count }})</span>
             </h2>
         </div>
 
         <!-- Search Form -->
         <div class="search-container">
-            <form class="search-form" method="GET" action="">
-                <div class="search-wrapper">
-                    <i class="fas fa-search search-icon"></i>
-                    <input 
-                        type="text" 
-                        name="search" 
-                        id="follower-search" 
-                        class="search-input"
-                        placeholder="Search followers by username..."
-                        value="{{ request.GET.search|default:'' }}"
-                        autocomplete="off"
-                    >
-                    {% if request.GET.search %}
-                        <button type="button" class="clear-search" id="clearSearchBtn">
-    <i class="fas fa-times"></i>
-</button>
+            <form class="search-form" method="GET">
+    <!-- 🔑 PRESERVE TAB STATE -->
+    <input type="hidden" name="tab" value="following">
 
-                    {% endif %}
-                </div>
-                <button type="submit" class="search-button">
-                    <i class="fas fa-search"></i> Search
-                </button>
-            </form>
+    <div class="search-wrapper">
+        <i class="fas fa-search search-icon"></i>
+        <input 
+            type="text" 
+            name="search" 
+            class="search-input"
+            placeholder="Search following by username..."
+            value="{{ request.GET.search|default:'' }}"
+            autocomplete="off"
+        >
+
+        {% if request.GET.search %}
+            <button 
+                type="button" 
+                class="clear-search" 
+                onclick="window.location='?tab=following'">
+                <i class="fas fa-times"></i>
+            </button>
+        {% endif %}
+    </div>
+
+    <button type="submit" class="search-button">
+        <i class="fas fa-search"></i> Search
+    </button>
+</form>
+
+
         </div>
 
         <!-- following List -->
@@ -62,11 +61,11 @@
                             </a>
                         </div>
 
-                        <!-- Follow / Unfollow button -->
+                         <!-- Follow / Unfollow button -->
                         {% if request.user.is_authenticated and request.user != item.following %}
                             <div class="follower-actions">
                                 {% if item.following.id in user_following_ids %}
-                                    <a href="{% url 'unfollow_user' item.following.id %}" class="action-btn unfollow-btn">
+                                    <a href="{% url 'unfollow_user' item.following.id %}" class="action-btn unfollow-btn" onclick="return confirm('Are you sure you want to unfollow {{ item.follower.username }}?');">
                                         <i class="fas fa-user-minus"></i> Unfollow
                                     </a>
                                 {% else %}
@@ -87,7 +86,10 @@
                 <h3>No followers found</h3>
                 {% if request.GET.search %}
                     <p>No followers match "{{ request.GET.search }}"</p>
-                    
+                    <a href="?tab=following" class="clear-filter-btn">
+    <i class="fas fa-redo"></i> Clear Search
+</a>
+
 
                 {% else %}
                     <p>{{ user_obj.username }} doesn't have any followers yet.</p>
@@ -96,10 +98,3 @@
         {% endif %}
     </div>
 </div>
-
-{% endblock %}
-
-{% block extra_js %}
-<script src="{% static 'js/dashboardfollowers_list.js' %}"></script>
-{% endblock %}
-

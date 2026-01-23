@@ -291,25 +291,60 @@ def delete_user(request, pk):
 
 def profile(request):
     """
-    Display logged-in user's profile and posts
+    Display logged-in user's profile, followers, following, and posts
     """
     user = request.user
+
+    # 🔹 ACTIVE TAB (default: posts)
+    tab = request.GET.get('tab', 'posts')
+
+    # 🔹 SEARCH QUERY
+    search = request.GET.get('search', '').strip()
+
+    # 🔹 EMAIL WARNING
     if not user.email:
         messages.info(
-            request, 
+            request,
             '⚠️ Your account has no email address. '
-            'Please <a href="{}">add your email here</a>.'.format(
-                reverse('edit_profile')
-            )
+            f'Please <a href="{reverse("edit_profile")}">add your email here</a>.'
         )
-    # Get all posts by this user
+
+    # 🔹 POSTS
     posts = Blog.objects.filter(author=user)
+
+    # 🔹 FOLLOWERS
+    followers = Follow.objects.filter(following=user).select_related('follower')
+    if tab == 'followers' and search:
+        followers = followers.filter(follower__username__icontains=search)
+
+    # 🔹 FOLLOWING
+    following = Follow.objects.filter(follower=user).select_related('following')
+    if tab == 'following' and search:
+        following = following.filter(following__username__icontains=search)
+
+    # 🔹 IDs of users current logged-in user is following (for Follow/Unfollow button)
+    user_following_ids = list(Follow.objects.filter(
+        follower=user
+    ).values_list('following_id', flat=True))
 
     context = {
         'user': user,
+        'tab': tab,
+        'search': search,
+
         'posts': posts,
+        'followers': followers,
+        'following': following,
+
+        'my_followers_count': followers.count(),
+        'my_following_count': following.count(),
+        'user_following_ids': user_following_ids,
     }
+
     return render(request, 'profile.html', context)
+
+
+
 
 
 def edit_profile(request):

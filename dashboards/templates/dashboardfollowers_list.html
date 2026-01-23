@@ -61,7 +61,7 @@
                             <a href="{% url 'profile' item.follower.username %}" class="follower-username">
                                 {{ item.follower.username }}
                             </a>
-                        </div>
+                        </div> 
 
                         <!-- Follow / Unfollow button -->
                         {% if request.user.is_authenticated and request.user != item.follower %}

@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link href="{% static 'css/profile.css' %}" rel="stylesheet">
+<link href="{% static 'css/dashboardfollowers_list.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -77,13 +78,14 @@
                             <div>
                                 <span class="detail-label">Social Stats</span>
                                 <span class="detail-value">
-                                    <a href="{% url 'followers_list' request.user.username %}" class="social-link">
+                                    <a href="{% url 'profile' %}?tab=followers" class="social-link">
                                         <i class="fas fa-user-friends"></i> {{ my_followers_count }} Followers
                                     </a>
                                     <span class="mx-2">|</span>
-                                    <a href="{% url 'following_list' request.user.username %}" class="social-link">
+                                    <a href="{% url 'profile' %}?tab=following" class="social-link ">
                                         <i class="fas fa-user-check"></i> {{ my_following_count }} Following
                                     </a>
+                                   
                                 </span>
                             </div>
                         </div>
@@ -125,126 +127,38 @@
 
         <!-- My Posts Section -->
         <div class="posts-section">
-            <ul class="nav nav-tabs profile-tabs" id="profileTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts-content" type="button" role="tab" aria-controls="posts-content" aria-selected="true">
-                        
-                        <a href="{% url 'mypost' %}" class="nav-link">
-                        <i class="fas fa-user-friends "></i> My Posts
-                        <span class="badge bg-success ms-2">{{ posts.count }}</span>
-                    </a> 
-                        
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <a href="{% url 'followers_list' request.user.username %}" class="nav-link">
-                        <i class="fas fa-user-friends"></i> Followers
-                        <span class="badge bg-success ms-2">{{ my_followers_count }}</span>
-                    </a>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <a href="{% url 'following_list' request.user.username %}" class="nav-link">
-                        <i class="fas fa-user-check"></i> Following
-                        <span class="badge bg-info ms-2">{{ my_following_count }}</span>
-                    </a>
-                </li>
-            </ul>
+            <ul class="nav nav-tabs profile-tabs">
+    <li class="nav-item">
+        <a class="nav-link {% if tab == 'posts' %}active{% endif %}"
+           href="{% url 'profile' %}?tab=posts">
+            My Posts
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if tab == 'followers' %}active{% endif %}"
+           href="{% url 'profile' %}?tab=followers">
+            Followers
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if tab == 'following' %}active{% endif %}"
+           href="{% url 'profile' %}?tab=following">
+            Following
+        </a>
+    </li>
+</ul>
 
-            {% if posts %}
-                <!-- Items Per Page Selector -->
-                <div class="d-flex justify-content-end my-3">
-                    <div class="items-per-page">
-                        <label for="items-per-page">
-                            <i class="fas fa-th"></i> Posts per page:
-                        </label>
-                        <select id="items-per-page" class="form-select-sm">
-                            <option value="6" selected>6</option>
-                            <option value="9">9</option>
-                            <option value="12">12</option>
-                            <option value="18">18</option>
-                            <option value="24">24</option>
-                        </select>
-                    </div>
-                </div>
 
-                <div class="row blog-grid">
-                    {% for post in posts %}
-                        <div class="col-md-6 col-lg-4 mb-4 blog-item">
-                            <div class="blog-card h-100 shadow-sm">
-                                <div class="blog-image-wrapper">
-                                    {% if post.featured_image %}
-                                        <img src="{{ post.featured_image.url }}" class="blog-image" alt="{{ post.title }}">
-                                    {% else %}
-                                        <img src="https://via.placeholder.com/600x400?text=No+Image" class="blog-image" alt="{{ post.title }}">
-                                    {% endif %}
-                                    <div class="blog-overlay">
-                                        <a href="{% url 'blogs' post.slug %}" class="read-more-btn">
-                                            <i class="fas fa-arrow-right"></i>
-                                        </a>
-                                    </div>
-                                    <span class="blog-category-badge">{{ post.category.category_name }}</span>
-                                </div>
-                                
-                                <div class="blog-content">
-                                    <h5 class="blog-title">
-                                        <a href="{% url 'blogs' post.slug %}" class="text-decoration-none text-dark">
-                                            {{ post.title|truncatewords:8 }}
-                                        </a>
-                                    </h5>
-                                    <p class="blog-description">
-                                        {{ post.short_description|truncatewords:15 }}
-                                    </p>
-                                    
-                                    <div class="blog-meta">
-                                        <span class="meta-item">
-                                            <i class="far fa-clock"></i> {{ post.created_at|timesince }} ago
-                                        </span>
-                                    </div>
+            <div class="profile-tab-content mt-4">
+    {% if tab == 'followers' %}
+        {% include 'followers_list.html' %}
+    {% elif tab == 'following' %}
+        {% include 'following_list.html' %}
+    {% else %}
+        {% include 'My_Posts.html' %}
+    {% endif %}
+</div>
 
-                                    <div class="blog-stats">
-                                        <span class="stat-badge views">
-                                            <i class="fas fa-eye"></i> {{ post.views|default:0 }}
-                                        </span>
-                                        <span class="stat-badge likes">
-                                            <i class="fas fa-thumbs-up"></i> {{ post.total_likes }}
-                                        </span>
-                                        <span class="stat-badge dislikes">
-                                            <i class="fas fa-thumbs-down"></i> {{ post.total_dislikes }}
-                                        </span>
-                                    </div>
-
-                                    <div class="blog-actions mt-3">
-                                        <a href="{% url 'edit_post' post.id %}" class="action-btn edit-btn" onclick="event.stopPropagation();">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </a>
-                                        <a href="{% url 'delete_post' post.id %}" class="action-btn delete-btn" onclick="event.stopPropagation();">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </a>
-                                        <a href="{% url 'blogs' post.slug %}" class="action-btn view-btn" onclick="event.stopPropagation();">
-                                            <i class="fas fa-eye"></i> View
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-
-                <!-- Pagination Container -->
-                <div id="pagination-container" class="pagination-container"></div>
-
-            {% else %}
-                <div class="no-posts-container">
-                    <div class="no-posts-icon">
-                        <i class="fas fa-inbox"></i>
-                    </div>
-                    <h5>No Posts Yet</h5>
-                    <p class="text-muted">You haven't created any posts yet. Start writing!</p>
-                    <a href="{% url 'add_post' %}" class="btn btn-primary mt-3">
-                        <i class="fas fa-plus"></i> Create Your First Post
-                    </a>
-                </div>
-            {% endif %}
         </div>
     </div>
 </div>
@@ -254,4 +168,5 @@
 
 {% block extra_js %}
 <script src="{% static 'js/profile.js' %}"></script>
+<script src="{% static 'js/dashboardfollowers_list.js' %}"></script>
 {% endblock %}
