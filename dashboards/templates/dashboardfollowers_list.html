@@ -67,7 +67,8 @@
                         {% if request.user.is_authenticated and request.user != item.follower %}
                             <div class="follower-actions">
                                 {% if item.follower.id in user_following_ids %}
-                                    <a href="{% url 'unfollow_user' item.follower.id %}" class="action-btn unfollow-btn">
+                                    <a href="{% url 'unfollow_user' item.follower.id %}" class="action-btn unfollow-btn" onclick="return confirm('Are you sure you want to unfollow {{ item.follower.username }}?');"
+>
                                         <i class="fas fa-user-minus"></i> Unfollow
                                     </a>
                                 {% else %}
