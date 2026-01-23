@@ -42,11 +42,11 @@ def dashboard(request):
         'blogs_count': blogs_count,
     }
 
-    return render(request, 'dashboard/dashboard.html', context)
+    return render(request, 'dashboard.html', context)
 
 
 def categories(request):
-    return render(request, 'dashboard/categories.html')
+    return render(request, 'categories.html')
 
 # def add_category(request):
 #     if request.method == 'POST':
@@ -76,7 +76,7 @@ def add_category(request):
 
     return render(
         request,
-        'dashboard/add_category.html',
+        'add_category.html',
         {'form': form}
     )
 
@@ -100,7 +100,7 @@ def edit_category(request, pk):
 
     return render(
         request,
-        'dashboard/edit_category.html',
+        'edit_category.html',
         {'form': form, 'category': category}
     )
 
@@ -153,7 +153,7 @@ def posts(request):
         'status_filter': status_filter,
     }
 
-    return render(request, 'dashboard/posts.html', context)
+    return render(request, 'posts.html', context)
 
 
 def add_post(request):
@@ -181,7 +181,7 @@ def add_post(request):
     context = {
         'form': form,
     }
-    return render(request, 'dashboard/add_post.html', context)
+    return render(request, 'add_post.html', context)
 
 def edit_post(request, pk):
     post = get_object_or_404(Blog, pk=pk)
@@ -207,7 +207,7 @@ def edit_post(request, pk):
         'form': form,
         'post': post,
     }
-    return render(request, 'dashboard/edit_post.html', context)
+    return render(request, 'edit_post.html', context)
 
 def delete_post(request, pk):
     post = get_object_or_404(Blog, pk=pk)
@@ -237,7 +237,7 @@ def users(request):
     context = {
         'users': users,
     }
-    return render(request, 'dashboard/users.html', context)
+    return render(request, 'users.html', context)
 
 
 def add_user(request):
@@ -260,7 +260,7 @@ def add_user(request):
         'form': form,
     }
         
-    return render(request, 'dashboard/add_user.html', context)
+    return render(request, 'add_user.html', context)
 
 def edit_user(request, pk):
     user = get_object_or_404(User, pk=pk)
@@ -276,7 +276,7 @@ def edit_user(request, pk):
         'form': form,
         'user': user,
     }
-    return render(request, 'dashboard/edit_user.html', context)
+    return render(request, 'edit_user.html', context)
 
 @permission_required('auth.delete_user', raise_exception=True)
 def delete_user(request, pk):
@@ -307,7 +307,7 @@ def profile(request):
         'user': user,
         'posts': posts,
     }
-    return render(request, 'dashboard/profile.html', context)
+    return render(request, 'profile.html', context)
 
 
 def edit_profile(request):
@@ -328,7 +328,7 @@ def edit_profile(request):
     context = {
         'form': form,
     }
-    return render(request, 'dashboard/edit_profile.html', context)
+    return render(request, 'edit_profile.html', context)
 
 
 def dashboardnotifications(request):
@@ -352,4 +352,4 @@ def dashboardnotifications(request):
         'notifications': user_notifications,
         'unread_count': request.user.notifications.filter(read=False).count(),
     }
-    return render(request, 'dashboard/dashboardnotification.html', context)
+    return render(request, 'dashboardnotification.html', context)

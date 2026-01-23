@@ -50,7 +50,7 @@ def followers_list(request, username):
             follower=request.user
         ).values_list('following_id', flat=True)
 
-    return render(request, 'follow_following/followers_list.html', {
+    return render(request, 'followers_list.html', {
         'user_obj': user_obj,
         'followers': followers,
         'user_following_ids': list(user_following_ids),
@@ -73,7 +73,7 @@ def following_list(request, username):
             follower=request.user
         ).values_list('following_id', flat=True)
 
-    return render(request, 'follow_following/following_list.html', {
+    return render(request, 'following_list.html', {
         'user_obj': user_obj,
         'following': following,
         'user_following_ids': list(user_following_ids),
@@ -101,4 +101,4 @@ def profile(request, username):
         'posts': posts,
         'is_following': is_following,
     }
-    return render(request, 'profile.html', context)
+    return render(request, 'public_profile.html', context)

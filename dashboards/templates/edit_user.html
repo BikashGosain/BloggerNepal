@@ -7,20 +7,24 @@
 <div class="row">
     <!-- Left sidebar -->
     <!-- load the sidebar here -->
-    {% include 'dashboard/sidebar.html' %}
+    {% include 'sidebar.html' %}
 
     <!-- Right side content -->
     <div class="col-md-9">
-        <h2>Add New Category</h2>
-        
-        <form action="{% url 'add_category' %}" method="POST" style="width:500px;">
+        {% if perms.auth.add_user %}
+        <h2>Edit User</h2>
+
+        <form action="{% url 'edit_user' user.pk %}" method="POST">
             {% csrf_token %}
             {{ form | crispy }}
             <button type="submit" class="btn btn-warning">Submit</button>
-            <a href="{% url 'categories' %}" class="btn btn-secondary">Cancel</a>
+            <a href="{% url 'users' %}" class="btn btn-secondary">Cancel</a>
         </form>
         <br>
     </div>
+    {% else %}
+        <h3>You do not have permission to edit user.</h3>
+    {% endif %}
 </div>
 
 {% endblock %}

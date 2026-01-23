@@ -1,3 +1,14 @@
+{% load static %}
+
+
+{% block extra_css %}
+<link href="{% static 'css/profile.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="col-md-3">
+        {% include 'profile.html' %}
+    </div>
 <h2>{{ user_obj.username }}'s Followers</h2>
 
 {% if followers %}
@@ -27,3 +38,10 @@
 {% else %}
     <p>No followers yet.</p>
 {% endif %}
+
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/profile.js' %}"></script>
+{% endblock %}

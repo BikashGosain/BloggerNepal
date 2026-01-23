@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block extra_css %}
+<link href="{% static 'css/public_profile.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- User info -->
+        <div class="col-md-4">
+            <div class="card profile-card mb-4 shadow">
+                <div class="card-body text-center">
+                    <!-- Profile Avatar -->
+                    <div class="profile-avatar mb-3">
+                        <div class="avatar-circle">
+                            <span class="avatar-initials">{{ user_obj.first_name.0|upper }}{{ user_obj.last_name.0|upper }}</span>
+                        </div>
+                    </div>
+                    
+                    <h3 class="profile-username mb-1">{{ user_obj.username }}</h3>
+                    <p class="text-muted mb-3">{{ user_obj.first_name }} {{ user_obj.last_name }}</p>
+                    
+                    <div class="profile-info mb-3">
+                        <p class="mb-2"><i class="fas fa-envelope text-primary"></i> {{ user_obj.email }}</p>
+                    </div>
+
+                    <!-- Followers / Following counts -->
+                    <div class="stats-container d-flex justify-content-around mb-3">
+                        <a href="{% url 'followers_list' user_obj.username %}" class="stat-item text-decoration-none">
+                            <div class="stat-number">{{ user_obj.followers.count }}</div>
+                            <div class="stat-label">Followers</div>
+                        </a>
+                        <div class="stat-divider"></div>
+                        <a href="{% url 'following_list' user_obj.username %}" class="stat-item text-decoration-none">
+                            <div class="stat-number">{{ user_obj.following.count }}</div>
+                            <div class="stat-label">Following</div>
+                        </a>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <div class="stat-number">{{ posts.count }}</div>
+                            <div class="stat-label">Posts</div>
+                        </div>
+                    </div>
+
+                    <!-- Follow / Unfollow button -->
+                    {% if request.user.is_authenticated and request.user != user_obj %}
+                        {% if is_following %}
+                            <a href="{% url 'unfollow_user' user_obj.id %}" class="btn btn-unfollow btn-block">
+                                <i class="fas fa-user-minus"></i> Unfollow
+                            </a>
+                        {% else %}
+                            <a href="{% url 'follow_user' user_obj.id %}" class="btn btn-follow btn-block">
+                                <i class="fas fa-user-plus"></i> Follow
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- User posts -->
+        <div class="col-md-8">
+            <div class="posts-header mb-4">
+                <h4 class="section-title">
+                    <i class="fas fa-blog"></i> Posts by {{ user_obj.username }}
+                    <span class="badge bg-primary ms-2">{{ posts.count }}</span>
+                </h4>
+            </div>
+
+            {% if posts %}
+                <div class="row blog-grid">
+                    {% for post in posts %}
+                        <div class="col-md-6 col-lg-6 mb-4 blog-item">
+                            <div class="blog-card h-100 shadow-sm">
+                                <div class="blog-image-wrapper">
+                                    {% if post.featured_image %}
+                                        <img src="{{ post.featured_image.url }}" class="blog-image" alt="{{ post.title }}">
+                                    {% else %}
+                                        <img src="https://via.placeholder.com/600x400?text=No+Image" class="blog-image" alt="{{ post.title }}">
+                                    {% endif %}
+                                    <div class="blog-overlay">
+                                        <a href="{{ post.get_absolute_url }}" class="read-more-btn">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                    <span class="blog-category-badge">{{ post.category.category_name }}</span>
+                                </div>
+                                
+                                <div class="blog-content">
+                                    <h5 class="blog-title">
+                                        <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark">
+                                            {{ post.title|truncatewords:8 }}
+                                        </a>
+                                    </h5>
+                                    <p class="blog-description">
+                                        {{ post.short_description|truncatewords:15 }}
+                                    </p>
+                                    
+                                    <div class="blog-meta">
+                                        <span class="meta-item">
+                                            <i class="far fa-calendar"></i> {{ post.created_at|date:"M d, Y" }}
+                                        </span>
+                                    </div>
+
+                                    <div class="blog-stats">
+                                        <span class="stat-badge views">
+                                            <i class="fas fa-eye"></i> {{ post.views|default:0 }}
+                                        </span>
+                                        <span class="stat-badge likes">
+                                            <i class="fas fa-thumbs-up"></i> {{ post.total_likes }}
+                                        </span>
+                                        <span class="stat-badge dislikes">
+                                            <i class="fas fa-thumbs-down"></i> {{ post.total_dislikes }}
+                                        </span>
+                                    </div>
+
+                                    {% if post.author == user or can_see_all %}
+                                        <div class="blog-actions mt-3">
+                                            <a href="{% url 'edit_post' post.id %}" class="action-btn edit-btn" onclick="event.stopPropagation();">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <a href="{% url 'delete_post' post.id %}" class="action-btn delete-btn" onclick="event.stopPropagation();">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </a>
+                                            <a href="{% url 'blogs' post.slug %}" class="action-btn view-btn" onclick="event.stopPropagation();">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-posts-container">
+                    <div class="no-posts-icon">
+                        <i class="fas fa-inbox"></i>
+                    </div>
+                    <h5>No Posts Yet</h5>
+                    <p class="text-muted">{{ user_obj.username }} hasn't posted anything yet.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+    </div>
+</div>
+
+
+{% endblock %}
