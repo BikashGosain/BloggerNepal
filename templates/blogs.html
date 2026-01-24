@@ -80,20 +80,37 @@
 
     <!-- Report Button -->
      
+     
 {% if user.is_authenticated and user != single_blog.author %}
     {% if user_reported %}
-        <span style="
-            display:inline-block;
-            padding:8px 16px;
-            color:white;
-            background-color:#6c757d;
-            border-radius:5px;
-            font-weight:bold;
-            margin-left:10px;
-            cursor:not-allowed;
-        ">
-            🚩 Already Reported
-        </span>
+        {% if can_report %}
+            <button style="
+                display:inline-block;
+                padding:8px 16px;
+                color:white;
+                border:none;
+                border-radius:5px;
+                font-weight:bold;
+                background-color:#ff5722;
+                cursor:pointer;
+                margin-left:10px;
+            " onclick="openReportModal()">
+                🚩 Report Again
+            </button>
+        {% else %}
+            <span style="
+                display:inline-block;
+                padding:8px 16px;
+                color:white;
+                background-color:#6c757d;
+                border-radius:5px;
+                font-weight:bold;
+                margin-left:10px;
+                cursor:not-allowed;
+            ">
+                🚩 Already Reported
+            </span>
+        {% endif %}
     {% else %}
         <button style="
             display:inline-block;
@@ -110,6 +127,7 @@
         </button>
     {% endif %}
 {% endif %}
+
 
 {% else %}
     <a href="{% url 'login' %}" class="btn btn-sm btn-warning">Login to report, Like or Dislike</a>
@@ -169,7 +187,11 @@ function closeReportModal() {
                 <section class="mb-5">
                     <p class="fs-5 mb-4">{{ single_blog.short_description }}</p>
                     <div class="fs-5 mb-4">
+    {% if single_blog.blog_body %}
     {{ single_blog.blog_body|safe }}
+{% else %}
+    <p>No content yet.</p>
+{% endif %}
 </div>
 
 

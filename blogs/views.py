@@ -38,18 +38,27 @@ def blogs(request, slug):
     user = request.user
     single_blog = get_object_or_404(Blog, slug=slug, status='Published')
 
-    # 🔔 MARK NOTIFICATION AS READ (if coming from notification)
+    # 🔔 MARK NOTIFICATION AS READ (if coming from notification link)
     notification_id = request.GET.get("notification")
     if request.user.is_authenticated and notification_id:
-        request.user.notifications.filter(
+        notification = Notification.objects.filter(
             id=notification_id,
             blog=single_blog
-        ).update(read=True)
+        ).first()  # safely get or None
+        if notification:
+            # Admin/Manager/Editor: track read in their own view
+            if request.user.is_staff or request.user.groups.filter(name__in=['Manager','Editor']).exists():
+                notification.read_by_admins.add(request.user)
+            else:
+                # Normal user: mark as read
+                notification.read = True
+                notification.save(update_fields=['read'])
 
     # Increment view count
     single_blog.views += 1
     single_blog.save(update_fields=['views'])
 
+    # Check if current user is following author
     is_following = False
     if request.user.is_authenticated and request.user != single_blog.author:
         is_following = Follow.objects.filter(
@@ -57,30 +66,34 @@ def blogs(request, slug):
             following=single_blog.author
         ).exists()
 
-    user_reported = (
-        single_blog.reports.filter(user=request.user).exists()
-        if request.user.is_authenticated else False
-    )
+    # Check if user has reported this blog
+    last_report = None
+    user_reported = False
+    can_report = False
+    if request.user.is_authenticated:
+        last_report = single_blog.reports.filter(user=request.user).order_by('-created_at').first()
+        user_reported = last_report is not None
+        # Can report if never reported or blog updated after last report
+        can_report = (not user_reported) or (last_report and last_report.created_at < single_blog.updated_at)
 
-    unread_count = (
-        request.user.notifications.filter(read=False).count()
-        if request.user.is_authenticated else 0
-    )
+    # Unread notification count
+    if request.user.is_authenticated:
+        if request.user.is_staff or request.user.groups.filter(name__in=['Manager','Editor']).exists():
+            unread_count = Notification.objects.exclude(read_by_admins=request.user).count()
+        else:
+            unread_count = request.user.notifications.filter(read=False).count()
+    else:
+        unread_count = 0
 
+    # Handle comments
     if request.method == 'POST':
         text = request.POST.get('comment', '').strip()
         parent_id = request.POST.get('parent_id')
-
         if text:
-            comment = Comment(
-                blog=single_blog,
-                user=request.user,
-                comment=text
-            )
+            comment = Comment(blog=single_blog, user=request.user, comment=text)
             if parent_id:
                 comment.parent = Comment.objects.get(id=parent_id)
             comment.save()
-
         return redirect(request.path)
 
     comments = Comment.objects.filter(blog=single_blog).order_by('-created_at')
@@ -92,10 +105,15 @@ def blogs(request, slug):
         'comment_count': comment_count,
         'user': user,
         'user_reported': user_reported,
+        'last_report_time': last_report.created_at if last_report else None,
+        'can_report': can_report,
         'unread_count': unread_count,
         'is_following': is_following,
     }
+
     return render(request, 'blogs.html', context)
+
+
 
 @login_required
 def blog_like(request, blog_id):
@@ -132,6 +150,7 @@ def blog_dislike(request, blog_id):
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
+
 @login_required
 def report_blog(request, blog_id):
     blog = get_object_or_404(Blog, id=blog_id)
@@ -142,25 +161,34 @@ def report_blog(request, blog_id):
         messages.error(request, "You cannot report your own blog.")
         return redirect(blog.get_absolute_url())
 
-    # Check if already reported
-    if blog.reports.filter(user=user).exists():
-        messages.info(request, "You have already reported this blog.")
-        return redirect(blog.get_absolute_url())
+    # Check if already reported **after last update**
+    last_report = blog.reports.filter(user=user).order_by('-created_at').first()
+    can_report = True
+    if last_report and last_report.created_at >= blog.updated_at:
+        can_report = False  # user already reported after last update
 
-    if request.method == 'POST':
+    if request.method == 'POST' and can_report:
         reason = request.POST.get('reason', '').strip()
         # Create report
         Report.objects.create(blog=blog, user=user, reason=reason if reason else None)
 
-        # Create notification for blog owner
+        # Notification for blog author
         if reason:
-            message = f"Your blog '{blog.title}' has been reported.Reason: {reason}"
+            message = f"Your blog '{blog.title}' has been reported. Reason: {reason}"
         else:
             message = f"Your blog '{blog.title}' has been reported."
         Notification.objects.create(user=blog.author, blog=blog, message=message)
 
         messages.success(request, "Report submitted.")
         return redirect(blog.get_absolute_url())
+
+    # Pass can_report to template to decide whether to show the button
+    context = {
+        'blog': blog,
+        'can_report': can_report
+    }
+    return render(request, 'blogs.html', context)
+
 
 
 
@@ -171,37 +199,68 @@ def notifications(request):
     # Handle delete single notification
     if request.method == "POST" and "delete_one" in request.POST:
         notification_id = request.POST.get("delete_one")
-        request.user.notifications.filter(id=notification_id).delete()
-        return redirect(request.path)
-    
-    # Handle delete all notifications
-    if request.method == "POST" and "delete_all" in request.POST:
-        request.user.notifications.all().delete()
-        return redirect(request.path)
-    
-    # 🔔 MARK SINGLE NOTIFICATION AS READ
-    if request.method == "POST" and "mark_read" in request.POST:
-        notification_id = request.POST.get("mark_read")
-        request.user.notifications.filter(id=notification_id).update(read=True)
-        return redirect(request.path)
-    
-    # 🔔 MARK ALL AS READ
-    if request.method == "POST" and "mark_all_read" in request.POST:
-        notification_id = request.POST.get("mark_read")
-        request.user.notifications.filter(read=False).update(read=True)
+        notification = Notification.objects.filter(id=notification_id).first()
+        if notification:
+        # Admin/Manager/Editor deletes someone else's notification
+            if request.user.is_staff or request.user.groups.filter(name__in=['Manager','Editor']).exists():
+                notification.deleted_by_admins.add(request.user)
+            else:
+            # Normal user deletes their own notification
+                if notification.user == request.user:
+                    notification.deleted_by_users.add(request.user)  # actually deletes for them only
+
         return redirect(request.path)
 
-    # Load notifications based on user group
-    if request.user.groups.filter(name__in=['Admin', 'Manager', 'Editor']).exists() or request.user.is_superuser:
-        # Allowed groups see all notifications
-        user_notifications = Notification.objects.all().order_by('-created_at')
+    # Handle delete all notifications
+    if request.method == "POST" and "delete_all" in request.POST:
+        # Admin/Manager/Editor deletes: mark deleted for themselves
+        if request.user.is_staff or request.user.groups.filter(name__in=['Manager','Editor']).exists():
+                for n in Notification.objects.all():
+                    n.deleted_by_admins.add(request.user)
+        else:
+            # Normal user deletes: mark all their notifications as deleted for themselves
+            for n in request.user.notifications.all():
+                n.deleted_by_users.add(request.user)
+        return redirect(request.path)
+
+    # MARK SINGLE NOTIFICATION AS READ
+    if request.method == "POST" and "mark_read" in request.POST:
+        notification_id = request.POST.get("mark_read")
+        notification = Notification.objects.get(id=notification_id)
+        if request.user.groups.filter(name__in=['Manager', 'Editor']).exists() or request.user.is_superuser:
+            notification.read_by_admins.add(request.user)
+        else:
+            notification.read = True
+            notification.save()
+        return redirect(request.path)
+
+    # MARK ALL AS READ
+    if request.method == "POST" and "mark_all_read" in request.POST:
+        if request.user.groups.filter(name__in=['Manager', 'Editor']).exists() or request.user.is_superuser:
+            notifications = Notification.objects.all()
+            for n in notifications:
+                n.read_by_admins.add(request.user)
+        else:
+            request.user.notifications.filter(read=False).update(read=True)
+        return redirect(request.path)
+
+    # Load notifications
+    if request.user.groups.filter(name__in=['Manager', 'Editor']).exists() or request.user.is_superuser:
+        # Managers/Editors: all notifications, except those marked deleted by this user
+        user_notifications = Notification.objects.exclude(deleted_by_admins=request.user).order_by('-created_at')
+        unread_count = user_notifications.exclude(read_by_admins=request.user).count()
     else:
-        # Other users see only their own notifications
-        user_notifications = request.user.notifications.all().order_by('-created_at')
+        # Regular users: only their own
+        user_notifications = request.user.notifications.exclude(deleted_by_users=request.user).order_by('-created_at')
+        unread_count = user_notifications.filter(read=False).count()
+    
+    # Check if user is manager/editor
+    is_manager_editor = request.user.groups.filter(name__in=['Manager','Editor']).exists() or request.user.is_staff
 
     context = {
         'notifications': user_notifications,
-        'unread_count': request.user.notifications.filter(read=False).count(),
+        'unread_count': unread_count,
+        'is_manager_editor': is_manager_editor,
     }
 
     template = (
@@ -210,6 +269,7 @@ def notifications(request):
         else 'notification.html'
     )
     return render(request, template, context)
+
 
 
 

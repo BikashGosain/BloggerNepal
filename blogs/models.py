@@ -71,16 +71,26 @@ class Report(models.Model):
         return f"Report by {self.user} on {self.blog.title}"
     
     
-class Notification(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, 
-    related_name='notifications')  # Who receives it
+from django.contrib.auth.models import User
+
+class Notification(models.Model): 
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, null=True, blank=True)
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    read = models.BooleanField(default=False)  # optional: mark as read
+    read = models.BooleanField(default=False)
+
+    # Track which admins/managers/editors have deleted this notification
+    deleted_by_admins = models.ManyToManyField(User, blank=True, related_name='deleted_notifications_admin')
+    read_by_admins = models.ManyToManyField(User, blank=True, related_name='read_notifications_admin')
+
+    # Track which normal users have deleted this notification
+    deleted_by_users = models.ManyToManyField(User, blank=True, related_name='deleted_notifications_user')
 
     def __str__(self):
-        return f"Notification for {self.user.username}"
+        return f"{self.message[:50]} - {self.user.username}"
+
+
     
 
 class Comment(models.Model):

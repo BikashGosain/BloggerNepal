@@ -179,7 +179,7 @@ def add_post(request):
         else:
             messages.error(
                 request,
-                "❌ Post was not added. Please fill the blog body too below."
+                f"✅ Post edited successfully. New title: '{post.title}' successfully."
             )
     else:
         form = BlogPostForm()
@@ -205,7 +205,7 @@ def edit_post(request, pk):
         else:
             messages.error(
                 request,
-                "❌ Post was not added. Please fill the blog body too below."
+                f"✅ Post edited successfully. New title: '{post.title}'."
             )
     form = BlogPostForm(instance=post)
     context = {

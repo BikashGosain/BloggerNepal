@@ -30,7 +30,7 @@ class CategoryForm(forms.ModelForm):
         
 
 class BlogPostForm(forms.ModelForm):
-    blog_body = forms.CharField(widget=CKEditorUploadingWidget())  # CKEditor only
+    blog_body = forms.CharField(widget=CKEditorUploadingWidget(), required=False)  # CKEditor only
 
     class Meta:
         model = Blog

@@ -6,7 +6,8 @@
         <!-- Delete All -->
         <form method="post" style="display:inline;">
             {% csrf_token %}
-            <button type="submit" name="delete_all" class="btn btn-danger"  onclick="return confirm('Delete all notification?');">
+            <button type="submit" name="delete_all" class="btn btn-danger"
+                    onclick="return confirm('Delete all notifications?');">
                 Delete All Notifications
             </button>
         </form>
@@ -17,31 +18,37 @@
             <button type="submit"
                     name="mark_all_read"
                     class="btn btn-primary"
-                    {% if unread_count == 0 %}disabled{% endif %}  onclick="return confirm('All notification mark as read?');">
+                    {% if unread_count == 0 %}disabled{% endif %}
+                    onclick="return confirm('Mark all notifications as read?');">
                 Mark All as Read
             </button>
         </form>
     </div>
     {% endif %}
-    
 
     <!-- Notification List -->
     {% for n in notifications %}
-    <div class="notification-item {% if not n.read %}unread{% endif %}" style="padding:10px; border-bottom:1px solid #eee;">
+    <div class="notification-item
+        {% if is_manager_editor %}
+            {% if request.user not in n.read_by_admins.all %}unread{% endif %}
+        {% else %}
+            {% if not n.read %}unread{% endif %}
+        {% endif %}"
+        style="padding:10px; border-bottom:1px solid #eee;">
         
         <!-- Clickable notification opens blog -->
         {% if n.blog %}
-        <a href="{% url 'blogs' n.blog.slug %}?notification={{ n.id }}" 
-           style="text-decoration:none; color:inherit; display:block;">
-        {{ n.message }}
-        
+        <a href="{% url 'blogs' n.blog.slug %}?notification={{ n.id }}"
+           style="text-decoration:none; color:inherit; display:block; white-space: pre-line;">
+            {{ n.message }}
         </a>
         {% else %}
-            {{ n.message }}
+            <p style="white-space: pre-line;">{{ n.message }}</p>
         {% endif %}
 
-        <!-- Delete single -->
+        <!-- Action Buttons -->
         <div style="margin-top:5px;">
+            <!-- Delete single -->
             <form method="post" style="display:inline;">
                 {% csrf_token %}
                 <button type="submit"
@@ -51,20 +58,34 @@
                         onclick="return confirm('Delete this notification?');">
                     Delete
                 </button>
-                </form>
-                <!-- Mark as read (only if unread) -->
-            {% if not n.read %}
-            <form method="post" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit"
-                        name="mark_read"
-                        value="{{ n.id }}"
-                        class="btn btn-sm btn-outline-primary" >
-                    Mark as read
-                </button>
             </form>
+
+            <!-- Mark as read (only if unread) -->
+           {% if is_manager_editor %}
+                {% if request.user not in n.read_by_admins.all %}
+                <form method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit"
+                            name="mark_read"
+                            value="{{ n.id }}"
+                            class="btn btn-sm btn-outline-primary">
+                        Mark as read
+                    </button>
+                </form>
+                {% endif %}
+            {% else %}
+                {% if not n.read %}
+                <form method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit"
+                            name="mark_read"
+                            value="{{ n.id }}"
+                            class="btn btn-sm btn-outline-primary">
+                        Mark as read
+                    </button>
+                </form>
+                {% endif %}
             {% endif %}
-            
         </div>
     </div>
     {% empty %}
