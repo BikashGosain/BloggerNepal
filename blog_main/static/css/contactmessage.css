@@ -1,0 +1,54 @@
+/* Container for all messages */
+#messages-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    width: 300px;
+}
+
+/* Base alert style */
+.alert {
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    position: relative;
+    opacity: 1;
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    cursor: default;
+}
+
+/* Success alert (green) */
+.alert-success {
+    background-color: #4CAF50;
+}
+
+/* Error alert (red) */
+.alert-error {
+    background-color: #f44336;
+}
+
+/* Close button (×) */
+.close-btn {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    color: white;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+    color: #ddd;
+}
+
+/* Fade out animation */
+.alert.fade-out {
+    opacity: 0;
+    transform: translateY(-20px);
+}

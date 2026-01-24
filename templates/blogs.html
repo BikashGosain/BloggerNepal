@@ -181,8 +181,17 @@ function closeReportModal() {
                         href="{% url 'posts_by_category' single_blog.category.id %}">{{ single_blog.category }}</a>
                 </header>
                 <!-- Preview image figure-->
-                <figure class="mb-4"><img class="img-fluid rounded" src="{{ single_blog.featured_image.url }}"
-                        alt="..." /></figure>
+                 {% load static %}
+
+{% if blog.featured_image %}
+    <figure class="mb-4"><img class="img-fluid rounded" src="{{ single_blog.featured_image.url }}" alt="..." /></figure>
+{% else %}
+    <!-- <figure class="mb-4"><img class="img-fluid rounded" src="{% static 'images/default.png' %}" alt="..." /></figure> -->
+     
+{% endif %}
+
+
+                
                 <!-- Post content-->
                 <section class="mb-5">
                     <p class="fs-5 mb-4">{{ single_blog.short_description }}</p>

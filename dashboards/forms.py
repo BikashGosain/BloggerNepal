@@ -35,6 +35,9 @@ class BlogPostForm(forms.ModelForm):
     class Meta:
         model = Blog
         fields = ('title', 'category', 'featured_image', 'short_description', 'blog_body', 'status', 'is_featured')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['featured_image'].required = False
 
 class AddUserForm(UserCreationForm):
     class Meta:

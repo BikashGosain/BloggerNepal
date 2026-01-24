@@ -71,8 +71,6 @@ class Report(models.Model):
         return f"Report by {self.user} on {self.blog.title}"
     
     
-from django.contrib.auth.models import User
-
 class Notification(models.Model): 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, null=True, blank=True)

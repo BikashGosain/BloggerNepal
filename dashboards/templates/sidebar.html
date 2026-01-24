@@ -126,7 +126,9 @@ function confirmLogout() {
         <a href="{% url 'profile' %}" class="nav-link text-dark {% if '/profile/' in request.path %}bg-warning{% endif %}">Profile</a>
         <a href="{% url 'dashboardfollowers_list' request.user.username %}" class="nav-link text-dark {% if '/dashboardfollowers_list/' in request.path %}bg-warning{% endif %}">Followers</a>
         <a href="{% url 'dashboardfollowing_list' request.user.username %}" class="nav-link text-dark {% if '/dashboardfollowing_list/' in request.path %}bg-warning{% endif %}">Following</a>
-        <a href="{% url 'dashboardnotification' %}" class="nav-link text-dark {% if '/dashboardnotification/' in request.path %}bg-warning{% endif %}">Notification</a>
+        <a href="{% url 'dashboardnotification' %}" class="nav-link text-dark {% if '/dashboardnotification/' in request.path %}bg-warning{% endif %}">Notification{% if unread_count > 0 %}
+        <span style="color:red; font-weight:bold;">({{ unread_count }})</span>
+    {% endif %} </a>  
         {% if perms.auth.view_user %}
         <a href="{% url 'users' %}" class="nav-link text-dark {% if '/users/' in request.path %}bg-warning{% endif %}">Users</a>
         {% endif %}

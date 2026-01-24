@@ -1,6 +1,7 @@
-from .models import Category
+from .models import Category, Notification
 from social_links.models import SocialLinks
 from .models import Blog
+from django.db.models import Count
 
 
 def get_categories(request):
@@ -41,10 +42,51 @@ def user_roles(request):
 
 
 def unread_notifications_count(request):
+    """
+    Context processor to make unread notification count available in all templates
+    """
     if request.user.is_authenticated:
-        unread_count = request.user.notifications.filter(read=False).count()
+        is_manager_editor = (
+            request.user.groups.filter(name__in=['Manager', 'Editor']).exists() 
+            or request.user.is_staff
+        )
+        
+        if is_manager_editor:
+            # Count notifications not marked as read by this admin
+            unread_count = Notification.objects.exclude(
+                deleted_by_admins=request.user
+            ).exclude(
+                read_by_admins=request.user
+            ).count()
+        else:
+            # Count unread notifications for regular user
+            unread_count = request.user.notifications.filter(
+                read=False
+            ).exclude(
+                deleted_by_users=request.user
+            ).count()
+        
         return {'unread_count': unread_count}
+    
     return {'unread_count': 0}
 
+
+def recentpost(request):
+    recentpost = Blog.objects.filter(status='Published').order_by('-created_at')
+    return {
+        'recentpost': recentpost
+    }
+
+
+def popularpost(request):
+    popularpost = Blog.objects.filter(
+        status='Published'
+    ).annotate(
+        like_count=Count('likes')
+    ).order_by('-views', '-like_count')
+
+    return {
+        'popularpost': popularpost
+    }
 
 

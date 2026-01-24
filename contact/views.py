@@ -12,41 +12,29 @@ def send_email_async(email):
 
 @login_required
 def contact_view(request):
-    user = request.user  # always get user first
+    user = request.user
 
-    # Check if user has email before processing POST
     if not user.email:
-        messages.info(
-            request,
-            '⚠️ Your account has no email address. '
-            'Please <a href="{}">add your email here</a>.'.format(reverse('edit_profile'))
-        )  # send them to edit profile page
-        return redirect("home")
-    
+        messages.info(request, '⚠️ Your account has no email. Add it <a href="{}">here</a>.'.format(reverse('edit_profile')))
+        return redirect('home')
+
     if request.method == "POST":
         subject = request.POST.get("subject")
         message = request.POST.get("message")
+        next_page = request.POST.get("next", "/")  # redirect back to page submitted from
 
         email = EmailMessage(
-            subject=f"{subject}",
-            body=f"""
-Username: {user.username}
-Email: {user.email}
-Subject: {subject}
-Message:
-{message}
-""",
+            subject=subject,
+            body=f"Username: {user.username}\nEmail: {user.email}\nSubject: {subject}\nMessage:\n{message}",
             from_email=settings.EMAIL_HOST_USER,
             to=["gosainbikash0@gmail.com"],
             reply_to=[user.email],
         )
 
-        # Send email in a separate thread
         threading.Thread(target=send_email_async, args=(email,)).start()
-
-        # Immediately return response
         messages.success(request, "Message sent successfully!")
-        return redirect("home")
+        return redirect(next_page)
 
-    return render(request, "home.html")
+    return render(request, "contact.html")
+
 

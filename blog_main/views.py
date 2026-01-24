@@ -1,9 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from blogs.models import Blog, Category
 from about_us.models import AboutUs
 from .forms import RegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import auth
+from django.db.models import Count
 
 def home(request):
     categories = Category.objects.all()
@@ -23,6 +24,21 @@ def home(request):
         'about': about,
     }
     return render(request, 'home.html', context)
+    
+def latestpost(request):
+    return render(request, 'latestpost.html')
+
+def popularpost(request):
+    return render(request, 'popularpost.html')
+
+def about(request):
+    about = AboutUs.objects.get()
+    context = {
+        'about': about,
+    }
+    return render(request, 'about.html', context)
+def contact(request):
+    return render(request, 'contact.html')
 
 def register(request):
     if request.method == 'POST':

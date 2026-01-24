@@ -24,6 +24,13 @@ from blogs import views as BlogsView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
+
+    path('latestpost/', views.latestpost, name='latestpost'),
+    path('popularpost/', views.popularpost, name='popularpost'),
+
+    path('about/', views.about, name='about'),
+    path('contact/', views.contact, name='contact'),
+
     path('category/', include('blogs.urls')),
     path('blog/search/', BlogsView.search, name='search'),
     path('blog/<slug:slug>/', BlogsView.blogs, name='blogs'),

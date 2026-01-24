@@ -81,6 +81,8 @@ TEMPLATES = [
                 'blogs.context_processors.user_roles',
                 'blogs.context_processors.unread_notifications_count',
                 'follow_following.context_processors.follow_counts',
+                'blogs.context_processors.popularpost',
+                'blogs.context_processors.recentpost',
             ],
         },
     },

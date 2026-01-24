@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/contactmessage.css' %}" rel="stylesheet">
+
+{% endblock %}
+
+{% block content %}
+
+<!-- Contact email message success or error -->
+{% if messages %}
+    <div id="messages-container">
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+                {{ message|safe }}
+                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!-- Contact email message success or error -->
+{% if messages %}
+    <div id="messages-container">
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+                {{ message|safe }}
+                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+<!-- Contact through email -->
+<h4 class="mb-4" style="font-family: Arial, sans-serif; color: #333;">Contact Us</h4>
+
+<form method="POST" action="{% url 'contacthome' %}" style="max-width: 500px; margin: auto;">
+    {% csrf_token %}
+
+    <!-- Hidden field to redirect back to current page -->
+    <input type="hidden" name="next" value="{{ request.path }}">
+
+    <label style="font-weight: bold; color: #555;">Subject:</label><br>
+    <input type="text" name="subject" required
+           {% if not user.is_authenticated %}disabled{% endif %}
+           style="width: 100%; padding: 10px; margin: 5px 0 15px 0; border-radius: 5px; border: 1px solid #ccc;">
+
+    <label style="font-weight: bold; color: #555;">Message:</label><br>
+    <textarea name="message" rows="5" required
+              {% if not user.is_authenticated %}disabled{% endif %}
+              style="width: 100%; padding: 10px; margin: 5px 0 15px 0; border-radius: 5px; border: 1px solid #ccc;"></textarea>
+
+    {% if user.is_authenticated %}
+        <button type="submit" 
+                style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+            Send Message
+        </button>
+    {% else %}
+        <a href="{% url 'login' %}" 
+           style="display: inline-block; background-color: #f0ad4e; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;">
+            Login First
+        </a>
+    {% endif %}
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/contactmessage.js' %}"></script>
+
+{% endblock %}
+
+
+
+
+

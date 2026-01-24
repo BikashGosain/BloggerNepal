@@ -1,108 +1,174 @@
-<div class="notifications-container">
+{% load static %}
 
-    <!-- Top Action Buttons -->
+{% block extra_css %}
+<link href="{% static 'css/notification.css' %}" rel="stylesheet">
+{% endblock %}
+
+<!-- Modern Notification Template -->
+<div class="notifications-wrapper">
+    <!-- Header Section -->
+    <div class="notifications-header">
+        <div class="header-left">
+            <h2 class="notifications-title">
+                <svg class="bell-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                Notifications
+                {% if unread_count > 0 %}
+                <span class="unread-badge">{{ unread_count }}</span>
+                {% endif %}
+            </h2>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all">All</button>
+            <button class="filter-tab" data-filter="unread">Unread</button>
+            <button class="filter-tab" data-filter="read">Read</button>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
     {% if notifications %}
-    <div style="margin-bottom:15px;">
-        <!-- Delete All -->
-        <form method="post" style="display:inline;">
+    <div class="action-buttons-row">
+        <form method="post" class="inline-form">
             {% csrf_token %}
-            <button type="submit" name="delete_all" class="btn btn-danger"
-                    onclick="return confirm('Delete all notifications?');">
-                Delete All Notifications
+            <button type="submit" name="mark_all_read" class="action-btn btn-mark-read"
+                    {% if unread_count == 0 %}disabled{% endif %}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                Mark All Read
             </button>
         </form>
 
-        <!-- Mark All as Read -->
-        <form method="post" style="display:inline;">
+        <form method="post" class="inline-form">
             {% csrf_token %}
-            <button type="submit"
-                    name="mark_all_read"
-                    class="btn btn-primary"
-                    {% if unread_count == 0 %}disabled{% endif %}
-                    onclick="return confirm('Mark all notifications as read?');">
-                Mark All as Read
+            <button type="submit" name="delete_all" class="action-btn btn-delete-all"
+                    onclick="return confirm('Are you sure you want to delete all notifications?');">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                Clear All
             </button>
         </form>
     </div>
     {% endif %}
 
-    <!-- Notification List -->
-    {% for n in notifications %}
-    <div class="notification-item
-        {% if is_manager_editor %}
-            {% if request.user not in n.read_by_admins.all %}unread{% endif %}
-        {% else %}
-            {% if not n.read %}unread{% endif %}
-        {% endif %}"
-        style="padding:10px; border-bottom:1px solid #eee;">
-        
-        <!-- Clickable notification opens blog -->
-        {% if n.blog %}
-        <a href="{% url 'blogs' n.blog.slug %}?notification={{ n.id }}"
-           style="text-decoration:none; color:inherit; display:block; white-space: pre-line;">
-            {{ n.message }}
-        </a>
-        {% else %}
-            <p style="white-space: pre-line;">{{ n.message }}</p>
-        {% endif %}
-
-        <!-- Action Buttons -->
-        <div style="margin-top:5px;">
-            <!-- Delete single -->
-            <form method="post" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit"
-                        name="delete_one"
-                        value="{{ n.id }}"
-                        class="btn btn-sm btn-outline-danger"
-                        onclick="return confirm('Delete this notification?');">
-                    Delete
-                </button>
-            </form>
-
-            <!-- Mark as read (only if unread) -->
-           {% if is_manager_editor %}
-                {% if request.user not in n.read_by_admins.all %}
-                <form method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit"
-                            name="mark_read"
-                            value="{{ n.id }}"
-                            class="btn btn-sm btn-outline-primary">
-                        Mark as read
-                    </button>
-                </form>
-                {% endif %}
+    <!-- Notifications List -->
+    <div class="notifications-list">
+        {% for n in notifications %}
+        <div class="notification-card 
+            {% if is_manager_editor %}
+                {% if request.user not in n.read_by_admins.all %}unread{% endif %}
             {% else %}
-                {% if not n.read %}
-                <form method="post" style="display:inline;">
+                {% if not n.read %}unread{% endif %}
+            {% endif %}"
+            data-status="{% if is_manager_editor %}{% if request.user not in n.read_by_admins.all %}unread{% else %}read{% endif %}{% else %}{% if not n.read %}unread{% else %}read{% endif %}{% endif %}">
+            
+            <!-- Unread Indicator -->
+            <div class="unread-indicator"></div>
+
+            <!-- Notification Icon -->
+            <div class="notification-icon-wrapper">
+                {% if n.blog %}
+                <div class="notification-icon blog-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                    </svg>
+                </div>
+                {% else %}
+                <div class="notification-icon info-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Notification Content -->
+            <div class="notification-content">
+                {% if n.blog %}
+                <a href="{% url 'blogs' n.blog.slug %}?notification={{ n.id }}" class="notification-link">
+                    <p class="notification-message">{{ n.message }}</p>
+                </a>
+                {% else %}
+                <p class="notification-message">{{ n.message }}</p>
+                {% endif %}
+                
+                <div class="notification-footer">
+                    <span class="notification-time">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        {{ n.created_at|timesince }} ago
+                    </span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="notification-actions">
+                {% if is_manager_editor %}
+                    {% if request.user not in n.read_by_admins.all %}
+                    <form method="post" class="inline-form">
+                        {% csrf_token %}
+                        <button type="submit" name="mark_read" value="{{ n.id }}" 
+                                class="icon-btn check-btn" title="Mark as read">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </button>
+                    </form>
+                    {% endif %}
+                {% else %}
+                    {% if not n.read %}
+                    <form method="post" class="inline-form">
+                        {% csrf_token %}
+                        <button type="submit" name="mark_read" value="{{ n.id }}" 
+                                class="icon-btn check-btn" title="Mark as read">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </button>
+                    </form>
+                    {% endif %}
+                {% endif %}
+
+                <form method="post" class="inline-form">
                     {% csrf_token %}
-                    <button type="submit"
-                            name="mark_read"
-                            value="{{ n.id }}"
-                            class="btn btn-sm btn-outline-primary">
-                        Mark as read
+                    <button type="submit" name="delete_one" value="{{ n.id }}" 
+                            class="icon-btn delete-btn" title="Delete notification"
+                            onclick="return confirm('Delete this notification?');">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
                     </button>
                 </form>
-                {% endif %}
-            {% endif %}
+            </div>
         </div>
+        {% empty %}
+        <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <p>No notifications yet</p>
+            <span>You're all caught up!</span>
+        </div>
+        {% endfor %}
     </div>
-    {% empty %}
-    <p>No notifications.</p>
-    {% endfor %}
 </div>
 
-<!-- Optional CSS -->
-<style>
-.notifications-container .unread {
-    background-color: #f0f6ff;
-    font-weight: 500;
-}
-.notification-item:hover {
-    background-color: #f9f9f9;
-}
-.btn {
-    margin-right: 5px;
-}
-</style>
+
+
+{% block extra_js %}
+<script src="{% static 'js/notification.js' %}"></script>
+{% endblock %}
