@@ -370,46 +370,7 @@ def edit_profile(request):
     }
     return render(request, 'edit_profile.html', context)
 
-def dashboardnotifications(request):
-    user = request.user
 
-    # Delete single notification
-    if 'delete' in request.GET:
-        notification_id = request.GET.get('delete')
-        try:
-            note = user.notifications.get(id=notification_id)
-            note.delete()
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'status': 'success'})
-        except Notification.DoesNotExist:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'status': 'error', 'message': 'Notification not found'}, status=404)
-        return redirect('dashboardnotification')
-
-    # Delete all notifications
-    if request.method == 'POST' and 'delete_all' in request.POST:
-        user.notifications.all().delete()
-        return redirect('dashboardnotification')
-
-    # Mark as read
-    note_id = request.GET.get('mark_read')
-    next_url = request.GET.get('next')
-    if note_id:
-        try:
-            note = user.notifications.get(id=note_id)
-            note.read = True
-            note.save()
-        except Notification.DoesNotExist:
-            pass
-        return redirect(next_url or 'dashboardnotification')
-
-    # Load notifications
-    user_notifications = user.notifications.all().order_by('-created_at')
-    context = {
-        'notifications': user_notifications,
-        'unread_count': user.notifications.filter(read=False).count(),
-    }
-    return render(request, 'dashboardnotification.html', context)
 
 
 def dashboardfollowers_list(request, username):

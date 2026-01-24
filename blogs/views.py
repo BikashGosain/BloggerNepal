@@ -2,6 +2,8 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group
+
 
 from follow_following.models import Follow
 from .models import Blog, Category, Comment, Notification, Report
@@ -35,23 +37,35 @@ def posts_by_category(request, category_id):
 def blogs(request, slug):
     user = request.user
     single_blog = get_object_or_404(Blog, slug=slug, status='Published')
+
+    # 🔔 MARK NOTIFICATION AS READ (if coming from notification)
+    notification_id = request.GET.get("notification")
+    if request.user.is_authenticated and notification_id:
+        request.user.notifications.filter(
+            id=notification_id,
+            blog=single_blog
+        ).update(read=True)
+
     # Increment view count
     single_blog.views += 1
     single_blog.save(update_fields=['views'])
+
     is_following = False
     if request.user.is_authenticated and request.user != single_blog.author:
         is_following = Follow.objects.filter(
             follower=request.user,
             following=single_blog.author
         ).exists()
-    
-    if request.user.is_authenticated:
-        user_reported = single_blog.reports.filter(user=request.user).exists()
-    else:
-        user_reported = False
-    unread_count = 0
-    if request.user.is_authenticated:
-        unread_count = request.user.notifications.filter(read=False).count()
+
+    user_reported = (
+        single_blog.reports.filter(user=request.user).exists()
+        if request.user.is_authenticated else False
+    )
+
+    unread_count = (
+        request.user.notifications.filter(read=False).count()
+        if request.user.is_authenticated else 0
+    )
 
     if request.method == 'POST':
         text = request.POST.get('comment', '').strip()
@@ -63,10 +77,8 @@ def blogs(request, slug):
                 user=request.user,
                 comment=text
             )
-
             if parent_id:
                 comment.parent = Comment.objects.get(id=parent_id)
-
             comment.save()
 
         return redirect(request.path)
@@ -78,12 +90,13 @@ def blogs(request, slug):
         'single_blog': single_blog,
         'comments': comments,
         'comment_count': comment_count,
-        'user' : user,
+        'user': user,
         'user_reported': user_reported,
         'unread_count': unread_count,
         'is_following': is_following,
     }
     return render(request, 'blogs.html', context)
+
 @login_required
 def blog_like(request, blog_id):
     blog = get_object_or_404(Blog, id=blog_id)
@@ -141,7 +154,7 @@ def report_blog(request, blog_id):
 
         # Create notification for blog owner
         if reason:
-            message = f"Your blog '{blog.title}' has been reported. Reason: {reason}"
+            message = f"Your blog '{blog.title}' has been reported.Reason: {reason}"
         else:
             message = f"Your blog '{blog.title}' has been reported."
         Notification.objects.create(user=blog.author, blog=blog, message=message)
@@ -151,50 +164,53 @@ def report_blog(request, blog_id):
 
 
 
+
 @login_required
 def notifications(request):
+
     # Handle delete single notification
-    if 'delete' in request.GET:
-        notification_id = request.GET.get('delete')
-        try:
-            note = request.user.notifications.get(id=notification_id)
-            note.delete()
-            
-            # Return JSON response for AJAX requests
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'status': 'success'})
-            return redirect('notifications')
-        except Notification.DoesNotExist:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'status': 'error', 'message': 'Notification not found'}, status=404)
-            return redirect('notifications')
+    if request.method == "POST" and "delete_one" in request.POST:
+        notification_id = request.POST.get("delete_one")
+        request.user.notifications.filter(id=notification_id).delete()
+        return redirect(request.path)
     
     # Handle delete all notifications
-    if 'delete_all' in request.GET:
+    if request.method == "POST" and "delete_all" in request.POST:
         request.user.notifications.all().delete()
-        return redirect('notifications')
+        return redirect(request.path)
     
-    # Mark a notification as read if `mark_read` parameter is present
-    note_id = request.GET.get('mark_read')
-    next_url = request.GET.get('next')  # Optional: redirect to blog after marking read
+    # 🔔 MARK SINGLE NOTIFICATION AS READ
+    if request.method == "POST" and "mark_read" in request.POST:
+        notification_id = request.POST.get("mark_read")
+        request.user.notifications.filter(id=notification_id).update(read=True)
+        return redirect(request.path)
+    
+    # 🔔 MARK ALL AS READ
+    if request.method == "POST" and "mark_all_read" in request.POST:
+        notification_id = request.POST.get("mark_read")
+        request.user.notifications.filter(read=False).update(read=True)
+        return redirect(request.path)
 
-    if note_id:
-        try:
-            note = request.user.notifications.get(id=note_id)
-            note.read = True
-            note.save()
-            if next_url:
-                return redirect(next_url)
-        except Notification.DoesNotExist:
-            pass
+    # Load notifications based on user group
+    if request.user.groups.filter(name__in=['Admin', 'Manager', 'Editor']).exists() or request.user.is_superuser:
+        # Allowed groups see all notifications
+        user_notifications = Notification.objects.all().order_by('-created_at')
+    else:
+        # Other users see only their own notifications
+        user_notifications = request.user.notifications.all().order_by('-created_at')
 
-    # Load all notifications
-    user_notifications = request.user.notifications.all().order_by('-created_at')
     context = {
         'notifications': user_notifications,
         'unread_count': request.user.notifications.filter(read=False).count(),
     }
-    return render(request, 'notification.html', context)
+
+    template = (
+        'dashboardnotification.html'
+        if request.resolver_match.url_name == 'dashboardnotification'
+        else 'notification.html'
+    )
+    return render(request, template, context)
+
 
 
 

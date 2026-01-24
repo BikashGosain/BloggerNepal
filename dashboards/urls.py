@@ -1,6 +1,9 @@
 from django.urls import path
 from django.contrib.auth.decorators import login_required
 from . import views
+# blogs app ko view bata funtion called: notifications
+from blogs import views as notification_views
+
 
 urlpatterns = [
     # Dashboard Home
@@ -26,7 +29,15 @@ urlpatterns = [
     path('profile/', login_required(views.profile, login_url='login'), name='profile'),
     path('profile/edit/', login_required(views.edit_profile, login_url='login'), name='edit_profile'),
 
-    path('dashboardnotification/', login_required(views.dashboardnotifications, login_url='login'), name='dashboardnotification'),
+    path(
+    'dashboardnotification/',
+    login_required(
+        notification_views.notifications,
+        login_url='login'
+    ),
+    name='dashboardnotification'
+),
+
     path('dashboardfollowers_list/<str:username>/', login_required(views.dashboardfollowers_list, login_url='login'), name='dashboardfollowers_list'),
     path('dashboardfollowing_list/<str:username>/', login_required(views.dashboardfollowing_list, login_url='login'), name='dashboardfollowing_list'),
 

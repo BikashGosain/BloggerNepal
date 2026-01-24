@@ -1,0 +1,87 @@
+<div class="notifications-container">
+
+    <!-- Top Action Buttons -->
+    {% if notifications %}
+    <div style="margin-bottom:15px;">
+        <!-- Delete All -->
+        <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" name="delete_all" class="btn btn-danger"  onclick="return confirm('Delete all notification?');">
+                Delete All Notifications
+            </button>
+        </form>
+
+        <!-- Mark All as Read -->
+        <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit"
+                    name="mark_all_read"
+                    class="btn btn-primary"
+                    {% if unread_count == 0 %}disabled{% endif %}  onclick="return confirm('All notification mark as read?');">
+                Mark All as Read
+            </button>
+        </form>
+    </div>
+    {% endif %}
+    
+
+    <!-- Notification List -->
+    {% for n in notifications %}
+    <div class="notification-item {% if not n.read %}unread{% endif %}" style="padding:10px; border-bottom:1px solid #eee;">
+        
+        <!-- Clickable notification opens blog -->
+        {% if n.blog %}
+        <a href="{% url 'blogs' n.blog.slug %}?notification={{ n.id }}" 
+           style="text-decoration:none; color:inherit; display:block;">
+        {{ n.message }}
+        
+        </a>
+        {% else %}
+            {{ n.message }}
+        {% endif %}
+
+        <!-- Delete single -->
+        <div style="margin-top:5px;">
+            <form method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit"
+                        name="delete_one"
+                        value="{{ n.id }}"
+                        class="btn btn-sm btn-outline-danger"
+                        onclick="return confirm('Delete this notification?');">
+                    Delete
+                </button>
+                </form>
+                <!-- Mark as read (only if unread) -->
+            {% if not n.read %}
+            <form method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit"
+                        name="mark_read"
+                        value="{{ n.id }}"
+                        class="btn btn-sm btn-outline-primary" >
+                    Mark as read
+                </button>
+            </form>
+            {% endif %}
+            
+        </div>
+    </div>
+    {% empty %}
+    <p>No notifications.</p>
+    {% endfor %}
+</div>
+
+<!-- Optional CSS -->
+<style>
+.notifications-container .unread {
+    background-color: #f0f6ff;
+    font-weight: 500;
+}
+.notification-item:hover {
+    background-color: #f9f9f9;
+}
+.btn {
+    margin-right: 5px;
+}
+</style>
