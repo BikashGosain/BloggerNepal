@@ -22,6 +22,8 @@
 
 
     <link href="{% static 'css/header.css' %}" rel="stylesheet">
+    <link href="{% static 'css/contactmessage.css' %}" rel="stylesheet">
+
 
     {% block extra_css %}{% endblock %}
 
@@ -29,6 +31,17 @@
 </head>
 
 <body>
+    <!-- Contact email message success or error -->
+{% if messages %}
+    <div id="messages-container">
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+                {{ message|safe }}
+                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
     <div class="container">
 
         <!-- DESKTOP HEADER -->
@@ -177,6 +190,10 @@
                     Home
                 </a>
 
+                <a class="p-2 font-weight-bold text-dark" href="{% url 'home' %}">
+                    Blogs
+                </a>
+
                 <a class="p-2 text-muted" href="{% url 'latestpost' %}">
                     Latest
                 </a>
@@ -249,6 +266,7 @@
 
 
 <script src="{% static 'js/header.js' %}"></script>
+<link href="{% static 'css/contactmessage.css' %}" rel="stylesheet">
 
 
     {% block extra_js %}{% endblock %}

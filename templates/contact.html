@@ -8,29 +8,7 @@
 
 {% block content %}
 
-<!-- Contact email message success or error -->
-{% if messages %}
-    <div id="messages-container">
-        {% for message in messages %}
-            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
-                {{ message|safe }}
-                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-            </div>
-        {% endfor %}
-    </div>
-{% endif %}
 
-<!-- Contact email message success or error -->
-{% if messages %}
-    <div id="messages-container">
-        {% for message in messages %}
-            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
-                {{ message|safe }}
-                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-            </div>
-        {% endfor %}
-    </div>
-{% endif %}
 <!-- Contact through email -->
 <h4 class="mb-4" style="font-family: Arial, sans-serif; color: #333;">Contact Us</h4>
 

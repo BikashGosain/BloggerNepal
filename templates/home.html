@@ -4,6 +4,7 @@
 
 {% block extra_css %}
 <link href="{% static 'css/contactmessage.css' %}" rel="stylesheet">
+<link href="{% static 'css/home.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -19,144 +20,261 @@
     </div>
 {% endif %}
 
-<!-- upto here Contact email message success or error -->
-
+<!-- Hero Section - Featured Post -->
 {% for post in featured_posts %}
 {% if forloop.first %}
 <div class="jumbotron p-3 p-md-5 text-white rounded bg-dark"
   style="background-image: url({{ post.featured_image.url }});background-blend-mode: overlay;background-size:cover;">
-  <div class="col-md-8 px-0">
+  <div class="col-md-10 px-0">
+    <span class="hero-category-badge">{{ post.category.category_name }}</span>
     <h1 class="display-4 font-italic">{{ post.title }}</h1>
     <p class="lead my-3">{{ post.short_description|slice:":150" }}...</p>
-    <p class="lead mb-0"><a href="{% url 'blogs' post.slug %}" class="text-white font-weight-bold">Continue reading...</a></p>
+    
+    <!-- Hero Stats -->
+    <div class="hero-stats mb-3">
+      <span class="hero-stat">
+        <i class="fas fa-eye"></i> {{ post.views|default:0 }} views
+      </span>
+      <span class="hero-stat">
+        <i class="fas fa-thumbs-up"></i> {{ post.total_likes }}
+      </span>
+      <span class="hero-stat">
+        <i class="far fa-clock"></i> {{ post.created_at|timesince }} ago
+      </span>
+    </div>
+
+    <p class="lead mb-0">
+      <a href="{% url 'blogs' post.slug %}" class="hero-read-btn">
+        Continue reading <i class="fas fa-arrow-right"></i>
+      </a>
+    </p>
   </div>
 </div>
 {% endif %}
 {% endfor %}
 
-<!-- Featured Posts -->
-<h3 class="text-uppercase text-warning" style="letter-spacing: 2px;">Featured Posts</h3>
-{% for post in featured_posts %}
-{% if not forloop.first %}
-<div class="row mb-2">
-  <div class="col-md-6">
-    <div class="card border-0">
+<!-- Featured Posts Section -->
+<h3 class="text-uppercase text-warning section-heading" style="letter-spacing: 2px;">
+  <i class="fas fa-star"></i> Featured Posts
+</h3>
+<div class="row">
+  {% for post in featured_posts %}
+  {% if not forloop.first %}
+  <div class="col-md-6 col-lg-4 mb-4">
+    <div class="card border-0 featured-post-card h-100">
+      <!-- Image Section -->
+      <div class="post-image-wrapper">
+        {% if post.featured_image %}
+          <img src="{{ post.featured_image.url }}" class="post-image" alt="{{ post.title }}">
+        {% else %}
+          <img src="https://via.placeholder.com/600x400?text=No+Image" class="post-image" alt="{{ post.title }}">
+        {% endif %}
+        <div class="post-overlay">
+          <a href="{% url 'blogs' post.slug %}" class="overlay-read-btn">
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+        <span class="post-category-badge">{{ post.category.category_name }}</span>
+      </div>
+
       <div class="card-body">
-        <h3> <a href="{% url 'blogs' post.slug %}" class="text-dark">{{ post.title }} </a> </h3>
-        <small class="mb-1 text-muted">{{ post.created_at | timesince}} ago | {{ post.author }} | Updated at: {{ post.updated_at|timesince }} ago</small>
-        <p class="card-text">{{ post.short_description|truncatewords:20 }}...</p>
+        <h5 class="post-title">
+          <a href="{% url 'blogs' post.slug %}" class="text-dark text-decoration-none">
+            {{ post.title|truncatewords:10 }}
+          </a>
+        </h5>
+        
+        <div class="post-meta mb-2">
+          <span class="meta-item">
+            <i class="far fa-user"></i> {{ post.author }}
+          </span>
+          <span class="meta-item">
+            <i class="far fa-clock"></i> {{ post.created_at|timesince }} ago
+          </span>
+        </div>
+
+        <p class="post-description">{{ post.short_description|truncatewords:15 }}...</p>
+
+        <!-- Stats Section -->
+        <div class="post-stats">
+          <span class="stat-badge stat-views">
+            <i class="fas fa-eye"></i> {{ post.views|default:0 }}
+          </span>
+          <span class="stat-badge stat-likes">
+            <i class="fas fa-thumbs-up"></i> {{ post.total_likes }}
+          </span>
+          <span class="stat-badge stat-dislikes">
+            <i class="fas fa-thumbs-down"></i> {{ post.total_dislikes }}
+          </span>
+        </div>
       </div>
     </div>
   </div>
+  {% endif %}
+  {% endfor %}
 </div>
-{% endif %}
-{% endfor %}
 
-<!-- UnFeatured Posts -->
-<h3 class="text-uppercase text-warning" style="letter-spacing: 2px;">Recent Posts</h3>
+<!-- Recent Posts Section -->
+<h3 class="text-uppercase text-warning section-heading" style="letter-spacing: 2px;">
+  <i class="fas fa-newspaper"></i> Recent Posts
+</h3>
 <main role="main" class="container p-0">
   <div class="row">
     <div class="col-md-8 blog-main">
-      {% for post in posts %}
-      <div class="card border-0">
-        <div class="card-body">
-          <h3><a href="{% url 'blogs' post.slug %}" class="text-dark">{{ post.title }} </a></h3>
-          <small class="mb-1 text-muted">{{ post.created_at | timesince}} ago | {{ post.author }} | Updated at: {{post.updated_at|timesince}}</small>
-          <p class="card-text">{{ post.short_description|truncatechars:20 }}...</p>
+      <div class="row">
+        {% for post in posts %}
+        <div class="col-md-12 mb-4">
+          <div class="card border-0 recent-post-card">
+            <div class="row g-0">
+              <!-- Image Column -->
+              <div class="col-md-4">
+                <div class="recent-post-image-wrapper">
+                  {% if post.featured_image %}
+                    <img src="{{ post.featured_image.url }}" class="recent-post-image" alt="{{ post.title }}">
+                  {% else %}
+                    <img src="https://via.placeholder.com/400x300?text=No+Image" class="recent-post-image" alt="{{ post.title }}">
+                  {% endif %}
+                  <div class="recent-post-overlay">
+                    <a href="{% url 'blogs' post.slug %}" class="overlay-icon">
+                      <i class="fas fa-arrow-right"></i>
+                    </a>
+                  </div>
+                  <span class="recent-category-badge">{{ post.category.category_name }}</span>
+                </div>
+              </div>
+
+              <!-- Content Column -->
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h4 class="recent-post-title">
+                    <a href="{% url 'blogs' post.slug %}" class="text-dark text-decoration-none">
+                      {{ post.title }}
+                    </a>
+                  </h4>
+
+                  <div class="recent-post-meta mb-2">
+                    <span class="meta-item">
+                      <i class="far fa-user"></i> {{ post.author }}
+                    </span>
+                    <span class="meta-item">
+                      <i class="far fa-calendar"></i> {{ post.created_at|date:"M d, Y" }}
+                    </span>
+                    <span class="meta-item">
+                      <i class="far fa-clock"></i> {{ post.created_at|timesince }} ago
+                    </span>
+                  </div>
+
+                  <p class="recent-post-description">
+                    {{ post.short_description|truncatewords:20 }}...
+                  </p>
+
+                  <!-- Stats and Actions -->
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="recent-post-stats">
+                      <span class="stat-badge stat-views">
+                        <i class="fas fa-eye"></i> {{ post.views|default:0 }}
+                      </span>
+                      <span class="stat-badge stat-likes">
+                        <i class="fas fa-thumbs-up"></i> {{ post.total_likes }}
+                      </span>
+                      <span class="stat-badge stat-dislikes">
+                        <i class="fas fa-thumbs-down"></i> {{ post.total_dislikes }}
+                      </span>
+                    </div>
+
+                    <a href="{% url 'blogs' post.slug %}" class="read-more-link">
+                      Read More <i class="fas fa-arrow-right"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+        {% endfor %}
       </div>
-      {% endfor %}
-
     </div>
-    <!-- /.blog-main -->
 
-
+    <!-- Sidebar -->
     <aside class="col-md-4 blog-sidebar">
-      <div class="p-3 mb-3 bg-light rounded">
-        <h4 class="font-italic">{{ about.about_heading }}</h4>
+      <!-- About Section -->
+      <div class="p-3 mb-3 bg-light rounded sidebar-about">
+        <h4 class="sidebar-heading">
+          <i class="fas fa-info-circle"></i> {{ about.about_heading }}
+        </h4>
         <p class="mb-0"><em>{{ about.about_description }}</em></p>
       </div>
 
-<!-- Contact through email
+      <!-- Contact Form -->
+      <div class="sidebar-contact">
+        <h4 class="sidebar-heading mb-4">
+          <i class="fas fa-envelope"></i> Contact Us
+        </h4>
 
-<h4 class="mb-4">Contact Us</h4>
+        <form method="POST" action="{% url 'contacthome' %}" class="contact-form">
+          {% csrf_token %}
 
-<form method="POST" action="{% url 'contact' %}">
-    {% csrf_token %}
+          <!-- Hidden field to redirect back to current page -->
+          <input type="hidden" name="next" value="{{ request.path }}">
 
-    <label>Subject:</label><br>
-    <input type="text" name="subject" required
-           {% if not user.is_authenticated %}disabled{% endif %}>
-    <br><br>
-
-    <label>Message:</label><br>
-    <textarea name="message" rows="5" required
-              {% if not user.is_authenticated %}disabled{% endif %}></textarea>
-    <br><br>
-
-    {% if user.is_authenticated %}
-        <button type="submit">Send Message</button>
-    {% else %}
-        <a href="{% url 'login' %}" class="btn btn-warning">
-            Login First
-        </a>
-    {% endif %}
-</form> -->
-<!-- Contact through email -->
-<h4 class="mb-4" style="font-family: Arial, sans-serif; color: #333;">Contact Us</h4>
-
-<form method="POST" action="{% url 'contacthome' %}" style="max-width: 500px; margin: auto;">
-    {% csrf_token %}
-
-    <!-- Hidden field to redirect back to current page -->
-    <input type="hidden" name="next" value="{{ request.path }}">
-
-    <label style="font-weight: bold; color: #555;">Subject:</label><br>
-    <input type="text" name="subject" required
-           {% if not user.is_authenticated %}disabled{% endif %}
-           style="width: 100%; padding: 10px; margin: 5px 0 15px 0; border-radius: 5px; border: 1px solid #ccc;">
-
-    <label style="font-weight: bold; color: #555;">Message:</label><br>
-    <textarea name="message" rows="5" required
+          <div class="form-group">
+            <label><i class="fas fa-heading"></i> Subject:</label>
+            <input 
+              type="text" 
+              name="subject" 
+              required
               {% if not user.is_authenticated %}disabled{% endif %}
-              style="width: 100%; padding: 10px; margin: 5px 0 15px 0; border-radius: 5px; border: 1px solid #ccc;"></textarea>
+              placeholder="Enter subject..."
+              class="form-control"
+            >
+          </div>
 
-    {% if user.is_authenticated %}
-        <button type="submit" 
-                style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-            Send Message
-        </button>
-    {% else %}
-        <a href="{% url 'login' %}" 
-           style="display: inline-block; background-color: #f0ad4e; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;">
-            Login First
-        </a>
-    {% endif %}
-</form>
+          <div class="form-group">
+            <label><i class="fas fa-comment"></i> Message:</label>
+            <textarea 
+              name="message" 
+              rows="5" 
+              required
+              {% if not user.is_authenticated %}disabled{% endif %}
+              placeholder="Enter your message..."
+              class="form-control"
+            ></textarea>
+          </div>
 
+          {% if user.is_authenticated %}
+            <button type="submit" class="btn-submit">
+              <i class="fas fa-paper-plane"></i> Send Message
+            </button>
+          {% else %}
+            <a href="{% url 'login' %}" class="btn-login">
+              <i class="fas fa-sign-in-alt"></i> Login First
+            </a>
+          {% endif %}
+        </form>
+      </div>
 
-
+      <!-- Social Links -->
       {% if social_links %}
-      <div class="p-3">
-        <h4 class="font-italic">Follow Us</h4>
-        <ol class="list-unstyled">
+      <div class="p-3 sidebar-social">
+        <h4 class="sidebar-heading">
+          <i class="fas fa-share-alt"></i> Follow Us
+        </h4>
+        <div class="social-links-container">
           {% for social_link in social_links %}
-          <li><a href="{{ social_link.link }}" target="_blank">{{ social_link.platform }}</a></li>
+          <a href="{{ social_link.link }}" target="_blank" rel="noopener noreferrer" class="social-link">
+            <i class="fas fa-link"></i> {{ social_link.platform }}
+          </a>
           {% endfor %}
-        </ol>
+        </div>
       </div>
       {% endif %}
+    </aside>
+  </div>
+</main>
 
-      
-    </aside><!-- /.blog-sidebar -->
-
-  </div><!-- /.row -->
-
-</main><!-- /.container -->
-
-</div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'js/contactmessage.js' %}"></script>
+<script src="{% static 'js/home.js' %}"></script>
 {% endblock %}
