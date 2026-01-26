@@ -8,57 +8,7 @@
 {% endblock %}
 
 {% block content %}
-{% if latestpost and latestpost.object_list %}
-
-<div class="rb-blog-container">
-    {% for blog in latestpost %}
-    <div class="rb-blog-item">
-
-        {% if blog.featured_image %}
-        <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}">
-        {% else %}
-        <img src="https://via.placeholder.com/600x400?text=No+Image" alt="{{ blog.title }}">
-        {% endif %}
-
-        <span class="rb-blog-category">
-            {% if blog.category %}{{ blog.category.category_name }}{% else %}None{% endif %}
-        </span>
-
-        <div class="rb-blog-content">
-            <a href="{{ blog.get_absolute_url }}" class="rb-blog-title">{{ blog.title }}</a>
-            <p class="rb-blog-description">{{ blog.short_description }}</p>
-
-            <div class="rb-blog-meta">
-                <span>{{ blog.created_at|timesince }} ago</span>
-                <span>{{ blog.views|default:0 }} views</span>
-                <span>{{ blog.total_likes }} likes</span>
-                <span>{{ blog.total_dislikes }} dislikes</span>
-            </div>
-
-            <a href="{{ blog.get_absolute_url }}" class="rb-blog-readmore">Read More</a>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-
-<div class="rb-pagination">
-    {% if latestpost.has_previous %}
-    <a href="?page=1">First</a>
-    <a href="?page={{ latestpost.previous_page_number }}">Previous</a>
-    {% endif %}
-
-    <span>Page {{ latestpost.number }} of {{ latestpost.paginator.num_pages }}</span>
-
-    {% if latestpost.has_next %}
-    <a href="?page={{ latestpost.next_page_number }}">Next</a>
-    <a href="?page={{ latestpost.paginator.num_pages }}">Last</a>
-    {% endif %}
-</div>
-
-
-{% else %}
-<p>No posts available.</p>
-{% endif %}
+{% include 'recentposts.html' %}
 {% endblock %}
 
 {% block extra_js %}

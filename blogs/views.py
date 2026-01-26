@@ -6,6 +6,7 @@ from django.contrib.auth.models import Group
 
 
 from follow_following.models import Follow
+from inymce.django.core.paginator import Paginator
 from .models import Blog, Category, Comment, Notification, Report
 from django.db.models import Q
 from django.contrib import messages
@@ -15,28 +16,46 @@ from django.http import JsonResponse
 
 def posts_by_category(request, category_id):
     # Logic to fetch posts by category_id
-    posts = Blog.objects.filter(category=category_id, status='Published')
-    # for check it category exists if not redirect to home
+    posts_by_category = Blog.objects.filter(category=category_id, status='Published')
+    paginator = Paginator(blogs, 9)
+    page = request.GET.get('page', 1)
+    blogs_page = paginator.get_page(page)
+
 
     try:
         category = Category.objects.get(id=category_id)
     except:
         return redirect('home')
 
-    # # (remember to create 404.html page for 404 error but for 5050 error create errorcode.html)for get object or 404 error page if category not found
-    # # for this to apply and show 404error.html page made changes in settings.py file debug = False and allowed host = ['*']
-    # category = get_object_or_404(Category, id=category_id)
-
     context = {
-        'posts': posts,
+        'posts_by_category': blogs_page,
         'category': category,
     }
     return render(request, 'posts_by_category.html', context)
+
+def posts_by_category(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+
+    posts_qs = Blog.objects.filter(
+        category=category,
+        status='Published'
+    ).order_by('-created_at')
+
+    paginator = Paginator(posts_qs, 9)
+    page = request.GET.get('page', 1)
+    blogs_page = paginator.get_page(page)
+
+    return render(request, 'posts_by_category.html', {
+        'posts_by_category': blogs_page,
+        'category': category,
+    })
+
 
 
 def blogs(request, slug):
     user = request.user
     single_blog = get_object_or_404(Blog, slug=slug, status='Published')
+    similar_posts = get_similar_posts(single_blog, limit=3)
 
     # 🔔 MARK NOTIFICATION AS READ (if coming from notification link)
     notification_id = request.GET.get("notification")
@@ -109,9 +128,27 @@ def blogs(request, slug):
         'can_report': can_report,
         'unread_count': unread_count,
         'is_following': is_following,
+        'similar_posts': similar_posts,
     }
 
     return render(request, 'blogsdetail.html', context)
+
+def get_similar_posts(blog, limit=3):
+    """
+    Returns posts from the same category as the given blog,
+    excluding the blog itself.
+    """
+    if not blog.category:
+        return Blog.objects.none()  # empty queryset if no category
+
+    similar_posts = Blog.objects.filter(
+        category=blog.category,
+        status='Published'
+    ).exclude(
+        id=blog.id  # exclude current blog
+    ).order_by('-created_at')[:limit]
+
+    return similar_posts
 
 
 

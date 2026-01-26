@@ -1,89 +1,52 @@
-<!-- Featured Posts Section -->
-<div class="featured-posts-section">
-    <h3 class="text-uppercase text-warning section-heading" style="letter-spacing: 2px;">
-        <i class="fas fa-star"></i> Featured Posts
-    </h3>
+{% if featured_posts and featured_posts.object_list %}
 
-    {% if featured_posts %}
-        <!-- Items Per Page Selector -->
-        <div class="d-flex justify-content-end my-3">
-            <div class="items-per-page">
-                <label for="featured-items-per-page">
-                    <i class="fas fa-th"></i> Posts per page:
-                </label>
-                <select id="featured-items-per-page" class="form-select-sm">
-                    <option value="3" selected>3</option>
-                    <option value="6">6</option>
-                    <option value="9">9</option>
-                    <option value="12">12</option>
-                </select>
+<div class="rb-blog-container">
+    {% for blog in featured_posts %}
+    <div class="rb-blog-item">
+
+        {% if blog.featured_image %}
+        <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}">
+        {% else %}
+        <img src="https://via.placeholder.com/600x400?text=No+Image" alt="{{ blog.title }}">
+        {% endif %}
+
+        <span class="rb-blog-category">
+            {% if blog.category %}{{ blog.category.category_name }}{% else %}None{% endif %}
+        </span>
+
+        <div class="rb-blog-content">
+            <a href="{{ blog.get_absolute_url }}" class="rb-blog-title">{{ blog.title }}</a>
+            <p class="rb-blog-description">{{ blog.short_description }}</p>
+
+            <div class="rb-blog-meta">
+                <span><i class="far fa-user"></i> {{ blog.author }}</span>
+                <span> <i class="far fa-clock"></i> {{ blog.created_at|timesince }} ago</span>
+                <span>{{ blog.views|default:0 }} <i class="fas fa-eye"></i>(views)</span>
+                <span>{{ blog.total_likes }} <i class="fas fa-thumbs-up"></i>(likes)</span>
+                <span>{{ blog.total_dislikes }} <i class="fas fa-thumbs-down"></i>(dislikes)</span>
             </div>
+
+            <a href="{{ blog.get_absolute_url }}" class="rb-blog-readmore">Read More</a>
         </div>
+    </div>
+    {% endfor %}
+</div>
 
-        <div class="row featured-posts-grid">
-            {% for post in featured_posts %}
-            {% if not forloop.first %} <!-- Skip first post as it's in hero -->
-            <div class="col-md-6 col-lg-4 mb-4 featured-post-item">
-                <div class="card border-0 featured-post-card h-100">
-                    <!-- Image Section -->
-                    <div class="post-image-wrapper">
-                        {% if post.featured_image %}
-                            <img src="{{ post.featured_image.url }}" class="post-image" alt="{{ post.title }}">
-                        {% else %}
-                            <img src="https://via.placeholder.com/600x400?text=No+Image" class="post-image" alt="{{ post.title }}">
-                        {% endif %}
-                        <div class="post-overlay">
-                            <a href="{% url 'blogs' post.slug %}" class="overlay-read-btn">
-                                <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
-                        <span class="post-category-badge">{{ post.category.category_name }}</span>
-                    </div>
+<div class="rb-pagination">
+    {% if featured_posts.has_previous %}
+    <a href="?page=1" class="page-link">First</a>
+    <a href="?page={{ featured_posts.previous_page_number }}" class="page-link">Previous</a>
+    {% endif %}
 
-                    <div class="card-body">
-                        <h5 class="post-title">
-                            <a href="{% url 'blogs' post.slug %}" class="text-dark text-decoration-none">
-                                {{ post.title|truncatewords:10 }}
-                            </a>
-                        </h5>
-                        
-                        <div class="post-meta mb-2">
-                            <span class="meta-item">
-                                <i class="far fa-user"></i> {{ post.author }}
-                            </span>
-                            <span class="meta-item">
-                                <i class="far fa-clock"></i> {{ post.created_at|timesince }} ago
-                            </span>
-                        </div>
+    <span>Page {{ featured_posts.number }} of {{ featured_posts.paginator.num_pages }}</span>
 
-                        <p class="post-description">{{ post.short_description|truncatewords:15 }}...</p>
-
-                        <!-- Stats Section -->
-                        <div class="post-stats">
-                            <span class="stat-badge stat-views">
-                                <i class="fas fa-eye"></i> {{ post.views|default:0 }}
-                            </span>
-                            <span class="stat-badge stat-likes">
-                                <i class="fas fa-thumbs-up"></i> {{ post.total_likes }}
-                            </span>
-                            <span class="stat-badge stat-dislikes">
-                                <i class="fas fa-thumbs-down"></i> {{ post.total_dislikes }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-            {% endfor %}
-        </div>
-
-        <!-- Pagination Container -->
-        <div id="featured-pagination-container" class="pagination-container"></div>
-
-    {% else %}
-        <div class="no-posts-message">
-            <i class="fas fa-star-half-alt"></i>
-            <p>No featured posts available at the moment.</p>
-        </div>
+    {% if featured_posts.has_next %}
+    <a href="?page={{ featured_posts.next_page_number }}" class="page-link">Next</a>
+    <a href="?page={{ featured_posts.paginator.num_pages }}" class="page-link">Last</a>
     {% endif %}
 </div>
+
+
+{% else %}
+<p>No posts available.</p>
+{% endif %}

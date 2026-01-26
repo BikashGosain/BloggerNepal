@@ -7,9 +7,6 @@
 {% block content %}
 
 
-<!-- Contact through email -->
-<h4 class="mb-4" style="font-family: Arial, sans-serif; color: #333;">Contact Us</h4>
-
 <form method="POST" action="{% url 'contacthome' %}" style="max-width: 500px; margin: auto;">
     {% csrf_token %}
 

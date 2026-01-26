@@ -1,32 +1,66 @@
 {% extends 'base.html' %}
+
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/randomblogs.css' %}" rel="stylesheet">
+
+{% endblock %}
+
 {% block content %}
+{% if posts_by_category and posts_by_category.object_list %}
 
-<h2 class="text-uppercase text-warning" style="letter-spacing: 2px;">Category: {{ category }}</h2>
+<div class="rb-blog-container">
+    {% for blog in posts_by_category %}
+    <div class="rb-blog-item">
 
-<!-- Search widget-->
-            <!-- search -->
-                <div class="col-4">
-                    <form class="form-inline" method="GET" action="{% url 'search' %}">
-                        <div class="input-group">
-                            <input class="form-control" type="text" name="keyword" placeholder="Enter search term..." aria-label="Search" >
-                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-                        </div>
-                    </form>
-                </div>
+        {% if blog.featured_image %}
+        <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}">
+        {% else %}
+        <img src="https://via.placeholder.com/600x400?text=No+Image" alt="{{ blog.title }}">
+        {% endif %}
 
-{%if posts %}
-{% for post in posts %}
-<div class="card border-0">
-    <div class="card-body">
-        <h3> <a href="{% url 'blogs' post.slug %}" class="text-dark">{{ post.title }} </a> </h3>
-        <small class="mb-1 text-muted">{{ post.created_at | timesince}} ago | {{ post.author }} | Updated at: {{
-            post.updated_at }}</small>
-        <p class="card-text">{{ post.short_description|truncatechars:20 }}...</p>
+        <span class="rb-blog-category">
+            {% if blog.category %}{{ blog.category.category_name }}{% else %}None{% endif %}
+        </span>
+
+        <div class="rb-blog-content">
+            <a href="{{ blog.get_absolute_url }}" class="rb-blog-title">{{ blog.title }}</a>
+            <p class="rb-blog-description">{{ blog.short_description }}</p>
+
+            <div class="rb-blog-meta">
+                <span><i class="far fa-user"></i> {{ blog.author }}</span>
+                <span> <i class="far fa-clock"></i> {{ blog.created_at|timesince }} ago</span>
+                <span>{{ blog.views|default:0 }} <i class="fas fa-eye"></i>(views)</span>
+                <span>{{ blog.total_likes }} <i class="fas fa-thumbs-up"></i>(likes)</span>
+                <span>{{ blog.total_dislikes }} <i class="fas fa-thumbs-down"></i>(dislikes)</span>
+            </div>
+
+            <a href="{{ blog.get_absolute_url }}" class="rb-blog-readmore">Read More</a>
+        </div>
     </div>
+    {% endfor %}
 </div>
-{% endfor %}
+
+<div class="rb-pagination">
+    {% if posts_by_category.has_previous %}
+    <a href="?page=1">First</a>
+    <a href="?page={{ posts_by_category.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    <span>Page {{ posts_by_category.number }} of {{ posts_by_category.paginator.num_pages }}</span>
+
+    {% if posts_by_category.has_next %}
+    <a href="?page={{ posts_by_category.next_page_number }}">Next</a>
+    <a href="?page={{ posts_by_category.paginator.num_pages }}">Last</a>
+    {% endif %}
+</div>
+
 {% else %}
-<p>No posts available in this category.</p>
+<p>No posts available for this category ({{ category.category_name }}).</p>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
 
 {% endblock %}

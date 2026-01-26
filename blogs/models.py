@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.urls import reverse
 
+from inymce.django.template.defaultfilters import slugify
+
 
 # Create your models here.
 
@@ -59,6 +61,17 @@ class Blog(models.Model):
         return self.title
     def get_absolute_url(self):
         return reverse('blogs', kwargs={'slug': self.slug})
+    
+    def save(self, *args, **kwargs):
+        if self.title:
+            self.title = self.title[:1].upper() + self.title[1:]
+
+        if not self.slug:
+            self.slug = slugify(self.title)
+
+        super().save(*args, **kwargs)
+
+
     
 # report option on blog
 class Report(models.Model):

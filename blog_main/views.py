@@ -11,6 +11,10 @@ from django.core.paginator import Paginator
 def home(request):
     categories = Category.objects.all()
     featured_posts = Blog.objects.filter(is_featured=True, status='Published')
+    paginator = Paginator(featured_posts, 6)
+    page = request.GET.get('page', 1)
+    blogs_page = paginator.get_page(page)
+
     posts = Blog.objects.filter(is_featured=False, status='Published').order_by('-created_at')
 
     # Fetch About Us information
@@ -21,7 +25,7 @@ def home(request):
 
     context = {
         # 'categories': categories, # removed as we are using context processor for categories
-        'featured_posts': featured_posts,
+        'featured_posts': blogs_page,
         'posts': posts,
         'about': about,
     }

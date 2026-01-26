@@ -1,484 +1,244 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/blogdetails.css' %}" rel="stylesheet">
+<link href="{% static 'css/similarposts.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
-
-<!-- Page content-->
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- Post content-->
-            <article>
-                <!-- Post header-->
-                <header class="mb-4">
-                    <!-- Post title-->
-                    <h1 class="fw-bolder mb-1">{{ single_blog.title }}</h1>
-
+<div class="bd-container">
+    <div class="bd-wrapper">
+        <!-- Main Content -->
+        <div class="bd-main">
+            <article class="bd-article">
+                <!-- Header -->
+                <header class="bd-header">
+                    <h1 class="bd-title">{{ single_blog.title }}</h1>
+                    
+                    <!-- Follow Button -->
                     {% if user.is_authenticated and user != single_blog.author %}
-
-    {% if is_following %}
-        <a href="{% url 'unfollow_user' single_blog.author.id %}"
-           class="btn btn-danger btn-sm">
-            Unfollow
-        </a>
-    {% else %}
-        <a href="{% url 'follow_user' single_blog.author.id %}"
-           class="btn btn-primary btn-sm">
-            Follow
-        </a>
-    {% endif %}
-
-{% endif %}
-
-
-<p>Followers: {{ single_blog.author.followers.count }}</p>
-<p>Following: {{ single_blog.author.following.count }}</p>
-
-
-
-                    <!-- Post meta content-->
-                    <div class="text-muted fst-italic mb-2">{{ single_blog.created_at | timesince}} ago | By {{single_blog.author}}
-                        <!-- for like and dislike -->
-                         <!-- Like Button -->{% if user.is_authenticated %}
-    <a 
-        href="{% url 'blog_like' single_blog.id %}" 
-        style="
-            display:inline-block;
-            padding:8px 16px;
-            color:white;
-            text-decoration:none;
-            border-radius:5px;
-            font-weight:bold;
-            {% if user in single_blog.likes.all %}
-                background-color:#28a745;
-            {% else %}
-                background-color:#6c757d;
-            {% endif %}
-        "
-    >
-        👍 Like ({{ single_blog.total_likes }})
-    </a>
-
-    <!-- Dislike Button -->
-    <a 
-        href="{% url 'blog_dislike' single_blog.id %}" 
-        style="
-            display:inline-block;
-            padding:8px 16px;
-            color:white;
-            text-decoration:none;
-            border-radius:5px;
-            font-weight:bold;
-            {% if user in single_blog.dislikes.all %}
-                background-color:#dc3545;
-            {% else %}
-                background-color:#6c757d;
-            {% endif %}
-        "
-    >
-        👎 Dislike ({{ single_blog.total_dislikes }})
-    </a>
-
-    <!-- Report Button -->
-     
-     
-{% if user.is_authenticated and user != single_blog.author %}
-    {% if user_reported %}
-        {% if can_report %}
-            <button style="
-                display:inline-block;
-                padding:8px 16px;
-                color:white;
-                border:none;
-                border-radius:5px;
-                font-weight:bold;
-                background-color:#ff5722;
-                cursor:pointer;
-                margin-left:10px;
-            " onclick="openReportModal()">
-                🚩 Report Again
-            </button>
-        {% else %}
-            <span style="
-                display:inline-block;
-                padding:8px 16px;
-                color:white;
-                background-color:#6c757d;
-                border-radius:5px;
-                font-weight:bold;
-                margin-left:10px;
-                cursor:not-allowed;
-            ">
-                🚩 Already Reported
-            </span>
-        {% endif %}
-    {% else %}
-        <button style="
-            display:inline-block;
-            padding:8px 16px;
-            color:white;
-            border:none;
-            border-radius:5px;
-            font-weight:bold;
-            background-color:#ffc107;
-            cursor:pointer;
-            margin-left:10px;
-        " onclick="openReportModal()">
-            🚩 Report
-        </button>
-    {% endif %}
-{% endif %}
-
-
-{% else %}
-    <a href="{% url 'login' %}" class="btn btn-sm btn-warning">Login to report, Like or Dislike</a>
-{% endif %}
-
-                    </div>
-
-                    <!-- Report Modal -->
-<div id="reportModal" style="
-    display:none;
-    position:fixed;
-    top:0; left:0;
-    width:100%; height:100%;
-    background-color: rgba(0,0,0,0.5);
-    z-index:1000;
-    justify-content:center;
-    align-items:center;
-">
-    <div style="
-        background:white;
-        padding:20px;
-        border-radius:10px;
-        width:90%;
-        max-width:400px;
-        position:relative;
-    ">
-        <h4>Report Blog</h4>
-        <form method="POST" action="{% url 'report_blog' single_blog.id %}">
-            {% csrf_token %}
-            <textarea name="reason" rows="4" style="width:100%; padding:8px; margin-bottom:10px;" placeholder="Enter reason (optional)"></textarea>
-            <div style="text-align:right;">
-                <button type="button" onclick="closeReportModal()" style="margin-right:10px; padding:6px 12px;">Cancel</button>
-                <button type="submit" style="padding:6px 12px; background-color:#ffc107; border:none; border-radius:5px;">Submit</button>
-            </div>
-        </form>
-        <span style="position:absolute; top:10px; right:15px; cursor:pointer; font-weight:bold;" onclick="closeReportModal()">×</span>
-    </div>
-</div>
-
-<script>
-function openReportModal() {
-    document.getElementById('reportModal').style.display = 'flex';
-}
-function closeReportModal() {
-    document.getElementById('reportModal').style.display = 'none';
-}
-</script>
-                        
-                    <!-- Post category-->
-                    <a class="badge bg-warning text-decoration-none text-light"
-                        href="{% url 'posts_by_category' single_blog.category.id %}">{{ single_blog.category }}</a>
-                </header>
-                <!-- Preview image figure-->
-                 {% load static %}
-
-{% if blog.featured_image %}
-    <figure class="mb-4"><img class="img-fluid rounded" src="{{ single_blog.featured_image.url }}" alt="..." /></figure>
-{% else %}
-    <!-- <figure class="mb-4"><img class="img-fluid rounded" src="{% static 'images/default.png' %}" alt="..." /></figure> -->
-     
-{% endif %}
-
-
-                
-                <!-- Post content-->
-                <section class="mb-5">
-                    <p class="fs-5 mb-4">{{ single_blog.short_description }}</p>
-                    <div class="fs-5 mb-4">
-    {% if single_blog.blog_body %}
-    {{ single_blog.blog_body|safe }}
-{% else %}
-    <p>No content yet.</p>
-{% endif %}
-</div>
-
-
-
-                    <!-- comment section -->
-                    <br><br>
-                    <div class="form-group">
-
-                        {% if user.is_authenticated %}
-                        <h4 class="mb-4">Leave a Comment</h4>
-                        <form action="" method="POST" id="commentForm">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <textarea class="form-control" name="comment" placeholder="Write your comment here..."
-                                    required></textarea>
-                            </div>
-                            <input type="submit" value="Submit Comment" class="btn btn-primary mt-2">
-                        </form>
-
-                        <script>
-                            document.getElementById('commentForm').addEventListener('submit', function (e) {
-                                e.preventDefault();  // stop page reload
-
-                                const formData = new FormData(this);
-
-                                fetch("", {
-                                    method: "POST",
-                                    body: formData,
-                                    headers: {
-                                        "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
-                                    }
-                                }).then(response => location.reload()); // or update DOM dynamically
-                            });
-                        </script>
-
+                    <div class="bd-follow-section">
+                        {% if is_following %}
+                        <a href="{% url 'unfollow_user' single_blog.author.id %}" class="bd-btn bd-btn-unfollow">
+                            Unfollow
+                        </a>
                         {% else %}
-                        <p>Please <a href="{% url 'login' %}">login</a> to leave a comment.</p>
+                        <a href="{% url 'follow_user' single_blog.author.id %}" class="bd-btn bd-btn-follow">
+                            Follow
+                        </a>
                         {% endif %}
                     </div>
+                    {% endif %}
 
+                    <!-- Meta Info -->
+                    <div class="bd-meta">
+                        <span class="bd-meta-item">
+                            <i class="far fa-clock"></i> {{ single_blog.created_at|timesince }} ago
+                        </span>
+                        <span class="bd-meta-item">
+                            <i class="far fa-user"></i> {{ single_blog.author }}
+                        </span>
+                    </div>
 
+                    <!-- Action Buttons -->
+                    {% if user.is_authenticated %}
+                    <div class="bd-actions">
+                        <!-- Like -->
+                        <a href="{% url 'blog_like' single_blog.id %}" 
+                           class="bd-action-btn {% if user in single_blog.likes.all %}bd-active-like{% endif %}">
+                            👍 Like <span class="bd-count">({{ single_blog.total_likes }})</span>
+                        </a>
 
-                    <div class="mt-5">
-                        <!-- comment count after delete without reloading page after delete -->
-                        <h4 class="mb-4">
-    Comments (<span id="comment-count">{{ comment_count }}</span>)
-</h4>
+                        <!-- Dislike -->
+                        <a href="{% url 'blog_dislike' single_blog.id %}" 
+                           class="bd-action-btn {% if user in single_blog.dislikes.all %}bd-active-dislike{% endif %}">
+                            👎 Dislike <span class="bd-count">({{ single_blog.total_dislikes }})</span>
+                        </a>
+
+                        <!-- Report -->
+                        {% if user != single_blog.author %}
+                            {% if user_reported %}
+                                {% if can_report %}
+                                <button class="bd-action-btn bd-report-btn" onclick="bdOpenReportModal()">
+                                    🚩 Report Again
+                                </button>
+                                {% else %}
+                                <button class="bd-action-btn bd-disabled" disabled>
+                                    🚩 Already Reported
+                                </button>
+                                {% endif %}
+                            {% else %}
+                            <button class="bd-action-btn bd-report-btn" onclick="bdOpenReportModal()">
+                                🚩 Report
+                            </button>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="bd-login-prompt">
+                        Login to Like, Dislike or Report
+                    </a>
+                    {% endif %}
+
+                    <!-- Category Badge -->
+                    <a class="bd-category" href="{% url 'posts_by_category' single_blog.category.id %}">
+                        {{ single_blog.category }}
+                    </a>
+                </header>
+
+                <!-- Featured Image -->
+                {% if single_blog.featured_image %}
+                <figure class="bd-featured-image">
+                    <img src="{{ single_blog.featured_image.url }}" alt="{{ single_blog.title }}">
+                </figure>
+                {% endif %}
+
+                <!-- Content -->
+                <section class="bd-content">
+                    <p class="bd-excerpt">{{ single_blog.short_description }}</p>
+                    <div class="bd-body">
+                        {% if single_blog.blog_body %}
+                            {{ single_blog.blog_body|safe }}
+                        {% else %}
+                            <p>No content yet.</p>
+                        {% endif %}
+                    </div>
+                </section>
+{% include 'similarposts.html' %}
+
+                <!-- Comments Section -->
+                <section class="bd-comments-section">
+                    <!-- Comment Form -->
+                    {% if user.is_authenticated %}
+                    <h4 class="bd-section-title">Leave a Comment</h4>
+                    <form class="bd-comment-form" id="bd-comment-form">
+                        {% csrf_token %}
+                        <textarea name="comment" class="bd-textarea" placeholder="Write your comment here..." required></textarea>
+                        <button type="submit" class="bd-btn bd-btn-primary">Submit Comment</button>
+                    </form>
+                    {% else %}
+                    <p class="bd-login-message">
+                        Please <a href="{% url 'login' %}">login</a> to leave a comment.
+                    </p>
+                    {% endif %}
+
+                    <!-- Comments List -->
+                    <div class="bd-comments-list">
+                        <h4 class="bd-section-title">
+                            Comments (<span id="bd-comment-count">{{ comment_count }}</span>)
+                        </h4>
 
                         {% for comment in comments %}
                         {% if not comment.parent %}
-                        <div class="card mb-3" id="comment-{{ comment.id }}">
-                            <div class="card-body">
-                                <small class="text-muted">
-                                    <strong>{{ comment.user }} · {{ comment.created_at|timesince }} ago</strong>
-                                </small>
+                        <div class="bd-comment" id="bd-comment-{{ comment.id }}">
+                            <div class="bd-comment-header">
+                                <strong>{{ comment.user }}</strong>
+                                <span class="bd-comment-time">{{ comment.created_at|timesince }} ago</span>
+                            </div>
 
-                                <!-- for edit comment in main comment only -->
-                                <div id="edit-form-{{ comment.id }}" class="d-none mt-2">
-                                    <textarea class="form-control mb-2"
-                                        id="edit-text-{{ comment.id }}">{{ comment.comment }}</textarea>
-
-                                    <button class="btn btn-sm btn-primary" onclick="submitEdit({{ comment.id }})">
+                            <!-- Edit Form -->
+                            <div id="bd-edit-form-{{ comment.id }}" class="bd-edit-form bd-hidden">
+                                <textarea class="bd-textarea" id="bd-edit-text-{{ comment.id }}">{{ comment.comment }}</textarea>
+                                <div class="bd-edit-actions">
+                                    <button class="bd-btn bd-btn-primary bd-btn-sm" onclick="bdSubmitEdit({{ comment.id }})">
                                         Save
                                     </button>
-
-                                    <button class="btn btn-sm btn-secondary" onclick="toggleEditForm({{ comment.id }})">
+                                    <button class="bd-btn bd-btn-secondary bd-btn-sm" onclick="bdToggleEditForm({{ comment.id }})">
                                         Cancel
                                     </button>
                                 </div>
-
-                                <!-- for edit and delete comment in main comment only -->
-
-
-                                {% if request.user == comment.user %}
-            <button class="btn btn-link p-0 text-success" onclick="toggleEditForm({{ comment.id }})">
-                <i class="fa fa-edit"></i>
-            </button>{% endif %}
-            &nbsp;
-            {% if request.user == comment.user or request.user.is_superuser %}
-            <button type="button" class="btn btn-link text-danger p-0 ms-2" onclick="deleteComment({{ comment.id }})">
-                <i class="fa fa-trash text-danger"></i>
-            </button>
-            {% endif %}
-
-
-
-                                <p class="card-text">{{ comment.comment }}</p>
-
-                                <!-- Reply button -->
-                                <button type="button" class="btn btn-link p-0"
-                                    onclick="toggleReplyForm('{{ comment.id }}')">
-                                    Reply
-                                </button>
-
-
-
-
-                                <!-- Reply form -->
-                                <form method="POST" class="reply-form mt-2 d-none" id="reply-form-{{ comment.id }}">
-
-                                    {% csrf_token %}
-                                    <input type="hidden" name="parent_id" value="{{ comment.id }}">
-
-                                    <textarea name="comment" class="form-control mb-2" rows="2"
-                                        placeholder="Write a reply..." required></textarea>
-
-                                    <button type="submit" class="btn btn-sm btn-primary">Reply</button>
-                                </form>
-
-
-                                <!-- 🔁 RECURSION HAPPENS HERE -->
-                                {% for reply in comment.replies.all %}
-                                {% include 'blogs/comment.html' with comment=reply level=level|add:1 %}
-                                {% endfor %}
-
-
-
                             </div>
+
+                            <!-- Comment Actions -->
+                            <div class="bd-comment-actions">
+                                {% if request.user == comment.user %}
+                                <button class="bd-icon-btn bd-edit-btn" onclick="bdToggleEditForm({{ comment.id }})">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                                {% endif %}
+                                {% if request.user == comment.user or request.user.is_superuser %}
+                                <button class="bd-icon-btn bd-delete-btn" onclick="bdDeleteComment({{ comment.id }})">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+
+                            <p class="bd-comment-text">{{ comment.comment }}</p>
+
+                            <!-- Reply Button -->
+                            <button class="bd-reply-btn" onclick="bdToggleReplyForm('{{ comment.id }}')">
+                                Reply
+                            </button>
+
+                            <!-- Reply Form -->
+                            <form class="bd-reply-form bd-hidden" id="bd-reply-form-{{ comment.id }}">
+                                {% csrf_token %}
+                                <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                <textarea name="comment" class="bd-textarea bd-textarea-sm" placeholder="Write a reply..." required></textarea>
+                                <button type="submit" class="bd-btn bd-btn-primary bd-btn-sm">Reply</button>
+                            </form>
+
+                            <!-- Nested Replies -->
+                            {% for reply in comment.replies.all %}
+                            {% include 'blogs/comment.html' with comment=reply level=level|add:1 %}
+                            {% endfor %}
                         </div>
                         {% endif %}
                         {% empty %}
-                        <p>No comments yet.</p>
+                        <p class="bd-no-comments">No comments yet.</p>
                         {% endfor %}
-
-
-                        <br>
-
                     </div>
                 </section>
             </article>
-
         </div>
-        <!-- Side widgets-->
-        <div class="col-lg-4">
-            <!-- Categories widget-->
-            <div class="card mb-4 p-3">
-                <h4 class="font-italic">Categories</h4>
-                <div class="card-body">
-                    <div class="row">
 
-                        <div class="col-sm-6">
-                            <ul class="list-unstyled mb-0">
-                                {% for cate in categories %}
-                                <li><a href="{% url 'posts_by_category' cate.id %}">{{ cate.category_name }}</a></li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+        <!-- Sidebar -->
+        <aside class="bd-sidebar">
+            <!-- Categories Widget -->
+            <div class="bd-widget">
+                <h4 class="bd-widget-title">Categories</h4>
+                <ul class="bd-category-list">
+                    {% for cate in categories %}
+                    <li><a href="{% url 'posts_by_category' cate.id %}">{{ cate.category_name }}</a></li>
+                    {% endfor %}
+                </ul>
             </div>
-            <!-- Side widget-->
+
+            <!-- Social Links Widget -->
             {% if social_links %}
-            <div class="p-3">
-                <h4 class="font-italic">Follow Us</h4>
-                <ol class="list-unstyled">
+            <div class="bd-widget">
+                <h4 class="bd-widget-title">Follow Us</h4>
+                <ul class="bd-social-list">
                     {% for social_link in social_links %}
                     <li><a href="{{ social_link.link }}" target="_blank">{{ social_link.platform }}</a></li>
                     {% endfor %}
-                </ol>
+                </ul>
             </div>
             {% endif %}
-        </div>
+        </aside>
     </div>
 </div>
 
+<!-- Report Modal -->
+<div id="bd-report-modal" class="bd-modal">
+    <div class="bd-modal-content">
+        <span class="bd-modal-close" onclick="bdCloseReportModal()">&times;</span>
+        <h4 class="bd-modal-title">Report Blog</h4>
+        <form method="POST" action="{% url 'report_blog' single_blog.id %}">
+            {% csrf_token %}
+            <textarea name="reason" class="bd-textarea" rows="4" placeholder="Enter reason (optional)"></textarea>
+            <div class="bd-modal-actions">
+                <button type="button" class="bd-btn bd-btn-secondary" onclick="bdCloseReportModal()">Cancel</button>
+                <button type="submit" class="bd-btn bd-btn-warning">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
 
-<!-- Replace your JS with THIS (ONLY ONE SCRIPT, bottom of blogs.html) so that no reload (comment no reload, reply on that comment no reload but reply on that reply take reload) Now no reload now -->
-<script>
-    function toggleReplyForm(id) {
-        const form = document.getElementById(`reply-form-${id}`);
-        if (form) {
-            form.classList.toggle('d-none');
-        }
-    }
-
-    document.addEventListener('submit', function (e) {
-        const form = e.target;
-
-        // 🔑 This catches ALL reply forms (including nested replies)
-        if (form.querySelector('input[name="parent_id"]')) {
-            e.preventDefault(); // STOP page reload
-
-            const formData = new FormData(form);
-
-            fetch("", {
-                method: "POST",
-                body: formData,
-                headers: {
-                    "X-CSRFToken": form.querySelector('[name=csrfmiddlewaretoken]').value
-                }
-            })
-                .then(res => {
-                    if (res.ok) {
-                        location.reload(); // TEMP: confirms everything works
-                    }
-                });
-        }
-    });
-</script>
-
-<!-- for Delete comment and also comment count without fully reload page-->
-<script>
-function deleteComment(commentId) {
-    if (!confirm("Delete this comment?")) return;
-
-    fetch("{% url 'delete_comment' 0 %}".replace("0", commentId), {
-        method: "POST",
-        headers: {
-            "X-CSRFToken": getCSRFToken(),
-        }
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            // ✅ Remove comment from DOM
-            const el = document.getElementById(`comment-${commentId}`);
-            if (el) el.remove();
-
-            // ✅ Update comment count
-            const countEl = document.getElementById("comment-count");
-            countEl.innerText = Math.max(0, parseInt(countEl.innerText) - 1);
-        } else {
-            alert(data.error || "Delete failed");
-        }
-    });
-}
-
-function getCSRFToken() {
-    return document.querySelector('[name=csrfmiddlewaretoken]').value;
-}
-</script>
-
-
-
-<!-- for edit comment -->
-<script>
-    function toggleEditForm(id) {
-        const form = document.getElementById(`edit-form-${id}`);
-        form.classList.toggle('d-none');
-    }
-
-    function submitEdit(commentId) {
-        const textarea = document.getElementById(`edit-text-${commentId}`);
-        const newText = textarea.value.trim();
-
-        if (!newText) {
-            alert("Comment cannot be empty");
-            return;
-        }
-
-        fetch("{% url 'edit_comment' 0 %}".replace("0", commentId), {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": getCSRFToken(),
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: `comment=${encodeURIComponent(newText)}`
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // 🔁 Update comment text instantly
-                    document
-                        .querySelector(`#comment-${commentId} p`)
-                        .innerText = data.comment;
-
-                    toggleEditForm(commentId);
-                } else {
-                    alert(data.error || "Edit failed");
-                }
-            });
-    }
-
-    function getCSRFToken() {
-        return document.querySelector('[name=csrfmiddlewaretoken]').value;
-    }
-</script>
-
-
-
+{% block extra_js %}
+<script src="{% static 'js/blogdetails.js' %}"></script>
+<script src="{% static 'js/similarposts.js' %}"></script>
 {% endblock %}
