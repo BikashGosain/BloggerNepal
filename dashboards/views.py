@@ -205,7 +205,7 @@ def edit_post(request, pk):
         else:
             messages.error(
                 request,
-                f"✅ Post edited successfully. New title: '{post.title}'."
+                f"✅ Post not edited for title: '{post.title}'."
             )
     form = BlogPostForm(instance=post)
     context = {
