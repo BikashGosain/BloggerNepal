@@ -8,10 +8,10 @@
 {% endblock %}
 
 {% block content %}
-{% if latestpost and latestpost.object_list %}
+{% if randomblogs and randomblogs.object_list %}
 
 <div class="rb-blog-container">
-    {% for blog in latestpost %}
+    {% for blog in randomblogs %}
     <div class="rb-blog-item">
 
         {% if blog.featured_image %}
@@ -42,19 +42,18 @@
 </div>
 
 <div class="rb-pagination">
-    {% if latestpost.has_previous %}
+    {% if randomblogs.has_previous %}
     <a href="?page=1">First</a>
-    <a href="?page={{ latestpost.previous_page_number }}">Previous</a>
+    <a href="?page={{ randomblogs.previous_page_number }}">Previous</a>
     {% endif %}
 
-    <span>Page {{ latestpost.number }} of {{ latestpost.paginator.num_pages }}</span>
+    <span>Page {{ randomblogs.number }} of {{ randomblogs.paginator.num_pages }}</span>
 
-    {% if latestpost.has_next %}
-    <a href="?page={{ latestpost.next_page_number }}">Next</a>
-    <a href="?page={{ latestpost.paginator.num_pages }}">Last</a>
+    {% if randomblogs.has_next %}
+    <a href="?page={{ randomblogs.next_page_number }}">Next</a>
+    <a href="?page={{ randomblogs.paginator.num_pages }}">Last</a>
     {% endif %}
 </div>
-
 
 {% else %}
 <p>No posts available.</p>

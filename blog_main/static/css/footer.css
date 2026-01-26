@@ -1,0 +1,321 @@
+/* ============================================
+   BlogNova Footer Styles - Fully Namespaced
+   ============================================ */
+
+.blognova-footer {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    padding: 60px 20px 20px;
+    margin-top: auto;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+.blognova-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+}
+
+.blognova-footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.blognova-footer-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.5fr;
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.blognova-footer-section {
+    padding: 0;
+}
+
+.blognova-footer-logo {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #ffffff;
+    background: linear-gradient(135deg, #ffffff 0%, #a8c0ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+}
+
+.blognova-footer-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #ffffff;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.blognova-footer-title::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(90deg, #ffd89b 0%, #19547b 100%);
+    border-radius: 2px;
+}
+
+.blognova-footer-text {
+    font-size: 14px;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+}
+
+.blognova-footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.blognova-footer-links li {
+    margin-bottom: 12px;
+}
+
+.blognova-footer-links a {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-block;
+    position: relative;
+    padding-left: 0;
+}
+
+.blognova-footer-links a::before {
+    content: '→';
+    margin-right: 8px;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-block;
+}
+
+.blognova-footer-links a:hover {
+    color: #ffd89b;
+    padding-left: 15px;
+}
+
+.blognova-footer-links a:hover::before {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.blognova-footer-social {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.blognova-footer-social-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #ffffff;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.blognova-footer-social-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(5px);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.blognova-footer-social-link svg {
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.blognova-footer-social-link svg[fill="currentColor"] {
+    fill: currentColor;
+    stroke: none;
+}
+
+.blognova-footer-social-text {
+    flex: 1;
+}
+
+.blognova-footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.blognova-footer-copyright {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+}
+
+.blognova-footer-copyright strong {
+    color: #ffd89b;
+    font-weight: 600;
+}
+
+.blognova-footer-heart {
+    display: inline-block;
+    color: #ff6b6b;
+    animation: blognova-heartbeat 1.5s ease-in-out infinite;
+}
+
+@keyframes blognova-heartbeat {
+    0%, 100% { transform: scale(1); }
+    10%, 30% { transform: scale(1.1); }
+    20%, 40% { transform: scale(1); }
+}
+
+.blognova-footer-year {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+/* Tablet Styles (768px - 1024px) */
+@media (max-width: 1024px) {
+    .blognova-footer-content {
+        grid-template-columns: 1fr 1fr;
+        gap: 35px;
+    }
+}
+
+/* Tablet Styles (max 768px) */
+@media (max-width: 768px) {
+    .blognova-footer {
+        padding: 40px 15px 15px;
+        margin-top: 60px;
+    }
+    
+    .blognova-footer-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .blognova-footer-logo {
+        font-size: 24px;
+    }
+    
+    .blognova-footer-title {
+        font-size: 16px;
+    }
+    
+    .blognova-footer-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+/* Mobile Styles (max 480px) */
+@media (max-width: 480px) {
+    .blognova-footer {
+        padding: 30px 10px 10px;
+        margin-top: 40px;
+    }
+    
+    .blognova-footer-content {
+        gap: 25px;
+    }
+    
+    .blognova-footer-logo {
+        font-size: 22px;
+    }
+    
+    .blognova-footer-social-link {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    
+    .blognova-footer-bottom {
+        padding-top: 20px;
+    }
+    
+    .blognova-footer-copyright,
+    .blognova-footer-year {
+        font-size: 12px;
+    }
+}
+
+/* Extra Small Mobile (max 360px) */
+@media (max-width: 360px) {
+    .blognova-footer-logo {
+        font-size: 20px;
+    }
+    
+    .blognova-footer-text {
+        font-size: 13px;
+    }
+    
+    .blognova-footer-social-link {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .blognova-footer {
+        background: #ffffff;
+        color: #000000;
+        page-break-inside: avoid;
+    }
+    
+    .blognova-footer-social {
+        display: none;
+    }
+    
+    .blognova-footer::before {
+        display: none;
+    }
+}
+
+/* Dark Mode Support (Optional) */
+@media (prefers-color-scheme: dark) {
+    .blognova-footer {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .blognova-footer-links a,
+    .blognova-footer-social-link,
+    .blognova-footer-heart {
+        animation: none;
+        transition: none;
+    }
+}
+
+

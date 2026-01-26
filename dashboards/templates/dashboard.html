@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 
+{% load static %}
+{% block extra_css %}
+<link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
 
 <div class="row">
@@ -14,21 +19,30 @@
         <hr>
 <!-- message of roles -->
 {% if is_editor %}
-    <div class="alert alert-info">
-        <strong>Note:</strong> As an Editor, you can edit any post and category, 
-        but you <strong>cannot delete other users' posts</strong> or any category. 
-        You can delete only your own posts.
+    <div id="dashboard-note">
+        <strong>Note:</strong> As an Editor, you can edit any post and category,
+        but you cannot delete other users' posts or any category.
     </div>
+
 {% elif is_manager %}
-    <div class="alert alert-warning"><strong>Note:</strong> As an Manager, you can add, edit and delete any post and category as well as user.
-       </div>
+    <div id="dashboard-note">
+        <strong>Note:</strong> As a Manager, you can add, edit and delete any post,
+        category, and users.
+    </div>
+
 {% elif user.is_superuser %}
-    <div class="alert alert-success"><strong>Note:</strong> As an Admin, you can add, edit and delete any post and category as well as user, 
-        but you <strong>cannot delete other users' posts</strong> or any category. 
-        You can delete only your own posts.</div>
-    {%else%}
-    <div class="alert alert-success">{{ user }}! You can delete, edit and create your post...</div>
+    <div id="dashboard-note">
+        <strong>Note:</strong> As an Admin, you can add, edit and delete any post,
+        category, and users.
+    </div>
+
+{% else %}
+    <div id="dashboard-note">
+        {{ user }}! You can delete, edit, and create your post.
+    </div>
 {% endif %}
+
+
         <div class="row">
             {% if can_see_all %}
             <div class="col">

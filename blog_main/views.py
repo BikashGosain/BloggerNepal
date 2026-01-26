@@ -1,3 +1,4 @@
+import random
 from django.shortcuts import get_object_or_404, render, redirect
 from blogs.models import Blog, Category
 from about_us.models import AboutUs
@@ -5,6 +6,7 @@ from .forms import RegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import auth
 from django.db.models import Count
+from django.core.paginator import Paginator
 
 def home(request):
     categories = Category.objects.all()
@@ -24,12 +26,38 @@ def home(request):
         'about': about,
     }
     return render(request, 'home.html', context)
+        
+
+def randomblogs(request):
+    blogs = Blog.objects.filter(status='Published').order_by('?')
     
+    paginator = Paginator(blogs, 9)
+    page = request.GET.get('page', 1)
+    blogs_page = paginator.get_page(page)
+
+    context = {
+        'randomblogs': blogs_page,
+    }
+    
+    return render(request, 'randomblogs.html', context)
+
 def latestpost(request):
     return render(request, 'latestpost.html')
 
 def popularpost(request):
-    return render(request, 'popularpost.html')
+    popularpost = Blog.objects.filter(
+        status='Published'
+    ).annotate(
+        like_count=Count('likes')
+    ).order_by('-views', '-like_count')
+    paginator = Paginator(popularpost, 9)
+    page = request.GET.get('page', 1)
+    blogs_page = paginator.get_page(page)
+
+    context = {
+        'popularpost': blogs_page,
+    }
+    return render(request, 'popularpost.html', context)
 
 def about(request):
     about = AboutUs.objects.get()

@@ -1,147 +1,33 @@
-{% if messages %}
-<style>
-/* =========================
-   TOAST CONTAINER
-   ========================= */
-#toast-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-/* =========================
-   BASE TOAST
-   ========================= */
-.custom-toast {
-    min-width: 280px;
-    max-width: 380px;
-    padding: 14px 18px;
-    border-radius: 10px;
-    color: #fff;
-    font-size: 14px;
-    font-weight: 500;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: relative;
-    animation: slideIn 0.4s ease;
-}
-
-/* MESSAGE TEXT */
-.toast-message {
-    padding-right: 30px;
-    line-height: 1.4;
-}
-
-/* CLOSE BUTTON */
-.toast-close {
-    position: absolute;
-    top: 8px;
-    right: 12px;
-    font-size: 20px;
-    cursor: pointer;
-    color: rgba(255, 255, 255, 0.85);
-}
-
-.toast-close:hover {
-    color: #ffffff;
-    transform: scale(1.2);
-}
-
-/* TOAST TYPES */
-.custom-toast-success {
-    background: linear-gradient(135deg, #28a745, #218838);
-}
-
-.custom-toast-error {
-    background: linear-gradient(135deg, #dc3545, #c82333);
-}
-
-.custom-toast-warning {
-    background: linear-gradient(135deg, #ffc107, #e0a800);
-    color: #212529;
-}
-
-.custom-toast-info {
-    background: linear-gradient(135deg, #17a2b8, #117a8b);
-}
-
-/* ANIMATIONS */
-@keyframes slideIn {
-    from {
-        transform: translateX(120%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-.custom-toast.hide {
-    opacity: 0;
-    transform: translateX(120%);
-    transition: all 0.4s ease;
-}
-</style>
-
-<div id="toast-container">
-    {% for message in messages %}
-        <div class="custom-toast custom-toast-{{ message.tags }}">
-            <span class="toast-message">{{ message|safe }}</span>
-            <span class="toast-close" onclick="closeToast(this)">&times;</span>
-        </div>
-    {% endfor %}
-</div>
-{% endif %}
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".custom-toast").forEach((toast) => {
-        setTimeout(() => {
-            toast.classList.add("hide");
-            setTimeout(() => toast.remove(), 400);
-        }, 5000);
-    });
-});
-
-function closeToast(element) {
-    const toast = element.parentElement;
-    toast.classList.add("hide");
-    setTimeout(() => toast.remove(), 400);
-}
-
-function confirmLogout() {
-    return confirm("Are you sure you want to logout?");
-}
-</script>
 <div class="col-md-3">
     <div class="nav flex-column nav-pills bg-light" aria-orientation="vertical">
-        <a href="{% url 'dashboard' %}" class="nav-link text-dark {% if '/dashboard/' == request.path %}bg-warning{% endif %}">Dashboard</a>
-        <a href="{% url 'profile' %}" class="nav-link text-dark {% if '/profile/' in request.path %}bg-warning{% endif %}">Profile</a>
-        <a href="{% url 'dashboardfollowers_list' request.user.username %}" class="nav-link text-dark {% if '/dashboardfollowers_list/' in request.path %}bg-warning{% endif %}">Followers</a>
-        <a href="{% url 'dashboardfollowing_list' request.user.username %}" class="nav-link text-dark {% if '/dashboardfollowing_list/' in request.path %}bg-warning{% endif %}">Following</a>
-        <a href="{% url 'dashboardnotification' %}" class="nav-link text-dark {% if '/dashboardnotification/' in request.path %}bg-warning{% endif %}">Notification{% if unread_count > 0 %}
-        <span style="color:red; font-weight:bold;">({{ unread_count }})</span>
-    {% endif %} </a>  
+        <a href="{% url 'dashboard' %}"
+            class="nav-link text-dark {% if '/dashboard/' == request.path %}bg-warning{% endif %}">Dashboard</a>
+        <a href="{% url 'profile' %}"
+            class="nav-link text-dark {% if '/profile/' in request.path %}bg-warning{% endif %}">Profile</a>
+        <a href="{% url 'dashboardfollowers_list' request.user.username %}"
+            class="nav-link text-dark {% if '/dashboardfollowers_list/' in request.path %}bg-warning{% endif %}">Followers</a>
+        <a href="{% url 'dashboardfollowing_list' request.user.username %}"
+            class="nav-link text-dark {% if '/dashboardfollowing_list/' in request.path %}bg-warning{% endif %}">Following</a>
+        <a href="{% url 'dashboardnotification' %}"
+            class="nav-link text-dark {% if '/dashboardnotification/' in request.path %}bg-warning{% endif %}">Notification
+            {%if unread_count > 0 %}
+            <span style="color:red; font-weight:bold;">({{ unread_count }})</span>
+            {% endif %} </a>
         {% if perms.auth.view_user %}
-        <a href="{% url 'users' %}" class="nav-link text-dark {% if '/users/' in request.path %}bg-warning{% endif %}">Users</a>
+        <a href="{% url 'users' %}"
+            class="nav-link text-dark {% if '/users/' in request.path %}bg-warning{% endif %}">Users</a>
         {% endif %}
         {% if can_see_all%}
-        <a href="{% url 'categories' %}" class="nav-link text-dark {% if '/categories/' in request.path %}bg-warning{% endif %}">Categories</a>
+        <a href="{% url 'categories' %}"
+            class="nav-link text-dark {% if '/categories/' in request.path %}bg-warning{% endif %}">Categories</a>
         {% endif %}
-        <a href="{% url 'posts' %}" class="nav-link text-dark {% if '/posts/' in request.path %}bg-warning{% endif %}">Posts</a>
-        <a href="{% url 'logout' %}" class="nav-link text-dark {% if '/logout/' in request.path %}bg-warning{% endif %}" onclick="return confirmLogout();" >Logout</a>
-    </div><br>
-    <script>
-function confirmLogout() {
-    return confirm("Are you sure you want to logout?");
-}
-</script>
+        <a href="{% url 'posts' %}"
+            class="nav-link text-dark {% if '/posts/' in request.path %}bg-warning{% endif %}">Posts</a>
 
+        <a href="{% url 'logout' %}" class="nav-link text-dark {% if '/logout/' in request.path %}bg-warning{% endif %}"
+            onclick="return confirm('Are you sure you want to logout?');">
+            Logout
+        </a>
+
+    </div><br>
 </div>

@@ -1,3 +1,4 @@
+from inymce.django.core.paginator import Paginator
 from .models import Category, Notification
 from social_links.models import SocialLinks
 from .models import Blog
@@ -71,22 +72,12 @@ def unread_notifications_count(request):
     return {'unread_count': 0}
 
 
-def recentpost(request):
-    recentpost = Blog.objects.filter(status='Published').order_by('-created_at')
+def latestpost(request):
+    """Provides paginated latest published blogs to all templates."""
+    latestpost = Blog.objects.filter(status='Published').order_by('-created_at')
+    paginator = Paginator(latestpost, 9)
+    page_number = request.GET.get('page', 1)
+    blogs_page = paginator.get_page(page_number)
     return {
-        'recentpost': recentpost
+        'latestpost': blogs_page
     }
-
-
-def popularpost(request):
-    popularpost = Blog.objects.filter(
-        status='Published'
-    ).annotate(
-        like_count=Count('likes')
-    ).order_by('-views', '-like_count')
-
-    return {
-        'popularpost': popularpost
-    }
-
-

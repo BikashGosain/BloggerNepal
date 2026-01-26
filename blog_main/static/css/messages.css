@@ -1,0 +1,60 @@
+/* ================================
+   GLOBAL DJANGO MESSAGES
+   ================================ */
+
+#global-django-messages {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 360px;
+}
+
+#global-django-messages .global-message {
+    position: relative;
+    padding: 14px 42px 14px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    animation: globalFadeIn 0.4s ease;
+}
+
+/* Close (X) button */
+#global-django-messages .global-message-close {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+#global-django-messages .global-message-close:hover {
+    opacity: 1;
+}
+
+/* Message types */
+#global-django-messages .success { background: #22c55e; }
+#global-django-messages .error   { background: #ef4444; }
+#global-django-messages .warning { background: #f59e0b; }
+#global-django-messages .info    { background: #3b82f6; }
+
+/* Fade animations */
+@keyframes globalFadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes globalFadeOut {
+    to { opacity: 0; transform: translateY(-8px); }
+}

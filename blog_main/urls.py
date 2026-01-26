@@ -25,6 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
 
+    path('randomblogs/', views.randomblogs, name='randomblogs'),
     path('latestpost/', views.latestpost, name='latestpost'),
     path('popularpost/', views.popularpost, name='popularpost'),
 

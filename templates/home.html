@@ -3,25 +3,12 @@
 {% load static %}
 
 {% block extra_css %}
-<link href="{% static 'css/contactmessage.css' %}" rel="stylesheet">
 <link href="{% static 'css/home.css' %}" rel="stylesheet">
 <link href="{% static 'css/featuredposts.css' %}" rel="stylesheet">
-<link href="{% static 'css/recentposts.css' %}" rel="stylesheet">
+<link href="{% static 'css/randomblogs.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
-<!-- Contact email message success or error -->
-{% if messages %}
-    <div id="messages-container">
-        {% for message in messages %}
-            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
-                {{ message|safe }}
-                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-            </div>
-        {% endfor %}
-    </div>
-{% endif %}
-
 <!-- Hero Section - First Featured Post -->
 {% for post in featured_posts %}
 {% if forloop.first %}
@@ -63,6 +50,9 @@
   <div class="row">
     <div class="col-md-8 blog-main">
       <!-- Include Recent Posts -->
+       <h3 class="text-uppercase text-warning section-heading" style="letter-spacing: 2px;">
+        <i class="fas fa-star"></i> Recent Posts
+    </h3>
       {% include 'recentposts.html' %}
     </div>
 
@@ -146,8 +136,9 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/contactmessage.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{% static 'js/home.js' %}"></script>
+<script src="{% static 'js/randomblogs.js' %}"></script>
+
 <script src="{% static 'js/featuredposts.js' %}"></script>
-<script src="{% static 'js/recentposts.js' %}"></script>
 {% endblock %}

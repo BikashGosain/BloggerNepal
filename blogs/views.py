@@ -111,7 +111,7 @@ def blogs(request, slug):
         'is_following': is_following,
     }
 
-    return render(request, 'blogs.html', context)
+    return render(request, 'blogsdetail.html', context)
 
 
 

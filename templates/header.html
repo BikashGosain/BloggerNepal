@@ -1,0 +1,114 @@
+{% load static %}
+{% block extra_css %}
+<link href="{% static 'css/headers.css' %}" rel="stylesheet">
+{% endblock %}
+<!-- DESKTOP HEADER -->
+<header class="desktop-header">
+    <div class="logo">
+        <a href="/">BlogNova</a>
+    </div>
+
+    <div class="search">
+        <form method="GET" action="{% url 'search' %}">
+            <input type="text" name="keyword" placeholder="Search..." value="{{ keyword }}">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    <div class="auth">
+        {% if not user.is_authenticated %}
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'register' %}">Register</a>
+        {% else %}
+            <a href="{% url 'notifications' %}">
+                Notifications
+                {% if unread_count > 0 %}<span>{{ unread_count }}</span>{% endif %}
+            </a>
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'logout' %}" onclick="return confirm('Are you sure you want to logout?');">Logout</a>
+        {% endif %}
+    </div>
+</header>
+
+<!-- MOBILE HEADER -->
+<header class="mobile-header">
+    <div class="mobile-top">
+        <a href="/" class="logo">BlogNova</a>
+        <button id="menu-btn">☰</button>
+    </div>
+
+    <div class="mobile-menu" id="mobile-menu">
+        <form method="GET" action="{% url 'search' %}">
+            <input type="text" name="keyword" placeholder="Search..." value="{{ keyword }}">
+            <button type="submit">🔍</button>
+        </form>
+
+        <nav>
+            <a href="{% url 'home' %}" class="nav-link">Home</a>
+            <a href="{% url 'randomblogs' %}" class="nav-link">Blogs</a>
+            <a href="{% url 'latestpost' %}" class="nav-link">Latest</a>
+            <a href="{% url 'popularpost' %}" class="nav-link">Popular</a>
+            <a href="{% url 'about' %}" class="nav-link">About</a>
+            <a href="{% url 'contact' %}" class="nav-link">Contact</a>
+
+            <details>
+                <summary>Categories ▼</summary>
+                {% for cate in categories %}
+                    <a href="{% url 'posts_by_category' cate.id %}">{{ cate.category_name }}</a>
+                {% endfor %}
+            </details>
+
+            <details>
+                <summary>Social Links ▼</summary>
+                {% for social_link in social_links %}
+                    <a href="{{ social_link.link }}" target="_blank">{{ social_link.platform }}</a>
+                {% endfor %}
+            </details>
+        </nav>
+
+        <div class="auth">
+            {% if not user.is_authenticated %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}">Register</a>
+            {% else %}
+                <a href="{% url 'notifications' %}">
+                    Notifications {% if unread_count > 0 %}({{ unread_count }}){% endif %}
+                </a>
+                <a href="{% url 'dashboard' %}">Dashboard</a>
+                <a href="{% url 'logout' %}" onclick="return confirm('Are you sure you want to logout?');">Logout</a>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<!-- CATEGORY NAV (Desktop) -->
+<nav class="category-nav">
+    <a href="{% url 'home' %}" class="nav-link">Home</a>
+    <a href="{% url 'randomblogs' %}" class="nav-link">Blogs</a>
+    <a href="{% url 'latestpost' %}" class="nav-link">Latest</a>
+    <a href="{% url 'popularpost' %}" class="nav-link">Popular</a>
+    <a href="{% url 'about' %}" class="nav-link">About</a>
+    <a href="{% url 'contact' %}" class="nav-link">Contact</a>
+
+    <div class="nav-dropdown">
+        <button type="button" class="nav-dropdown-btn">Categories ▼</button>
+        <div class="nav-dropdown-menu">
+            {% for cate in categories %}
+                <a href="{% url 'posts_by_category' cate.id %}">{{ cate.category_name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="nav-dropdown">
+        <button type="button" class="nav-dropdown-btn">Social Links ▼</button>
+        <div class="nav-dropdown-menu">
+            {% for social_link in social_links %}
+                <a href="{{ social_link.link }}" target="_blank">{{ social_link.platform }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</nav>
+
+{% block extra_js %}
+<script src="{% static 'js/headers.js' %}"></script>
+{% endblock %}

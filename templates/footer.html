@@ -1,0 +1,106 @@
+{% load static %}
+{% block extra_css %}
+<link href="{% static 'css/footer.css' %}" rel="stylesheet">
+{% endblock %}
+<footer class="blognova-footer">
+    <div class="blognova-footer-container">
+        <div class="blognova-footer-content">
+            <!-- About Section -->
+            <div class="blognova-footer-section">
+                <h3 class="blognova-footer-logo">BlogNova</h3>
+                <p class="blognova-footer-text">
+                    Exploring ideas, sharing stories, and inspiring minds. 
+                    Your destination for quality content and fresh perspectives.
+                </p>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="blognova-footer-section">
+                <h3 class="blognova-footer-title">Quick Links</h3>
+                <ul class="blognova-footer-links">
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Categories</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+
+            <!-- Legal Links -->
+            <div class="blognova-footer-section">
+                <h3 class="blognova-footer-title">Legal</h3>
+                <ul class="blognova-footer-links">
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+
+            <!-- Social Media -->
+            {% if social_links %}
+            <div class="blognova-footer-section">
+                <h3 class="blognova-footer-title">Follow Us</h3>
+                <div class="blognova-footer-social">
+                    {% for social_link in social_links %}
+                    <a href="{{ social_link.link }}" 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       class="blognova-footer-social-link" 
+                       aria-label="{{ social_link.platform }}"
+                       title="{{ social_link.platform }}">
+                        {% if social_link.platform|lower == 'facebook' %}
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
+                            </svg>
+                        {% elif social_link.platform|lower == 'twitter' or social_link.platform|lower == 'x' %}
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
+                            </svg>
+                        {% elif social_link.platform|lower == 'instagram' %}
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="17.5" cy="6.5" r="1.5"/>
+                            </svg>
+                        {% elif social_link.platform|lower == 'linkedin' %}
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/>
+                                <circle cx="4" cy="4" r="2"/>
+                            </svg>
+                        {% elif social_link.platform|lower == 'github' %}
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        {% elif social_link.platform|lower == 'youtube' %}
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 11.75a29 29 0 00.46 5.33A2.78 2.78 0 003.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 001.94-2 29 29 0 00.46-5.25 29 29 0 00-.46-5.33z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/>
+                            </svg>
+                        {% elif social_link.platform|lower == 'tiktok' %}
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                            </svg>
+                        {% else %}
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <path d="M12 16v-4m0-4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        {% endif %}
+                        <span class="blognova-footer-social-text">{{ social_link.platform }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="blognova-footer-bottom">
+            <p class="blognova-footer-copyright">
+                Built with <span class="blognova-footer-heart">❤️</span> by 
+                <strong>Bikash Gosain</strong> & <strong>Sameer Kc</strong>
+            </p>
+            <p class="blognova-footer-year">
+                © {% now "Y" %} BlogNova. All rights reserved.
+            </p>
+        </div>
+    </div>
+</footer>

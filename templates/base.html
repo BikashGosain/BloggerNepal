@@ -12,247 +12,89 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
 
     <link href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900" rel="stylesheet">
-    <link href="{% static 'css/blog.css' %}" rel="stylesheet">
-    <link href="{% static 'css/message.css' %}" rel="stylesheet">
+
     <!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+    <link href="{% static 'css/blog.css' %}" rel="stylesheet">
+    <link href="{% static 'css/messages.css' %}" rel="stylesheet">
+        <style>
+            html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-    <link href="{% static 'css/header.css' %}" rel="stylesheet">
-    <link href="{% static 'css/contactmessage.css' %}" rel="stylesheet">
+/* Flex layout to keep footer at bottom */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* full viewport height */
+}
+        .main-content {
+    flex: 1; /* fills remaining space */
+    padding: 20px 40px; /* add space from edges */
+    box-sizing: border-box;
+}
 
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .main-content {
+        padding: 20px 30px;
+    }
+}
 
+@media (max-width: 768px) {
+    .main-content {
+        padding: 15px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 10px 15px;
+    }
+}
+            .main-content {
+                flex: 1;
+            }
+        </style>
     {% block extra_css %}{% endblock %}
 
 
 </head>
 
 <body>
-    <!-- Contact email message success or error -->
+    <!--message success or error -->
 {% if messages %}
-    <div id="messages-container">
-        {% for message in messages %}
-            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+<div id="global-django-messages">
+    {% for message in messages %}
+        <div class="global-message {{ message.tags }}">
+            <span class="global-message-text">
                 {{ message|safe }}
-                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-            </div>
-        {% endfor %}
-    </div>
-{% endif %}
-    <div class="container">
-
-        <!-- DESKTOP HEADER -->
-        <header class="blog-header py-3 desktop-header">
-            <div class="row align-items-center">
-                <div class="col-md-4">
-                    <a class="blog-header-logo text-dark" href="/">BlogNova</a>
-                </div>
-
-                <!-- Search -->
-                <div class="col-md-4">
-                    <form class="form-inline justify-content-center" method="GET" action="{% url 'search' %}">
-                        <input class="form-control mr-2" type="text" name="keyword" placeholder="Search..."
-                            value="{{ keyword }}">
-                        <button class="btn btn-outline-success" type="submit">Search</button>
-                    </form>
-                </div>
-
-                <!-- Auth buttons -->
-                <div class="col-md-4 text-right">
-                    {% if not user.is_authenticated %}
-                    <a class="btn btn-sm btn-warning" href="{% url 'login' %}">Login</a>
-                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'register' %}">Register</a>
-                    {% else %}
-
-                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'notifications' %}">
-    Notifications
-    {% if unread_count > 0 %}
-        <span style="color:red; font-weight:bold;">({{ unread_count }})</span>
-    {% endif %}
-</a>
-
-
-                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'dashboard' %}">Dashboard</a>
-                    <a class="btn btn-sm btn-outline-danger" href="{% url 'logout' %}"
-                        onclick="return confirmLogout();">Logout</a>
-                    {% endif %}
-                </div>
-            </div>
-        </header>
-
-        <!-- MOBILE HEADER -->
-        <header class="blog-header py-3 mobile-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <a class="blog-header-logo text-dark" href="/">Django Blog</a>
-                <button class="mobile-menu-toggle" id="mobile-menu-toggle">
-                    <i class="fa fa-bars"></i>
-                </button>
-            </div>
-
-            <!-- Mobile Menu -->
-            <div class="mobile-menu" id="mobile-menu">
-                <!-- Search Section -->
-                <div class="search-section">
-                    <form method="GET" action="{% url 'search' %}">
-                        <div class="input-group">
-                            <input class="form-control" type="text" name="keyword" placeholder="Search..."
-                                value="{{ keyword }}">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-success" type="submit">
-                                    <i class="fa fa-search"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Navigation Links -->
-                <div class="nav-section">
-                    <a class="nav-link-mobile active" href="{% url 'home' %}">
-                        <i class="fa fa-home"></i> Home
-                    </a>
-                    <a class="nav-link-mobile" href="{% url 'latestpost' %}">
-                        <i class="fa fa-clock-o"></i> Latest
-                    </a>
-                    <a class="nav-link-mobile" href="{% url 'popularpost' %}">
-                        <i class="fa fa-fire"></i> Popular
-                    </a>
-                    <a class="nav-link-mobile" href="{% url 'about' %}">
-                        <i class="fa fa-info-circle"></i> About
-                    </a>
-                    <a class="nav-link-mobile" href="{% url 'contact' %}">
-                        <i class="fa fa-envelope"></i> Contact
-                    </a>
-
-                    <!-- Categories -->
-                    <div class="nav-link-mobile category-toggle" id="mobile-category-toggle">
-                        <i class="fa fa-caret-right"></i> Categories
-                    </div>
-                    <div class="mobile-category-list" id="mobile-category-list">
-                        {% for cate in categories %}
-                        <a class="nav-link-mobile" href="{% url 'posts_by_category' cate.id %}"
-                            style="padding-left: 30px;">
-                            {{ cate.category_name }}
-                        </a>
-                        {% endfor %}
-                    </div>
-
-                    <!-- Social Link -->
-                    <div class="nav-link-mobile category-toggle" id="mobile-social_links-toggle">
-                        <i class="fa fa-caret-right"></i> Social Links
-                    </div>
-                    <div class="mobile-category-list" id="mobile-social_links-list">
-                        {% for social_link in social_links %}
-          <li><a href="{{ social_link.link }}" target="_blank" style="padding-left: 30px;">{{ social_link.platform }}</a></li>
-          {% endfor %}
-                    </div>
-                </div>
-
-                <!-- Auth Buttons -->
-                <div class="auth-section">
-                    {% if not user.is_authenticated %}
-                    <a class="btn btn-warning btn-block mb-2" href="{% url 'login' %}">
-                        <i class="fa fa-sign-in"></i> Login
-                    </a>
-                    <a class="btn btn-outline-secondary btn-block" href="{% url 'register' %}">
-                        <i class="fa fa-user-plus"></i> Register
-                    </a>
-                    {% else %}
-
-                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'notifications' %}">
-    Notifications
-    {% if unread_count > 0 %}
-        <span style="color:red; font-weight:bold;">({{ unread_count }})</span>
-    {% endif %}
-</a>
-
-                    <a class="btn btn-outline-secondary btn-block mb-2" href="{% url 'dashboard' %}">
-                        <i class="fa fa-tachometer"></i> Dashboard
-                    </a>
-                    <a class="btn btn-outline-danger btn-block" href="{% url 'logout' %}"
-                        onclick="return confirmLogout();">
-                        <i class="fa fa-sign-out"></i> Logout
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
-        </header>
-
-        <!-- CATEGORY NAV (Desktop only) -->
-        <div class="nav-scroller py-1 mb-3">
-            <nav class="nav d-flex justify-content-start flex-wrap align-items-center">
-
-                <!-- Static links -->
-                <a class="p-2 font-weight-bold text-dark" href="{% url 'home' %}">
-                    Home
-                </a>
-
-                <a class="p-2 font-weight-bold text-dark" href="{% url 'home' %}">
-                    Blogs
-                </a>
-
-                <a class="p-2 text-muted" href="{% url 'latestpost' %}">
-                    Latest
-                </a>
-
-                <a class="p-2 text-muted" href="{% url 'popularpost' %}">
-                    Popular
-                </a>
-
-                <a class="p-2 text-muted" href="{% url 'about' %}">
-                    About
-                </a>
-
-                <a class="p-2 text-muted" href="{% url 'contact' %}">
-                    Contact
-                </a>
-
-                <!-- Divider -->
-                <span class="p-2 text-muted">|</span>
-
-                <!-- Categories Dropdown -->
-                <div class="category-dropdown p-2">
-                    <a class="text-muted category-btn">
-                        Categories <i class="fa fa-caret-down"></i>
-                    </a>
-                    <div class="category-dropdown-content">
-                        {% for cate in categories %}
-                        <a href="{% url 'posts_by_category' cate.id %}">
-                            {{ cate.category_name }}
-                        </a>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- Social Links Dropdown -->
-                <div class="category-dropdown p-2">
-                    <a class="text-muted category-btn">
-                        Social Links <i class="fa fa-caret-down"></i>
-                    </a>
-                    <div class="category-dropdown-content">
-                        {% for social_link in social_links %}
-          <li><a href="{{ social_link.link }}" target="_blank" style="padding-left: 30px;">{{ social_link.platform }}</a></li>
-          {% endfor %}
-                    </div>
-                </div>
-
-            </nav>
+            </span>
+            <button class="global-message-close" aria-label="Close">
+                &times;
+            </button>
         </div>
+    {% endfor %}
+</div>
+{% endif %}
 
 
-        <!-- MAIN CONTENT -->
-        {% block content %}{% endblock %}
 
-        <!-- FOOTER -->
-        <footer class="blog-footer text-center mt-4">
-            <p>
-                Django blog built with ❤️ by
-                <strong>Bikash Gosain</strong> & <strong> Sameer Kc.</strong>
-            </p>
-        </footer>
+{% include 'header.html' %}
+
+        <main class="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+        
+{% include 'footer.html' %}
 
     </div>
 
@@ -261,12 +103,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
-<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
 
-
-<script src="{% static 'js/header.js' %}"></script>
-<link href="{% static 'css/contactmessage.css' %}" rel="stylesheet">
+    <script src="{% static 'js/message.js' %}"></script>
 
 
     {% block extra_js %}{% endblock %}
