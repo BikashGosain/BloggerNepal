@@ -1,12 +1,9 @@
-/* Reset */
 .desktop-header, .mobile-header, .category-nav,
 .desktop-header *, .mobile-header *, .category-nav * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
-
-/* ========== DESKTOP HEADER ========== */
 .desktop-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     padding: 15px 30px;
@@ -102,7 +99,6 @@
     font-weight: 700;
 }
 
-/* ========== MOBILE HEADER ========== */
 .mobile-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     padding: 15px 20px;
@@ -257,8 +253,6 @@
     font-weight: 600;
 }
 
-/* ========== CATEGORY NAV ========== */
-/* ========== CATEGORY NAV ========== */
 .category-nav {
     background: #fff;
     padding: 0 30px;
@@ -267,7 +261,7 @@
     display: flex;
     gap: 5px;
     align-items: center;
-    overflow: visible; /* Changed from overflow-x: auto */
+    overflow: visible;
     position: relative;
     z-index: 100;
 }
@@ -314,7 +308,6 @@
     width: 100%;
 }
 
-/* Desktop Dropdown - FIXED VERSION */
 .nav-dropdown {
     position: relative;
     display: inline-block;
@@ -390,8 +383,6 @@
     color: #667eea;
     padding-left: 30px;
 }
-
-/* Scrollbar for dropdown */
 .nav-dropdown-menu::-webkit-scrollbar {
     width: 6px;
 }
@@ -405,7 +396,6 @@
     background: #f0f0f0;
 }
 
-/* ========== RESPONSIVE ========== */
 @media (max-width: 968px) {
     .desktop-header, .category-nav {
         display: none;
@@ -421,7 +411,6 @@
     }
 }
 
-/* Active state for navigation links */
 .category-nav > a.active {
     color: #667eea;
 }
@@ -436,13 +425,11 @@
     border-left: 4px solid #667eea;
 }
 
-/* Active state for dropdown button */
 .nav-dropdown-btn.active {
     color: #667eea;
     font-weight: 600;
 }
 
-/* Active state for dropdown menu items */
 .nav-dropdown-menu a.active {
     background: linear-gradient(90deg, #667eea15, #764ba215);
     color: #667eea;
@@ -450,7 +437,6 @@
     border-left: 3px solid #667eea;
 }
 
-/* Hover effect for dropdown buttons */
 .nav-dropdown-btn:hover {
     color: #667eea;
 }

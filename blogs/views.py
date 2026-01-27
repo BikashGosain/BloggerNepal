@@ -15,41 +15,30 @@ from django.http import JsonResponse
 # Create your views here.
 
 def posts_by_category(request, category_id):
-    # Logic to fetch posts by category_id
-    posts_by_category = Blog.objects.filter(category=category_id, status='Published')
-    paginator = Paginator(blogs, 9)
-    page = request.GET.get('page', 1)
-    blogs_page = paginator.get_page(page)
+    category = Category.objects.filter(id=category_id).first()
 
-
-    try:
-        category = Category.objects.get(id=category_id)
-    except:
-        return redirect('home')
-
-    context = {
-        'posts_by_category': blogs_page,
-        'category': category,
-    }
-    return render(request, 'posts_by_category.html', context)
-
-def posts_by_category(request, category_id):
-    category = get_object_or_404(Category, id=category_id)
+    if not category:
+        return render(request, 'category.html', {
+            'posts_by_category': [],
+            'category': None,
+            'message': 'Your search Category not found.'
+        })
 
     posts_qs = Blog.objects.filter(
         category=category,
         status='Published'
     ).order_by('-created_at')
 
-    paginator = Paginator(posts_qs, 9)
-    page = request.GET.get('page', 1)
-    blogs_page = paginator.get_page(page)
+    paginator = Paginator(posts_qs, 24)
+    page_number = request.GET.get('page', 1)
+    posts_page = paginator.get_page(page_number)
 
-    return render(request, 'posts_by_category.html', {
-        'posts_by_category': blogs_page,
+    context = {
+        'posts_by_category': posts_page,
         'category': category,
-    })
+    }
 
+    return render(request, 'posts_by_category.html', context)
 
 
 def blogs(request, slug):
@@ -357,10 +346,23 @@ def edit_comment(request, comment_id):
     })
 
 def search(request):
-    keyword = request.GET.get('keyword')
-    results = Blog.objects.filter(Q(title__icontains=keyword) | Q(short_description__icontains=keyword) | Q(blog_body__icontains=keyword), status='Published')
+    keyword = request.GET.get('keyword', '').strip()
+    if keyword:
+        results = Blog.objects.filter(
+            Q(title__icontains=keyword) | 
+            Q(short_description__icontains=keyword) | 
+            Q(blog_body__icontains=keyword),
+            status='Published'
+        ).order_by('-created_at')
+    else:
+        results = Blog.objects.none()
+
+    paginator = Paginator(results, 24)
+    page_number = request.GET.get('page', 1)
+    blogs_page = paginator.get_page(page_number)
+
     context = {
-        'results': results,
+        'results': blogs_page,
         'keyword': keyword,
     }
     return render(request, 'search.html', context)

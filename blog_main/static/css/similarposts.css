@@ -1,4 +1,3 @@
-/* Container */
 #sp-container {
     margin-top: 50px;
     padding: 20px;
@@ -14,14 +13,12 @@
     text-align: left;
 }
 
-/* Blog list grid */
 .sp-blog-list {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
 }
 
-/* Single blog item */
 .sp-blog-item {
     background-color: #fff;
     border: 1px solid #ddd;
@@ -106,7 +103,6 @@
     text-decoration: underline;
 }
 
-/* Responsive */
 @media(max-width: 1024px) {
     .sp-blog-item {
         width: calc(50% - 10px);
@@ -119,7 +115,6 @@
     }
 }
 
-/* Wrapper for image + category */
 .sp-blog-image-wrapper {
     position: relative;
 }
@@ -138,7 +133,6 @@
     text-transform: uppercase;
 }
 
-/* Image */
 .sp-blog-image {
     width: 100%;
     height: 180px;

@@ -16,7 +16,7 @@
                 <!-- Header -->
                 <header class="bd-header">
                     <h1 class="bd-title">{{ single_blog.title }}</h1>
-                    
+
                     <!-- Follow Button -->
                     {% if user.is_authenticated and user != single_blog.author %}
                     <div class="bd-follow-section">
@@ -46,34 +46,34 @@
                     {% if user.is_authenticated %}
                     <div class="bd-actions">
                         <!-- Like -->
-                        <a href="{% url 'blog_like' single_blog.id %}" 
-                           class="bd-action-btn {% if user in single_blog.likes.all %}bd-active-like{% endif %}">
+                        <a href="{% url 'blog_like' single_blog.id %}"
+                            class="bd-action-btn {% if user in single_blog.likes.all %}bd-active-like{% endif %}">
                             👍 Like <span class="bd-count">({{ single_blog.total_likes }})</span>
                         </a>
 
                         <!-- Dislike -->
-                        <a href="{% url 'blog_dislike' single_blog.id %}" 
-                           class="bd-action-btn {% if user in single_blog.dislikes.all %}bd-active-dislike{% endif %}">
+                        <a href="{% url 'blog_dislike' single_blog.id %}"
+                            class="bd-action-btn {% if user in single_blog.dislikes.all %}bd-active-dislike{% endif %}">
                             👎 Dislike <span class="bd-count">({{ single_blog.total_dislikes }})</span>
                         </a>
 
                         <!-- Report -->
                         {% if user != single_blog.author %}
-                            {% if user_reported %}
-                                {% if can_report %}
-                                <button class="bd-action-btn bd-report-btn" onclick="bdOpenReportModal()">
-                                    🚩 Report Again
-                                </button>
-                                {% else %}
-                                <button class="bd-action-btn bd-disabled" disabled>
-                                    🚩 Already Reported
-                                </button>
-                                {% endif %}
-                            {% else %}
-                            <button class="bd-action-btn bd-report-btn" onclick="bdOpenReportModal()">
-                                🚩 Report
-                            </button>
-                            {% endif %}
+                        {% if user_reported %}
+                        {% if can_report %}
+                        <button class="bd-action-btn bd-report-btn" onclick="bdOpenReportModal()">
+                            🚩 Report Again
+                        </button>
+                        {% else %}
+                        <button class="bd-action-btn bd-disabled" disabled>
+                            🚩 Already Reported
+                        </button>
+                        {% endif %}
+                        {% else %}
+                        <button class="bd-action-btn bd-report-btn" onclick="bdOpenReportModal()">
+                            🚩 Report
+                        </button>
+                        {% endif %}
                         {% endif %}
                     </div>
                     {% else %}
@@ -100,13 +100,13 @@
                     <p class="bd-excerpt">{{ single_blog.short_description }}</p>
                     <div class="bd-body">
                         {% if single_blog.blog_body %}
-                            {{ single_blog.blog_body|safe }}
+                        {{ single_blog.blog_body|safe }}
                         {% else %}
-                            <p>No content yet.</p>
+                        <p>No content yet.</p>
                         {% endif %}
                     </div>
                 </section>
-{% include 'similarposts.html' %}
+                {% include 'similarposts.html' %}
 
                 <!-- Comments Section -->
                 <section class="bd-comments-section">
@@ -115,7 +115,8 @@
                     <h4 class="bd-section-title">Leave a Comment</h4>
                     <form class="bd-comment-form" id="bd-comment-form">
                         {% csrf_token %}
-                        <textarea name="comment" class="bd-textarea" placeholder="Write your comment here..." required></textarea>
+                        <textarea name="comment" class="bd-textarea" placeholder="Write your comment here..."
+                            required></textarea>
                         <button type="submit" class="bd-btn bd-btn-primary">Submit Comment</button>
                     </form>
                     {% else %}
@@ -140,12 +141,15 @@
 
                             <!-- Edit Form -->
                             <div id="bd-edit-form-{{ comment.id }}" class="bd-edit-form bd-hidden">
-                                <textarea class="bd-textarea" id="bd-edit-text-{{ comment.id }}">{{ comment.comment }}</textarea>
+                                <textarea class="bd-textarea"
+                                    id="bd-edit-text-{{ comment.id }}">{{ comment.comment }}</textarea>
                                 <div class="bd-edit-actions">
-                                    <button class="bd-btn bd-btn-primary bd-btn-sm" onclick="bdSubmitEdit({{ comment.id }})">
+                                    <button class="bd-btn bd-btn-primary bd-btn-sm"
+                                        onclick="bdSubmitEdit({{ comment.id }})">
                                         Save
                                     </button>
-                                    <button class="bd-btn bd-btn-secondary bd-btn-sm" onclick="bdToggleEditForm({{ comment.id }})">
+                                    <button class="bd-btn bd-btn-secondary bd-btn-sm"
+                                        onclick="bdToggleEditForm({{ comment.id }})">
                                         Cancel
                                     </button>
                                 </div>
@@ -176,7 +180,8 @@
                             <form class="bd-reply-form bd-hidden" id="bd-reply-form-{{ comment.id }}">
                                 {% csrf_token %}
                                 <input type="hidden" name="parent_id" value="{{ comment.id }}">
-                                <textarea name="comment" class="bd-textarea bd-textarea-sm" placeholder="Write a reply..." required></textarea>
+                                <textarea name="comment" class="bd-textarea bd-textarea-sm"
+                                    placeholder="Write a reply..." required></textarea>
                                 <button type="submit" class="bd-btn bd-btn-primary bd-btn-sm">Reply</button>
                             </form>
 

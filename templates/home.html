@@ -3,103 +3,107 @@
 {% load static %}
 
 {% block extra_css %}
+<link href="{% static 'css/homepage.css' %}" rel="stylesheet">
 <link href="{% static 'css/randomblogs.css' %}" rel="stylesheet">
 {% endblock %}
-
 {% block content %}
 <!-- Hero Section - First Featured Post -->
-{% include 'slider.html' %}
+<div class="homepage-wrapper">
+  {% include 'slider.html' %}
+  
+  <!-- Featured Posts Section -->
+  <section class="homepage-featured-section">
+    <h3 class="homepage-section-title">Featured Posts</h3>
+    {% include 'featuredposts.html' %}
+  </section>
 
-<!-- Include Featured Posts -->
-<h3>Featured Posts</h3>
-{% include 'featuredposts.html' %}
-
-<!-- Main Content with Sidebar -->
-<main role="main">
-  <div>
-    <div>
-      <!-- Include Recent Posts -->
-      <h3>Recent Posts</h3>
-      {% include 'recentposts.html' %}
-    </div>
-
-    <!-- Sidebar -->
-    <aside>
-      <!-- About Section -->
-      <div>
-        <h4>{{ about.about_heading }}</h4>
-        <p><em>{{ about.about_description }}</em></p>
+  <!-- Main Content with Sidebar -->
+  <main class="homepage-main" role="main">
+    <div class="homepage-container">
+      <!-- Recent Posts Column -->
+      <div class="homepage-content-column">
+        <h3 class="homepage-section-title">Recent Posts</h3>
+        {% include 'recentposts.html' %}
       </div>
 
-      <!-- Contact Form -->
-      <div>
-        <h4>Contact Us</h4>
-
-        <form method="POST" action="{% url 'contacthome' %}">
-          {% csrf_token %}
-
-          <!-- Hidden field to redirect back to current page -->
-          <input type="hidden" name="next" value="{{ request.path }}">
-
-          <div>
-            <label>Subject:</label>
-            <input 
-              type="text" 
-              name="subject" 
-              required
-              {% if not user.is_authenticated %}disabled{% endif %}
-              placeholder="Enter subject..."
-            >
-          </div>
-
-          <div>
-            <label>Message:</label>
-            <textarea 
-              name="message" 
-              rows="5" 
-              required
-              {% if not user.is_authenticated %}disabled{% endif %}
-              placeholder="Enter your message..."
-            ></textarea>
-          </div>
-
-          {% if user.is_authenticated %}
-            <button type="submit">Send Message</button>
-          {% else %}
-            <a href="{% url 'login' %}">Login First</a>
-          {% endif %}
-        </form>
-      </div>
-
-      <!-- Social Links -->
-      {% if social_links %}
-      <div>
-        <h4>Follow Us</h4>
-        <div>
-          {% for social_link in social_links %}
-          <a href="{{ social_link.link }}" target="_blank" rel="noopener noreferrer">
-            {{ social_link.platform }}
-          </a>
-          {% endfor %}
+      <!-- Sidebar Column -->
+      <aside class="homepage-sidebar">
+        <!-- About Section -->
+        <div class="homepage-widget homepage-about">
+          <h4 class="homepage-widget-title">{{ about.about_heading }}</h4>
+          <p class="homepage-about-description"><em>{{ about.about_description }}</em></p>
         </div>
-      </div>
-      {% endif %}
 
-      <!-- Categories -->
-      <div>
-        {% for cate in categories %}
-            <a href="{% url 'posts_by_category' cate.id %}">
-                {{ cate.category_name|slice:":5" }}
+        <!-- Contact Form Widget -->
+        <div class="homepage-widget homepage-contact">
+          <h4 class="homepage-widget-title">Contact Us</h4>
+          <form class="homepage-contact-form" method="POST" action="{% url 'contacthome' %}">
+            {% csrf_token %}
+            <!-- Hidden field to redirect back to current page -->
+            <input type="hidden" name="next" value="{{ request.path }}">
+            
+            <div class="homepage-form-group">
+              <label class="homepage-form-label">Subject:</label>
+              <input 
+                class="homepage-form-input" 
+                type="text" 
+                name="subject" 
+                required
+                {% if not user.is_authenticated %}disabled{% endif %}
+                placeholder="Enter subject..."
+              >
+            </div>
+            
+            <div class="homepage-form-group">
+              <label class="homepage-form-label">Message:</label>
+              <textarea 
+                class="homepage-form-textarea" 
+                name="message" 
+                rows="5" 
+                required
+                {% if not user.is_authenticated %}disabled{% endif %}
+                placeholder="Enter your message..."
+              ></textarea>
+            </div>
+            
+            {% if user.is_authenticated %}
+              <button class="homepage-submit-btn" type="submit">Send Message</button>
+            {% else %}
+              <a class="homepage-login-link" href="{% url 'login' %}">Login First</a>
+            {% endif %}
+          </form>
+        </div>
+
+        <!-- Social Links Widget -->
+        {% if social_links %}
+        <div class="homepage-widget homepage-social">
+          <h4 class="homepage-widget-title">Follow Us</h4>
+          <div class="homepage-social-links">
+            {% for social_link in social_links %}
+            <a class="homepage-social-link" href="{{ social_link.link }}" target="_blank" rel="noopener noreferrer">
+              {{ social_link.platform }}
             </a>
-        {% endfor %}
-      </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
 
-    </aside>
-  </div>
-</main>
-
+        <!-- Categories Widget -->
+        <div class="homepage-widget homepage-categories">
+          <h4 class="homepage-widget-title">Categories</h4>
+          <div class="homepage-category-tags">
+            {% for cate in categories %}
+              <a class="homepage-category-tag" href="{% url 'posts_by_category' cate.id %}">
+                {{ cate.category_name|slice:":20" }}
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
 {% endblock %}
-
 
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

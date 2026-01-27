@@ -4,6 +4,7 @@ from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django.contrib.auth.decorators import permission_required
 
 from follow_following.models import Follow
+from inymce.django.template.context_processors import request
 from .forms import BlogPostForm, CategoryForm, AddUserForm, EditUserForm, ProfileEditForm  
 from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
@@ -67,6 +68,12 @@ def categories(request):
 
 def add_category(request):
     form = CategoryForm(request.POST or None)
+    allowed_roles = ['Editor', 'Manager']
+    can_add = request.user.is_superuser or request.user.groups.filter(name__in=allowed_roles).exists()
+    
+    if not can_add:
+        messages.error(request, "You are not allowed to add a category.")
+        return redirect('categories')
 
     if request.method == 'POST' and form.is_valid():
         category = form.save(commit=False)  # ← don't save yet
@@ -78,17 +85,32 @@ def add_category(request):
             f"✅ Category '{category.category_name}' added successfully."
         )
         return redirect('categories')
+    context = {
+        'form': form,
+        'can_add': can_add,
+    }
 
     return render(
         request,
         'add_category.html',
-        {'form': form}
+        context
     )
 
 
 
 def edit_category(request, pk):
-    category = get_object_or_404(Category, pk=pk)
+    try:
+        category = Category.objects.get(pk=pk)
+    except Category.DoesNotExist:
+        messages.error(request, f"No category found with ID {pk}.")
+        return redirect('categories')
+    
+    can_edit = request.user == category.author \
+               or request.user.groups.filter(name='Manager').exists() \
+               or request.user.is_superuser
+    if not can_edit:
+        messages.error(request, "You are not allowed to edit this category.")
+        return redirect('categories')
 
     if request.method == 'POST':
         form = CategoryForm(request.POST, instance=category)
@@ -102,11 +124,16 @@ def edit_category(request, pk):
         
     else:
         form = CategoryForm(instance=category)
+    
+    context = {
+        'form': form,
+        'category': category,
+        'can_edit': can_edit,
+    }
 
     return render(
         request,
-        'edit_category.html',
-        {'form': form, 'category': category}
+        'edit_category.html', context
     )
 
 
@@ -189,7 +216,24 @@ def add_post(request):
     return render(request, 'add_post.html', context)
 
 def edit_post(request, pk):
-    post = get_object_or_404(Blog, pk=pk)
+    post = Blog.objects.filter(pk=pk).first()
+    if not post:
+        messages.warning(request, "The post you are trying to edit does not exist.")
+        return redirect('posts')
+    
+    
+    allowed_roles = ['Editor', 'Manager']
+
+    can_edit = (
+    request.user == post.author
+    or request.user.is_superuser
+    or request.user.groups.filter(name__in=allowed_roles).exists()
+)
+
+    if not can_edit:
+        messages.error(request, "You are not allowed to edit this post.")
+        return redirect('posts')
+    
     if request.method == 'POST':
         form = BlogPostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
@@ -211,6 +255,7 @@ def edit_post(request, pk):
     context = {
         'form': form,
         'post': post,
+        'can_edit': can_edit,
     }
     return render(request, 'edit_post.html', context)
 
@@ -268,7 +313,10 @@ def add_user(request):
     return render(request, 'add_user.html', context)
 
 def edit_user(request, pk):
-    user = get_object_or_404(User, pk=pk)
+    user = User.objects.filter(pk=pk).first()
+    if not user:
+        messages.warning(request, "The user you are trying to edit does not exist.")
+        return redirect('users')
     if request.method == 'POST':
         form = EditUserForm(request.POST, instance=user)
         if form.is_valid():

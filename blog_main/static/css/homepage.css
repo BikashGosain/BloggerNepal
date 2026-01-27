@@ -1,0 +1,354 @@
+/* ============================================
+   HOMEPAGE SPECIFIC STYLES
+   All classes prefixed with "homepage-" to avoid conflicts
+   ============================================ */
+
+/* Main Wrapper */
+.homepage-wrapper {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Featured Section */
+.homepage-featured-section {
+  margin: 40px 0;
+}
+
+.homepage-section-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid #007bff;
+  display: inline-block;
+}
+
+/* Main Content Layout */
+.homepage-main {
+  margin: 40px 0;
+}
+
+.homepage-container {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 40px;
+  align-items: start;
+}
+
+/* Content Column */
+.homepage-content-column {
+  min-width: 0; /* Prevents grid overflow */
+}
+
+/* Sidebar */
+.homepage-sidebar {
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Scrollbar Styling for Sidebar */
+.homepage-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.homepage-sidebar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.homepage-sidebar::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.homepage-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Widget Styling */
+.homepage-widget {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+}
+
+.homepage-widget:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.homepage-widget-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+/* About Widget */
+.homepage-about-description {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #666;
+  margin: 0;
+}
+
+/* Contact Form */
+.homepage-contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.homepage-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.homepage-form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+  margin: 0;
+}
+
+.homepage-form-input,
+.homepage-form-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.homepage-form-input:focus,
+.homepage-form-textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.homepage-form-input:disabled,
+.homepage-form-textarea:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  color: #999;
+}
+
+.homepage-form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.homepage-submit-btn {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.homepage-submit-btn:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+.homepage-submit-btn:active {
+  transform: translateY(0);
+}
+
+.homepage-login-link {
+  display: block;
+  background-color: #28a745;
+  color: #fff;
+  text-decoration: none;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 5px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.homepage-login-link:hover {
+  background-color: #218838;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+  color: #fff;
+}
+
+/* Social Links */
+.homepage-social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.homepage-social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background-color: #f8f9fa;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 20px;
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.homepage-social-link:hover {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+}
+
+/* Categories */
+.homepage-category-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.homepage-category-tag {
+  display: inline-block;
+  padding: 6px 14px;
+  background-color: #e9ecef;
+  color: #495057;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.homepage-category-tag:hover {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+  transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .homepage-container {
+    grid-template-columns: 1fr 300px;
+    gap: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .homepage-wrapper {
+    padding: 0 15px;
+  }
+
+  .homepage-container {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .homepage-sidebar {
+    position: static;
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
+  }
+
+  .homepage-section-title {
+    font-size: 24px;
+  }
+
+  .homepage-widget-title {
+    font-size: 18px;
+  }
+
+  .homepage-featured-section {
+    margin: 30px 0;
+  }
+
+  .homepage-main {
+    margin: 30px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .homepage-wrapper {
+    padding: 0 10px;
+  }
+
+  .homepage-section-title {
+    font-size: 22px;
+  }
+
+  .homepage-widget {
+    padding: 18px;
+  }
+
+  .homepage-widget-title {
+    font-size: 17px;
+  }
+
+  .homepage-social-links {
+    gap: 8px;
+  }
+
+  .homepage-social-link {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .homepage-category-tags {
+    gap: 6px;
+  }
+
+  .homepage-category-tag {
+    padding: 5px 12px;
+    font-size: 12px;
+  }
+
+  .homepage-submit-btn,
+  .homepage-login-link {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .homepage-sidebar {
+    display: none;
+  }
+
+  .homepage-container {
+    grid-template-columns: 1fr;
+  }
+
+  .homepage-widget {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+}

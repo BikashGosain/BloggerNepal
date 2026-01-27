@@ -3,6 +3,8 @@ from .models import Category, Notification
 from social_links.models import SocialLinks
 from .models import Blog
 from django.db.models import Count
+from django.shortcuts import redirect
+from django.contrib import messages
 
 
 def get_categories(request):
@@ -75,13 +77,16 @@ def unread_notifications_count(request):
 def latestpost(request):
     """Provides paginated latest published blogs to all templates."""
     latestpost = Blog.objects.filter(status='Published').order_by('-created_at')
+    if not latestpost:
+        messages.warning(request, "The blog you tried to visit does not exist.")
+        return redirect('home')
     current_path = request.path
     
     # Set different pagination based on page
     if current_path == '/' or current_path == '/home/':
-        per_page = 5  # Home page shows 5
+        per_page = 6  # Home page shows 5
     else:
-        per_page = 9
+        per_page = 24
     paginator = Paginator(latestpost, per_page)
     page_number = request.GET.get('page', 1)
     blogs_page = paginator.get_page(page_number)

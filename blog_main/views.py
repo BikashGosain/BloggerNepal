@@ -2,6 +2,7 @@ import random
 from django.shortcuts import get_object_or_404, render, redirect
 from blogs.models import Blog, Category
 from about_us.models import AboutUs
+from django.contrib import messages
 from .forms import RegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import auth
@@ -109,4 +110,10 @@ def login(request):
 
 def logout(request):
     auth.logout(request)
+    return redirect('home')
+
+def page_not_found_redirect(request, *args, **kwargs):
+    # Add a warning message
+    messages.warning(request, "The page you tried to visit does not exist.")
+    # Redirect to home
     return redirect('home')

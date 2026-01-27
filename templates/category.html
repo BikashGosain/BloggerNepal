@@ -4,22 +4,43 @@
 
 {% block extra_css %}
 <link href="{% static 'css/category.css' %}" rel="stylesheet">
-
+<link href="{% static 'css/messages.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
+{% if message %}
+    <div id="global-django-messages">
+        
+        <div class="global-message {{ message.tags }}">
+            <span class="global-message-text">
+                <p style="color: #f2e3e3; background-color: #14d831;" >
+    {{ message|safe }}
+</p>
 
-<div class="bn-category-wrapper">
+            </span>
+            <button class="global-message-close" aria-label="Close">
+                &times;
+            </button>
+        </div>
+       
+    </div>
+{% endif %}
+    
+
+<h2 class="bn-category-title">Categories</h2>
+ {% if categories %}
+<div class="bn-category-grid">
+   
     {% for cate in categories %}
-        <a href="{% url 'posts_by_category' cate.id %}" class="bn-category-link">
-            {{ cate.category_name }}
+        <a href="{% url 'posts_by_category' cate.id %}" class="bn-category-card">
+            <span class="bn-category-name">{{ cate.category_name }}</span>
         </a>
     {% endfor %}
 </div>
-
+{% else %}
+    <p>Category not found.</p>
+{% endif %}
 {% endblock %}
 
-
 {% block extra_js %}
-
 {% endblock %}

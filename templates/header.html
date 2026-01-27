@@ -53,13 +53,6 @@
             <a href="{% url 'contact' %}" class="nav-link">Contact</a>
 
             <details>
-                <summary>Categories ▼</summary>
-                {% for cate in categories %}
-                    <a href="{% url 'posts_by_category' cate.id %}">{{ cate.category_name }}</a>
-                {% endfor %}
-            </details>
-
-            <details>
                 <summary>Social Links ▼</summary>
                 {% for social_link in social_links %}
                     <a href="{{ social_link.link }}" target="_blank">{{ social_link.platform }}</a>
@@ -92,14 +85,6 @@
     <a href="{% url 'about' %}" class="nav-link">About</a>
     <a href="{% url 'contact' %}" class="nav-link">Contact</a>
 
-    <div class="nav-dropdown">
-        <button type="button" class="nav-dropdown-btn">Categories ▼</button>
-        <div class="nav-dropdown-menu">
-            {% for cate in categories %}
-                <a href="{% url 'posts_by_category' cate.id %}">{{ cate.category_name }}</a>
-            {% endfor %}
-        </div>
-    </div>
 
     <div class="nav-dropdown">
         <button type="button" class="nav-dropdown-btn">Social Links ▼</button>

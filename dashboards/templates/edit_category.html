@@ -8,7 +8,7 @@
     <!-- Left sidebar -->
     <!-- load the sidebar here -->
     {% include 'sidebar.html' %}
-
+{% if can_edit %}
     <!-- Right side content -->
     <div class="col-md-9">
         <h2>Edit Category</h2>
@@ -21,6 +21,9 @@
         </form>
         <br>
     </div>
+{% else %}
+    <p style="color:red;">You are not allowed to edit this category.</p>
+{% endif %}
 </div>
 
 {% endblock %} 

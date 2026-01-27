@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Django Blogs</title>
+    <title>BlogNova | {% block title %} {% endblock %}</title>
 
     <!-- Bootstrap 4 CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
@@ -21,25 +21,25 @@
 
     <link href="{% static 'css/blog.css' %}" rel="stylesheet">
     <link href="{% static 'css/messages.css' %}" rel="stylesheet">
-        <style>
-html, body {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
 
-.main-content {
-    flex: 1 0 auto;
-    padding: 20px 40px;
-}
-
-        </style>
+        .main-content {
+            flex: 1 0 auto;
+            padding: 20px 40px;
+        }
+    </style>
     {% block extra_css %}{% endblock %}
 
 
@@ -47,9 +47,9 @@ body {
 
 <body>
     <!--message success or error -->
-{% if messages %}
-<div id="global-django-messages">
-    {% for message in messages %}
+    {% if messages %}
+    <div id="global-django-messages">
+        {% for message in messages %}
         <div class="global-message {{ message.tags }}">
             <span class="global-message-text">
                 {{ message|safe }}
@@ -58,20 +58,20 @@ body {
                 &times;
             </button>
         </div>
-    {% endfor %}
-</div>
-{% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
 
 
 
-{% include 'header.html' %}
+    {% include 'header.html' %}
 
-        <main class="main-content">
+    <main class="main-content">
         {% block content %}
         {% endblock %}
     </main>
-        
-{% include 'footer.html' %}
+
+    {% include 'footer.html' %}
 
     </div>
 

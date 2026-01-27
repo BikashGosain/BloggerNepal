@@ -1,5 +1,3 @@
-// Blog Detail JavaScript - All functions prefixed with 'bd'
-
 document.addEventListener('DOMContentLoaded', function() {
     // Submit main comment form without reload
     const commentForm = document.getElementById('bd-comment-form');
