@@ -15,6 +15,7 @@ from django.core.exceptions import PermissionDenied
 
 from django.contrib import messages
 from django.http import JsonResponse
+from django.core.paginator import Paginator
 
 
 from django.urls import reverse # If email is missing, show a clickable link 
@@ -160,6 +161,7 @@ def posts(request):
     user = request.user
     query = request.GET.get('q', '')  # search keyword
     status_filter = request.GET.get('status', '')  # filter by status
+    page_number = request.GET.get('page', 1)
 
     # Show all posts if admin/editor/manager, otherwise only own posts
     if user.is_superuser or user.groups.filter(name__in=['Editor', 'Manager']).exists():
@@ -179,8 +181,11 @@ def posts(request):
     if status_filter:
         posts = posts.filter(status=status_filter)
 
+    paginator = Paginator(posts, 20)
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        'posts': posts,
+        'posts': page_obj,
         'query': query,
         'status_filter': status_filter,
     }
@@ -283,9 +288,12 @@ def delete_post(request, pk):
 
 
 def users(request):
-    users = User.objects.all()
+    page_number = request.GET.get('page', 1)
+    users_list = User.objects.all().order_by('username')
+    paginator = Paginator(users_list, 20)
+    page_obj = paginator.get_page(page_number)
     context = {
-        'users': users,
+        'users': page_obj,
     }
     return render(request, 'users.html', context)
 

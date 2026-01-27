@@ -241,6 +241,7 @@ def notifications(request):
                     notification.deleted_by_users.add(request.user)  # actually deletes for them only
 
         return redirect(request.path)
+    
 
     # Handle delete all notifications
     if request.method == "POST" and "delete_all" in request.POST:
@@ -276,6 +277,7 @@ def notifications(request):
         return redirect(request.path)
 
     # Load notifications
+    page_number = request.GET.get('page', 1)
     if request.user.groups.filter(name__in=['Manager', 'Editor']).exists() or request.user.is_superuser:
         # Managers/Editors: all notifications, except those marked deleted by this user
         user_notifications = Notification.objects.exclude(deleted_by_admins=request.user).order_by('-created_at')
@@ -284,12 +286,17 @@ def notifications(request):
         # Regular users: only their own
         user_notifications = request.user.notifications.exclude(deleted_by_users=request.user).order_by('-created_at')
         unread_count = user_notifications.filter(read=False).count()
+
+    paginator = Paginator(user_notifications, 10)
+    page_obj = paginator.get_page(page_number)
     
     # Check if user is manager/editor
     is_manager_editor = request.user.groups.filter(name__in=['Manager','Editor']).exists() or request.user.is_staff
 
+    
+
     context = {
-        'notifications': user_notifications,
+        'notifications': page_obj,
         'unread_count': unread_count,
         'is_manager_editor': is_manager_editor,
     }

@@ -8,9 +8,11 @@ from django.contrib import messages
 
 
 def get_categories(request):
-    
-    categories = Category.objects.all()
-    return dict(categories=categories)
+    page_number = request.GET.get('page', 1)    
+    categories = Category.objects.all().order_by('category_name')
+    paginator = Paginator(categories, 20)
+    page_obj = paginator.get_page(page_number)
+    return dict(categories=page_obj)
 
 def get_social_links(request):
     social_links = SocialLinks.objects.all()

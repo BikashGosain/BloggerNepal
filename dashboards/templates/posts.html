@@ -75,9 +75,35 @@
               </tr>
             {% endfor %}
               
+            
             </tbody>
           </table>
+          
     </div>
+    <div class="pagination">
+    <!-- First page link -->
+    {% if posts.has_previous %}
+        <a href="?page=1&q={{ query }}&status={{ status_filter }}">First</a>
+    {% endif %}
+
+    <!-- Previous page link -->
+    {% if posts.has_previous %}
+        <a href="?page={{ posts.previous_page_number }}&q={{ query }}&status={{ status_filter }}">Previous</a>
+    {% endif %}
+
+    <!-- Current page info -->
+    <span>Page {{ posts.number }} of {{ posts.paginator.num_pages }}</span>
+
+    <!-- Next page link -->
+    {% if posts.has_next %}
+        <a href="?page={{ posts.next_page_number }}&q={{ query }}&status={{ status_filter }}">Next</a>
+    {% endif %}
+
+    <!-- Last page link -->
+    {% if posts.has_next %}
+        <a href="?page={{ posts.paginator.num_pages }}&q={{ query }}&status={{ status_filter }}">Last</a>
+    {% endif %}
+</div>
 </div>
 
 {% endblock %}

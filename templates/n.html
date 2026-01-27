@@ -153,7 +153,9 @@
                     </button>
                 </form>
             </div>
+            
         </div>
+        
         {% empty %}
         <div class="empty-state">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -165,6 +167,19 @@
         </div>
         {% endfor %}
     </div>
+    <div class="pagination">
+    {% if notifications.has_previous %}
+        <a href="?page=1">First</a>
+        <a href="?page={{ notifications.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    <span>Page {{ notifications.number }} of {{ notifications.paginator.num_pages }}</span>
+
+    {% if notifications.has_next %}
+        <a href="?page={{ notifications.next_page_number }}">Next</a>
+        <a href="?page={{ notifications.paginator.num_pages }}">Last</a>
+    {% endif %}
+</div>
 </div>
 
 
