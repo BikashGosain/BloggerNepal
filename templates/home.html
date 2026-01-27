@@ -3,145 +3,105 @@
 {% load static %}
 
 {% block extra_css %}
-<link href="{% static 'css/home.css' %}" rel="stylesheet">
-<link href="{% static 'css/featuredposts.css' %}" rel="stylesheet">
 <link href="{% static 'css/randomblogs.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 <!-- Hero Section - First Featured Post -->
-{% for post in featured_posts %}
-{% if forloop.first %}
-<div class="jumbotron p-3 p-md-5 text-white rounded bg-dark"
-  style="background-image: url({{ post.featured_image.url }});background-blend-mode: overlay;background-size:cover;">
-  <div class="col-md-10 px-0">
-    <span class="hero-category-badge">{{ post.category.category_name }}</span>
-    <h1 class="display-4 font-italic">{{ post.title }}</h1>
-    <p class="lead my-3">{{ post.short_description|slice:":150" }}...</p>
-    
-    <!-- Hero Stats -->
-    <div class="hero-stats mb-3">
-      <span class="hero-stat">
-        <i class="fas fa-eye"></i> {{ post.views|default:0 }} views
-      </span>
-      <span class="hero-stat">
-        <i class="fas fa-thumbs-up"></i> {{ post.total_likes }}
-      </span>
-      <span class="hero-stat">
-        <i class="far fa-clock"></i> {{ post.created_at|timesince }} ago
-      </span>
-    </div>
-
-    <p class="lead mb-0">
-      <a href="{% url 'blogs' post.slug %}" class="hero-read-btn">
-        Continue reading <i class="fas fa-arrow-right"></i>
-      </a>
-    </p>
-  </div>
-</div>
-{% endif %}
-{% endfor %}
+{% include 'slider.html' %}
 
 <!-- Include Featured Posts -->
- <h3 class="text-uppercase text-warning section-heading" style="letter-spacing: 2px;">
-        <i class="fas fa-star"></i> Featured Posts
-    </h3>
+<h3>Featured Posts</h3>
 {% include 'featuredposts.html' %}
 
 <!-- Main Content with Sidebar -->
-<main role="main" class="container p-0 mt-5">
-  <div class="row">
-    <div class="col-md-8 blog-main">
+<main role="main">
+  <div>
+    <div>
       <!-- Include Recent Posts -->
-       <h3 class="text-uppercase text-warning section-heading" style="letter-spacing: 2px;">
-        <i class="fas fa-star"></i> Recent Posts
-    </h3>
+      <h3>Recent Posts</h3>
       {% include 'recentposts.html' %}
     </div>
 
     <!-- Sidebar -->
-    <aside class="col-md-4 blog-sidebar">
+    <aside>
       <!-- About Section -->
-      <div class="p-3 mb-3 bg-light rounded sidebar-about">
-        <h4 class="sidebar-heading">
-          <i class="fas fa-info-circle"></i> {{ about.about_heading }}
-        </h4>
-        <p class="mb-0"><em>{{ about.about_description }}</em></p>
+      <div>
+        <h4>{{ about.about_heading }}</h4>
+        <p><em>{{ about.about_description }}</em></p>
       </div>
 
       <!-- Contact Form -->
-      <div class="sidebar-contact">
-        <h4 class="sidebar-heading mb-4">
-          <i class="fas fa-envelope"></i> Contact Us
-        </h4>
+      <div>
+        <h4>Contact Us</h4>
 
-        <form method="POST" action="{% url 'contacthome' %}" class="contact-form">
+        <form method="POST" action="{% url 'contacthome' %}">
           {% csrf_token %}
 
           <!-- Hidden field to redirect back to current page -->
           <input type="hidden" name="next" value="{{ request.path }}">
 
-          <div class="form-group">
-            <label><i class="fas fa-heading"></i> Subject:</label>
+          <div>
+            <label>Subject:</label>
             <input 
               type="text" 
               name="subject" 
               required
               {% if not user.is_authenticated %}disabled{% endif %}
               placeholder="Enter subject..."
-              class="form-control"
             >
           </div>
 
-          <div class="form-group">
-            <label><i class="fas fa-comment"></i> Message:</label>
+          <div>
+            <label>Message:</label>
             <textarea 
               name="message" 
               rows="5" 
               required
               {% if not user.is_authenticated %}disabled{% endif %}
               placeholder="Enter your message..."
-              class="form-control"
             ></textarea>
           </div>
 
           {% if user.is_authenticated %}
-            <button type="submit" class="btn-submit">
-              <i class="fas fa-paper-plane"></i> Send Message
-            </button>
+            <button type="submit">Send Message</button>
           {% else %}
-            <a href="{% url 'login' %}" class="btn-login">
-              <i class="fas fa-sign-in-alt"></i> Login First
-            </a>
+            <a href="{% url 'login' %}">Login First</a>
           {% endif %}
         </form>
       </div>
 
       <!-- Social Links -->
       {% if social_links %}
-      <div class="p-3 sidebar-social">
-        <h4 class="sidebar-heading">
-          <i class="fas fa-share-alt"></i> Follow Us
-        </h4>
-        <div class="social-links-container">
+      <div>
+        <h4>Follow Us</h4>
+        <div>
           {% for social_link in social_links %}
-          <a href="{{ social_link.link }}" target="_blank" rel="noopener noreferrer" class="social-link">
-            <i class="fas fa-link"></i> {{ social_link.platform }}
+          <a href="{{ social_link.link }}" target="_blank" rel="noopener noreferrer">
+            {{ social_link.platform }}
           </a>
           {% endfor %}
         </div>
       </div>
       {% endif %}
+
+      <!-- Categories -->
+      <div>
+        {% for cate in categories %}
+            <a href="{% url 'posts_by_category' cate.id %}">
+                {{ cate.category_name|slice:":5" }}
+            </a>
+        {% endfor %}
+      </div>
+
     </aside>
   </div>
 </main>
 
 {% endblock %}
 
+
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="{% static 'js/home.js' %}"></script>
 <script src="{% static 'js/randomblogs.js' %}"></script>
-
-<script src="{% static 'js/featuredposts.js' %}"></script>
 {% endblock %}

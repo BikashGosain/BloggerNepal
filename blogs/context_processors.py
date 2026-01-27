@@ -75,7 +75,14 @@ def unread_notifications_count(request):
 def latestpost(request):
     """Provides paginated latest published blogs to all templates."""
     latestpost = Blog.objects.filter(status='Published').order_by('-created_at')
-    paginator = Paginator(latestpost, 9)
+    current_path = request.path
+    
+    # Set different pagination based on page
+    if current_path == '/' or current_path == '/home/':
+        per_page = 5  # Home page shows 5
+    else:
+        per_page = 9
+    paginator = Paginator(latestpost, per_page)
     page_number = request.GET.get('page', 1)
     blogs_page = paginator.get_page(page_number)
     return {

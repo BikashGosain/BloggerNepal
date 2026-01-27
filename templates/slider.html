@@ -1,0 +1,62 @@
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/slider.css' %}" rel="stylesheet">
+{% endblock %}
+<div class="featured-slider-container">
+    <div class="featured-slider">
+        {% for post in featured_posts|slice:":5" %}
+        <div class="slide {% if forloop.first %}active{% endif %}">
+            <div class="slide-image">
+                <a href="{% url 'blogs' post.slug %}">
+                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+                </a>
+            </div>
+            <div class="slide-content">
+                <div class="slide-category">
+                    {{ post.category.category_name }}
+                </div>
+                <h1 class="slide-title">{{ post.title }}</h1>
+                <p class="slide-description">
+                    {{ post.short_description|slice:":150" }}...
+                </p>
+                <div class="slide-meta">
+                  <span>
+                        Author: {{ post.author }}
+                    </span>
+                    <span>
+                        {{ post.views|default:0 }} views
+                    </span>
+                    <span>
+                        {{ post.total_likes }} likes
+                    </span>
+                    <span>
+                        {{ post.created_at|timesince }} ago
+                    </span>
+                </div>
+                <p class="slide-link">
+                    <a href="{% url 'blogs' post.slug %}">
+                        Continue reading
+                    </a>
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Slider Controls -->
+    <div class="slider-controls">
+        <button class="slider-btn" id="prevBtn">‹</button>
+        <button class="slider-btn" id="nextBtn">›</button>
+    </div>
+
+    <!-- Slider Indicators -->
+    <div class="slider-indicators">
+        {% for post in featured_posts|slice:":5" %}
+        <span class="indicator {% if forloop.first %}active{% endif %}" data-slide="{{ forloop.counter0 }}"></span>
+        {% endfor %}
+    </div>
+</div>
+{% block extra_js %}
+<script src="{% static 'js/slider.js' %}"></script>
+{% endblock %}

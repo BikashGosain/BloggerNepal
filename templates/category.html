@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/category.css' %}" rel="stylesheet">
+
+{% endblock %}
+
+{% block content %}
+
+<div class="bn-category-wrapper">
+    {% for cate in categories %}
+        <a href="{% url 'posts_by_category' cate.id %}" class="bn-category-link">
+            {{ cate.category_name }}
+        </a>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+{% endblock %}

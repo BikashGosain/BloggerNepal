@@ -1,0 +1,28 @@
+.bn-category-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 10px 0;
+}
+
+.bn-category-link {
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    background-color: #f2f4f8;
+    padding: 8px 14px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.bn-category-link:hover {
+    background-color: #1e88e5;
+    color: #ffffff;
+    border-color: #1e88e5;
+}
+
+.bn-category-link:active {
+    transform: scale(0.96);
+}

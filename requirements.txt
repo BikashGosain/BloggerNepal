@@ -1,10 +1,12 @@
 asgiref==3.11.0
 crispy-bootstrap4==2025.6
+Django==6.0.1
+django-allauth==65.14.0
 django-ckeditor==6.7.3
+django-ckeditor-5==0.2.19
 django-crispy-forms==2.5
 django-js-asset==3.1.2
 django-tinymce==5.0.0
-Django==6.0.1
 pillow==12.1.0
 python-dotenv==1.2.1
 sqlparse==0.5.5

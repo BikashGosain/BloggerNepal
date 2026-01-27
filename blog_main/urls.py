@@ -28,6 +28,7 @@ urlpatterns = [
     path('randomblogs/', views.randomblogs, name='randomblogs'),
     path('latestpost/', views.latestpost, name='latestpost'),
     path('popularpost/', views.popularpost, name='popularpost'),
+    path('category/', views.category, name='category'),
 
     path('about/', views.about, name='about'),
     path('contact/', views.contact, name='contact'),
