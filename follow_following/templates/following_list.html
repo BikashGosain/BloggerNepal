@@ -1,54 +1,47 @@
-
 <div class="followers-page">
-    
 
     <div class="followers-content">
         <!-- Page Header -->
         <div class="page-header">
             <h2>
-                <i class="fas fa-user-friends"></i>
+                <i class="fas fa-user-check"></i>
                 {{ user.username }}'s Following
-                <span class="followers-count">({{ my_following_count }})</span>
+                <span class="followers-count">({{ following.paginator.count }})</span>
             </h2>
         </div>
 
         <!-- Search Form -->
         <div class="search-container">
             <form class="search-form" method="GET">
-    <!-- 🔑 PRESERVE TAB STATE -->
-    <input type="hidden" name="tab" value="following">
+                <!-- 🔑 PRESERVE TAB STATE -->
+                <input type="hidden" name="tab" value="following">
 
-    <div class="search-wrapper">
-        <i class="fas fa-search search-icon"></i>
-        <input 
-            type="text" 
-            name="search" 
-            class="search-input"
-            placeholder="Search following by username..."
-            value="{{ request.GET.search|default:'' }}"
-            autocomplete="off"
-        >
+                <div class="search-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input 
+                        type="text" 
+                        name="search" 
+                        class="search-input"
+                        placeholder="Search following by username..."
+                        value="{{ request.GET.search|default:'' }}"
+                        autocomplete="off"
+                    >
 
-        {% if request.GET.search %}
-            <button 
-                type="button" 
-                class="clear-search" 
-                onclick="window.location='?tab=following'">
-                <i class="fas fa-times"></i>
-            </button>
-        {% endif %}
-    </div>
+                    {% if request.GET.search %}
+                        <button type="button" class="clear-search" onclick="window.location='?tab=following'">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    {% endif %}
+                </div>
 
-    <button type="submit" class="search-button">
-        <i class="fas fa-search"></i> Search
-    </button>
-</form>
-
-
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </form>
         </div>
 
-        <!-- following List -->
-        {% if following %}
+        <!-- Following List -->
+        {% if following and following.paginator.count %}
             <div class="followers-list">
                 {% for item in following %}
                     <div class="follower-item">
@@ -61,11 +54,13 @@
                             </a>
                         </div>
 
-                         <!-- Follow / Unfollow button -->
+                        <!-- Follow / Unfollow button -->
                         {% if request.user.is_authenticated and request.user != item.following %}
                             <div class="follower-actions">
                                 {% if item.following.id in user_following_ids %}
-                                    <a href="{% url 'unfollow_user' item.following.id %}" class="action-btn unfollow-btn" onclick="return confirm('Are you sure you want to unfollow {{ item.follower.username }}?');">
+                                    <a href="{% url 'unfollow_user' item.following.id %}" 
+                                       class="action-btn unfollow-btn"
+                                       onclick="return confirm('Are you sure you want to unfollow {{ item.following.username }}?');">
                                         <i class="fas fa-user-minus"></i> Unfollow
                                     </a>
                                 {% else %}
@@ -78,21 +73,48 @@
                     </div>
                 {% endfor %}
             </div>
+
+            <!-- Pagination -->
+            <div class="pagination-wrapper mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if following.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?tab=following&page=1{% if search %}&search={{ search }}{% endif %}">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?tab=following&page={{ following.previous_page_number }}{% if search %}&search={{ search }}{% endif %}">Prev</a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item disabled">
+                        <span class="page-link">Page {{ following.number }} of {{ following.paginator.num_pages }}</span>
+                    </li>
+
+                    {% if following.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?tab=following&page={{ following.next_page_number }}{% if search %}&search={{ search }}{% endif %}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?tab=following&page={{ following.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}">Last</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+
         {% else %}
+            <!-- Empty state -->
             <div class="empty-state">
                 <div class="empty-icon">
                     <i class="fas fa-user-slash"></i>
                 </div>
-                <h3>No followers found</h3>
+                <h3>No following found</h3>
                 {% if request.GET.search %}
-                    <p>No followers match "{{ request.GET.search }}"</p>
+                    <p>No users match "{{ request.GET.search }}"</p>
                     <a href="?tab=following" class="clear-filter-btn">
-    <i class="fas fa-redo"></i> Clear Search
-</a>
-
-
+                        <i class="fas fa-redo"></i> Clear Search
+                    </a>
                 {% else %}
-                    <p>{{ user_obj.username }} doesn't have any followers yet.</p>
+                    <p>{{ user.username }} isn't following anyone yet.</p>
                 {% endif %}
             </div>
         {% endif %}

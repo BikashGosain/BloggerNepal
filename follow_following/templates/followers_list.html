@@ -6,10 +6,13 @@
         <!-- Page Header -->
         <div class="page-header">
             <h2>
-                <i class="fas fa-user-friends"></i>
-                {{ user.username }}'s Followers
-                <span class="followers-count">({{ followers.count }})</span>
-            </h2>
+    <i class="fas fa-user-friends"></i>
+    {{ user.username }}'s Followers
+    <span class="followers-count">
+        ({{ followers.paginator.count }})
+    </span>
+</h2>
+
         </div>
 
         <!-- Search Form -->
@@ -43,53 +46,91 @@
         </div>
 
         <!-- Followers List -->
-        {% if followers %}
-            <div class="followers-list">
-                {% for item in followers %}
-                    <div class="follower-item">
-                        <div class="follower-info">
-                            <div class="follower-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <a href="{% url 'profile' item.follower.username %}" class="follower-username">
-                                {{ item.follower.username }}
-                            </a>
-                        </div>
+        {% if followers and followers.paginator.count %}
+    <div class="followers-list">
+        {% for item in followers %}
+            <div class="follower-item">
+                <div class="follower-info">
+                    <div class="follower-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <a href="{% url 'profile' item.follower.username %}" class="follower-username">
+                        {{ item.follower.username }}
+                    </a>
+                </div>
 
-                        <!-- Follow / Unfollow button -->
-                        {% if request.user.is_authenticated and request.user != item.follower %}
-                            <div class="follower-actions">
-                                {% if item.follower.id in user_following_ids %}
-                                    <a href="{% url 'unfollow_user' item.follower.id %}" class="action-btn unfollow-btn" onclick="return confirm('Are you sure you want to unfollow {{ item.follower.username }}?');">
-                                        <i class="fas fa-user-minus"></i> Unfollow
-                                    </a>
-                                {% else %}
-                                    <a href="{% url 'follow_user' item.follower.id %}" class="action-btn follow-btn">
-                                        <i class="fas fa-user-plus"></i> Follow
-                                    </a>
-                                {% endif %}
-                            </div>
+                {% if request.user.is_authenticated and request.user != item.follower %}
+                    <div class="follower-actions">
+                        {% if item.follower.id in user_following_ids %}
+                            <a href="{% url 'unfollow_user' item.follower.id %}"
+                               class="action-btn unfollow-btn"
+                               onclick="return confirm('Are you sure you want to unfollow {{ item.follower.username }}?');">
+                                <i class="fas fa-user-minus"></i> Unfollow
+                            </a>
+                        {% else %}
+                            <a href="{% url 'follow_user' item.follower.id %}" class="action-btn follow-btn">
+                                <i class="fas fa-user-plus"></i> Follow
+                            </a>
                         {% endif %}
                     </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fas fa-user-slash"></i>
-                </div>
-                <h3>No followers found</h3>
-                {% if request.GET.search %}
-                    <p>No followers match "{{ request.GET.search }}"</p>
-                    <a href="?tab=followers" class="clear-filter-btn">
-    <i class="fas fa-redo"></i> Clear Search
-</a>
-
-
-                {% else %}
-                    <p>{{ user_obj.username }} doesn't have any followers yet.</p>
                 {% endif %}
             </div>
+        {% endfor %}
+    </div>
+<div class="pagination-wrapper mt-4">
+    <ul class="pagination justify-content-center">
+
+        {% if followers.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?tab=followers&page=1{% if search %}&search={{ search }}{% endif %}">
+                    First
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?tab=followers&page={{ followers.previous_page_number }}{% if search %}&search={{ search }}{% endif %}">
+                    Prev
+                </a>
+            </li>
         {% endif %}
+
+        <li class="page-item disabled">
+            <span class="page-link">
+                Page {{ followers.number }} of {{ followers.paginator.num_pages }}
+            </span>
+        </li>
+
+        {% if followers.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?tab=followers&page={{ followers.next_page_number }}{% if search %}&search={{ search }}{% endif %}">
+                    Next
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?tab=followers&page={{ followers.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}">
+                    Last
+                </a>
+            </li>
+        {% endif %}
+
+    </ul>
+</div>
+{% else %}
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="fas fa-user-slash"></i>
+        </div>
+        <h3>No followers found</h3>
+
+        {% if search %}
+            <p>No followers match "{{ search }}"</p>
+            <a href="?tab=followers" class="clear-filter-btn">
+                <i class="fas fa-redo"></i> Clear Search
+            </a>
+        {% else %}
+            <p>{{ user.username }} doesn't have any followers yet.</p>
+        {% endif %}
+    </div>
+{% endif %}
+
     </div>
 </div>

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 from blogs.models import Blog
 from .models import Follow
+from django.core.paginator import Paginator
 
 # FOLLOW USER
 @login_required
@@ -87,6 +88,9 @@ def profile(request, username):
     user_obj = get_object_or_404(User, username=username)
 
     posts = Blog.objects.filter(author=user_obj).order_by('-created_at')
+    paginator = Paginator(posts, 6)
+    page_number = request.GET.get('page', 1)
+    posts = paginator.get_page(page_number)
 
     # Check if logged-in user follows this user
     is_following = False

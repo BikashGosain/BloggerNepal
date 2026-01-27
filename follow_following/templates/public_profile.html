@@ -30,18 +30,18 @@
 
                     <!-- Followers / Following counts -->
                     <div class="stats-container d-flex justify-content-around mb-3">
-                        <a href="{% url 'followers_list' user_obj.username %}" class="stat-item text-decoration-none">
+                        <a href="{% url 'dashboardfollowers_list' user_obj.username %}" class="stat-item text-decoration-none">
                             <div class="stat-number">{{ user_obj.followers.count }}</div>
                             <div class="stat-label">Followers</div>
                         </a>
                         <div class="stat-divider"></div>
-                        <a href="{% url 'following_list' user_obj.username %}" class="stat-item text-decoration-none">
+                        <a href="{% url 'dashboardfollowing_list' user_obj.username %}" class="stat-item text-decoration-none">
                             <div class="stat-number">{{ user_obj.following.count }}</div>
                             <div class="stat-label">Following</div>
                         </a>
                         <div class="stat-divider"></div>
                         <div class="stat-item">
-                            <div class="stat-number">{{ posts.count }}</div>
+                            <div class="stat-number">{{posts.paginator.count }}</div>
                             <div class="stat-label">Posts</div>
                         </div>
                     </div>
@@ -67,7 +67,7 @@
             <div class="posts-header mb-4">
                 <h4 class="section-title">
                     <i class="fas fa-blog"></i> Posts by {{ user_obj.username }}
-                    <span class="badge bg-primary ms-2">{{ posts.count }}</span>
+                    <span class="badge bg-primary ms-2">{{ posts.paginator.count }}</span>
                 </h4>
             </div>
 
@@ -136,6 +136,20 @@
                         </div>
                     {% endfor %}
                 </div>
+                <div class="pagination mt-3">
+    {% if posts.has_previous %}
+        <a href="?page=1" class="btn btn-sm btn-outline-primary">First</a>
+        <a href="?page={{ posts.previous_page_number }}" class="btn btn-sm btn-outline-primary">Prev</a>
+    {% endif %}
+
+    <span>Page {{ posts.number }} of {{ posts.paginator.num_pages }} ({{ posts.paginator.count }} Posts)</span>
+
+    {% if posts.has_next %}
+        <a href="?page={{ posts.next_page_number }}" class="btn btn-sm btn-outline-primary">Next</a>
+        <a href="?page={{ posts.paginator.num_pages }}" class="btn btn-sm btn-outline-primary">Last</a>
+    {% endif %}
+</div>
+
             {% else %}
                 <div class="no-posts-container">
                     <div class="no-posts-icon">

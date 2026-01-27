@@ -346,21 +346,15 @@ def delete_user(request, pk):
     messages.success(request, f'Username "{user}" deleted successfully. ✅')
     return redirect('users')
 
-
-
 def profile(request):
-    """
-    Display logged-in user's profile, followers, following, and posts
-    """
     user = request.user
 
-    # 🔹 ACTIVE TAB (default: posts)
+    # Active tab
     tab = request.GET.get('tab', 'posts')
-
-    # 🔹 SEARCH QUERY
     search = request.GET.get('search', '').strip()
+    page_number = request.GET.get('page')
 
-    # 🔹 EMAIL WARNING
+    # Email warning
     if not user.email:
         messages.info(
             request,
@@ -368,23 +362,49 @@ def profile(request):
             f'Please <a href="{reverse("edit_profile")}">add your email here</a>.'
         )
 
-    # 🔹 POSTS
-    posts = Blog.objects.filter(author=user)
+    # 🔹 POSTS (paginated)
+    posts_qs = Blog.objects.filter(author=user).order_by('-created_at')
+    posts = None
+    if tab == 'posts':
+        posts = Paginator(posts_qs, 4).get_page(page_number)
 
-    # 🔹 FOLLOWERS
-    followers = Follow.objects.filter(following=user).select_related('follower')
+    # 🔹 FOLLOWERS (paginated + searchable)
+    followers_qs = Follow.objects.filter(
+        following=user
+    ).select_related('follower')
+
     if tab == 'followers' and search:
-        followers = followers.filter(follower__username__icontains=search)
+        followers_qs = followers_qs.filter(
+            follower__username__icontains=search
+        )
 
-    # 🔹 FOLLOWING
-    following = Follow.objects.filter(follower=user).select_related('following')
-    if tab == 'following' and search:
-        following = following.filter(following__username__icontains=search)
+    followers = None
+    if tab == 'followers':
+        followers = Paginator(followers_qs, 10).get_page(page_number)
 
-    # 🔹 IDs of users current logged-in user is following (for Follow/Unfollow button)
-    user_following_ids = list(Follow.objects.filter(
+    # 🔹 FOLLOWING (paginated + searchable)
+    following_qs = Follow.objects.filter(
         follower=user
-    ).values_list('following_id', flat=True))
+    ).select_related('following')
+
+    if tab == 'following' and search:
+        following_qs = following_qs.filter(
+            following__username__icontains=search
+        )
+
+    following = None
+    if tab == 'following':
+        following = Paginator(following_qs, 10).get_page(page_number)
+
+    # 🔹 Counts (ALWAYS global, NEVER filtered)
+    my_followers_count = Follow.objects.filter(following=user).count()
+    my_following_count = Follow.objects.filter(follower=user).count()
+
+    # 🔹 IDs for Follow/Unfollow buttons
+    user_following_ids = list(
+        Follow.objects.filter(follower=user)
+        .values_list('following_id', flat=True)
+    )
 
     context = {
         'user': user,
@@ -395,12 +415,13 @@ def profile(request):
         'followers': followers,
         'following': following,
 
-        'my_followers_count': followers.count(),
-        'my_following_count': following.count(),
+        'my_followers_count': my_followers_count,
+        'my_following_count': my_following_count,
         'user_following_ids': user_following_ids,
     }
 
     return render(request, 'profile.html', context)
+
 
 
 
