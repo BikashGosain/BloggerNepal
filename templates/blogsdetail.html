@@ -16,7 +16,6 @@
                 <!-- Header -->
                 <header class="bd-header">
                     <h1 class="bd-title">{{ single_blog.title }}</h1>
-
                     <!-- Follow Button -->
                     {% if user.is_authenticated and user != single_blog.author %}
                     <div class="bd-follow-section">
@@ -37,8 +36,12 @@
                         <span class="bd-meta-item">
                             <i class="far fa-clock"></i> {{ single_blog.created_at|timesince }} ago
                         </span>
+                        <span>{{ single_blog.views|default:0 }} views</span>
+                       
                         <span class="bd-meta-item">
-                            <i class="far fa-user"></i> {{ single_blog.author }}
+                            <a href="{% url 'profile' single_blog.author.username %}" class="follower-username">
+                                <i class="far fa-user"></i> {{ single_blog.author.username }}
+                            </a>
                         </span>
                     </div>
 

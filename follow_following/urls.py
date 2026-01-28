@@ -1,4 +1,5 @@
 from django.urls import path
+from django.contrib.auth.decorators import login_required
 from . import views
 
 urlpatterns = [
@@ -13,5 +14,8 @@ urlpatterns = [
     # **Public profile view for any user**
     path('profile/<str:username>/', views.profile, name='profile'),
     path('mypost', views.mypost, name='mypost'),
+
+    path('public_followers_list/<str:username>/', views.public_followers_list, name='public_followers_list'),
+    path('public_following_list/<str:username>/', views.public_following_list, name='public_following_list'),
 
 ]

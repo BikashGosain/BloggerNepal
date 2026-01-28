@@ -453,30 +453,21 @@ def edit_profile(request):
 def dashboardfollowers_list(request, username):
     user_obj = get_object_or_404(User, username=username)
 
-    # Base queryset
     followers = Follow.objects.filter(
         following=user_obj
     ).select_related('follower')
 
-    # Handle search
     search_query = request.GET.get('search', '').strip()
     if search_query:
         followers = followers.filter(
             follower__username__icontains=search_query
         )
 
-    # IDs of users current logged-in user is following
-    user_following_ids = []
-    if request.user.is_authenticated:
-        user_following_ids = Follow.objects.filter(
-            follower=request.user
-        ).values_list('following_id', flat=True)
-
     return render(request, 'dashboardfollowers_list.html', {
         'user_obj': user_obj,
         'followers': followers,
-        'user_following_ids': list(user_following_ids),
     })
+
 
 # FOLLOWING LIST
 def dashboardfollowing_list(request, username):
@@ -485,22 +476,14 @@ def dashboardfollowing_list(request, username):
     following = Follow.objects.filter(
         follower=user_obj
     ).select_related('following')
-    # Handle search
+
     search_query = request.GET.get('search', '').strip()
     if search_query:
         following = following.filter(
-            follower__username__icontains=search_query
+            following__username__icontains=search_query
         )
-
-    # IDs of users current logged-in user is following
-    user_following_ids = []
-    if request.user.is_authenticated:
-        user_following_ids = Follow.objects.filter(
-            follower=request.user
-        ).values_list('following_id', flat=True)
 
     return render(request, 'dashboardfollowing_list.html', {
         'user_obj': user_obj,
         'following': following,
-        'user_following_ids': list(user_following_ids),
     })

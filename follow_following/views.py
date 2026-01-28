@@ -116,3 +116,9 @@ def mypost(request):
         'posts': posts,
     }
     return render(request, 'My_Posts.html', context)
+
+def public_followers_list(request, username):
+    return render(request, 'public_followers_list.html')
+
+def public_following_list(request, username):
+    return render(request, 'public_following_list.html')

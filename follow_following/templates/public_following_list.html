@@ -1,0 +1,111 @@
+
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/dashboardfollowers_list.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+{% if follow_error %}
+    <div class="alert alert-warning">
+        {{ follow_error }}
+    </div>
+{% endif %}
+
+<div class="followers-page">
+
+    <div class="followers-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2>
+                <i class="fas fa-user-friends"></i>
+                {{ user_obj.username }}'s Following
+                <span class="followers-count">({{ my_following_count }})</span>
+            </h2>
+        </div>
+
+        <!-- Search Form -->
+        <div class="search-container">
+            <form class="search-form" method="GET" action="">
+                <div class="search-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input 
+                        type="text" 
+                        name="search" 
+                        id="follower-search" 
+                        class="search-input"
+                        placeholder="Search followers by username..."
+                        value="{{ request.GET.search|default:'' }}"
+                        autocomplete="off"
+                    >
+                    {% if request.GET.search %}
+                        <button type="button" class="clear-search" id="clearSearchBtn">
+    <i class="fas fa-times"></i>
+</button>
+
+                    {% endif %}
+                </div>
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </form>
+        </div>
+
+        <!-- following List -->
+        {% if following %}
+            <div class="followers-list">
+                {% for item in following %}
+                    <div class="follower-item">
+                        <div class="follower-info">
+                            <div class="follower-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <a href="{% url 'profile' item.following.username %}" class="follower-username">
+                                {{ item.following.username }}
+                            </a>
+                        </div>
+
+                        <!-- Follow / Unfollow button -->
+                        {% if request.user.is_authenticated and request.user != item.following %}
+                            <div class="follower-actions">
+                                {% if item.following.id in user_following_ids %}
+                                    <a href="{% url 'unfollow_user' item.following.id %}" class="action-btn unfollow-btn" onclick="return confirm('Are you sure you want to unfollow {{ item.follower.username }}?');">
+                                        <i class="fas fa-user-minus"></i> Unfollow
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'follow_user' item.following.id %}" class="action-btn follow-btn">
+                                        <i class="fas fa-user-plus"></i> Follow
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-user-slash"></i>
+                </div>
+                <h3>No followers found</h3>
+                {% if request.GET.search %}
+                    <p>No followers match "{{ search_query }}"</p>
+                    <a href="{% url 'public_following_list' user_obj.username %}" class="clear-filter-btn" >
+                        <i class="fas fa-redo"></i> Clear Search
+                    </a>
+
+                {% else %}
+                    <p>{{ user_obj.username }} doesn't have any followers yet.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboardfollowers_list.js' %}"></script>
+{% endblock %}

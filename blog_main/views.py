@@ -17,12 +17,7 @@ def home(request):
     blogs_page = paginator.get_page(page)
 
     posts = Blog.objects.filter(is_featured=False, status='Published').order_by('-created_at')
-
-    # Fetch About Us information
-    try:
-        about = AboutUs.objects.get()
-    except:
-        about = None
+    about = AboutUs.objects.all()[:3]
 
     context = {
         # 'categories': categories, # removed as we are using context processor for categories
