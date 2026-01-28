@@ -1,0 +1,6 @@
+<div class="homepage-widget homepage-about">
+          {% for about in about %}
+          <h4 class="homepage-widget-title">{{ about.question }}</h4>
+          <p class="homepage-about-description"><em>{{ about.answer }}</em></p>
+          {% endfor %}
+</div>

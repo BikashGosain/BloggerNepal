@@ -67,12 +67,6 @@ def popularpost(request):
 def category(request):
     return render(request, 'category.html')
 
-def about(request):
-    about = AboutUs.objects.get()
-    context = {
-        'about': about,
-    }
-    return render(request, 'about.html', context)
 def contact(request):
     return render(request, 'contact.html')
 

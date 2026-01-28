@@ -17,6 +17,7 @@
               <tr>
                 <th>#</th>
                 <th>Category Name</th>
+                <th>Total Blogs</th>
                 <Th>Author</Th>
                 <th>Created At</th>
                 <th>Updated At</th>
@@ -30,6 +31,7 @@
 
                 <td>{{ forloop.counter }}</td>
                 <td>{{ cat }}</td>
+                <td>{{ cat.blog_count }}</td>
                 <td>{{cat.author}}</td>
                 <td>{{ cat.created_at }}</td>
                 <td>{{ cat.updated_at }}</td>

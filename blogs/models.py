@@ -33,7 +33,7 @@ STATUS_CHOICES = (
 class Blog(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE) # on delete category all posts related category will be deleted
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='blog')
     author = models.ForeignKey(User, on_delete=models.CASCADE) # on delete user all posts related user will be deleted
     featured_image = models.ImageField(upload_to='uploads/%Y/%m/%d/', blank=False, null=False)
     short_description = models.TextField(max_length=200)
@@ -49,6 +49,15 @@ class Blog(models.Model):
     # for like and dislike
     likes = models.ManyToManyField(User, related_name='blog_likes', blank=True)
     dislikes = models.ManyToManyField(User, related_name='blog_dislikes', blank=True)
+
+    def get_category_url(self):
+        if self.category:
+            return reverse('posts_by_category', kwargs={'category_id': self.category.id})
+        else:
+            return reverse('posts_by_category', kwargs={'category_id': 0})
+
+    def get_category_name(self):
+        return self.category.category_name if self.category else "Uncategorized"
 
     def total_likes(self):
         return self.likes.count()

@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
     'contact',
     'follow_following',
-
 ]
 
 MIDDLEWARE = [

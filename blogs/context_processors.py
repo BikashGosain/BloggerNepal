@@ -1,18 +1,34 @@
 from inymce.django.core.paginator import Paginator
-from .models import Category, Notification
+from .models import Category,Blog, Notification
 from social_links.models import SocialLinks
-from .models import Blog
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.shortcuts import redirect
 from django.contrib import messages
 
 
 def get_categories(request):
-    page_number = request.GET.get('page', 1)    
-    categories = Category.objects.all().order_by('category_name')
-    paginator = Paginator(categories, 20)
+    page_number = request.GET.get('page', 1)
+
+    categories_qs = Category.objects.annotate(
+        blog_count=Count(
+            'blog',
+            filter=Q(blog__status='Published')
+        )
+    ).order_by('category_name')
+
+    paginator = Paginator(categories_qs, 20)
     page_obj = paginator.get_page(page_number)
-    return dict(categories=page_obj)
+
+    uncategorized_count = Blog.objects.filter(
+        category__isnull=True,
+        status='Published'
+    ).count()
+
+    return {
+        'categories': page_obj,          # paginated categories with blog_count
+        'uncategorized_count': uncategorized_count
+    }
+
 
 def get_social_links(request):
     social_links = SocialLinks.objects.all()

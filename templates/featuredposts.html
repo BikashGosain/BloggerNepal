@@ -14,13 +14,10 @@
         </a>
 
         <!-- Category clickable to category page -->
-        {% if blog.category %}
-            <a href="{% url 'posts_by_category' blog.category.id %}" class="rb-blog-category">
-                {{ blog.category.category_name }}
-            </a>
-        {% else %}
-            <span class="rb-blog-category">None</span>
-        {% endif %}
+        <a href="{{ blog.get_category_url }}" class="rb-blog-category">
+    {{ blog.get_category_name }}
+</a>
+
 
         <div class="rb-blog-content">
             <!-- Title clickable -->

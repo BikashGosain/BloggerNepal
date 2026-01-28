@@ -15,19 +15,14 @@ from django.http import JsonResponse
 # Create your views here.
 
 def posts_by_category(request, category_id):
-    category = Category.objects.filter(id=category_id).first()
-
-    if not category:
-        return render(request, 'category.html', {
-            'posts_by_category': [],
-            'category': None,
-            'message': 'Your search Category not found.'
-        })
-
-    posts_qs = Blog.objects.filter(
-        category=category,
-        status='Published'
-    ).order_by('-created_at')
+    if int(category_id) == 0:  # Special case: Uncategorized
+        category = None
+        posts_qs = Blog.objects.filter(category__isnull=True, status='Published').order_by('-created_at')
+        category_name = "Uncategorized"
+    else:
+        category = get_object_or_404(Category, id=category_id)
+        posts_qs = Blog.objects.filter(category=category, status='Published').order_by('-created_at')
+        category_name = category.category_name
 
     paginator = Paginator(posts_qs, 24)
     page_number = request.GET.get('page', 1)
@@ -36,6 +31,7 @@ def posts_by_category(request, category_id):
     context = {
         'posts_by_category': posts_page,
         'category': category,
+        'category_name': category_name
     }
 
     return render(request, 'posts_by_category.html', context)
@@ -358,7 +354,9 @@ def search(request):
         results = Blog.objects.filter(
             Q(title__icontains=keyword) | 
             Q(short_description__icontains=keyword) | 
-            Q(blog_body__icontains=keyword),
+            Q(blog_body__icontains=keyword) |
+            Q(author__username__icontains=keyword) |
+            Q(category__category_name__icontains=keyword),
             status='Published'
         ).order_by('-created_at')
     else:

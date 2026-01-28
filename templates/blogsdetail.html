@@ -83,9 +83,10 @@
                     {% endif %}
 
                     <!-- Category Badge -->
-                    <a class="bd-category" href="{% url 'posts_by_category' single_blog.category.id %}">
-                        {{ single_blog.category }}
-                    </a>
+                   <a class="bd-category" href="{{ single_blog.get_category_url }}">
+    {{ single_blog.get_category_name }}
+</a>
+
                 </header>
 
                 <!-- Featured Image -->

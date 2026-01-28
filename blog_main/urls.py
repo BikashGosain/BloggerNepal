@@ -30,7 +30,8 @@ urlpatterns = [
     path('popularpost/', views.popularpost, name='popularpost'),
     path('category/', views.category, name='category'),
 
-    path('about/', views.about, name='about'),
+    path('about_us/', include('about_us.urls')),
+    
     path('contact/', views.contact, name='contact'),
 
     path('category/', include('blogs.urls')),

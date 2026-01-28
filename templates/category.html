@@ -26,16 +26,38 @@
     </div>
 {% endif %}
     
+<!-- <ul>
+  {% for category in categories %}
+    <li>
+      {{ category.category_name }} 
+      ({{ category.blog_count }} blogs)
+    </li>
+  {% endfor %}
+</ul> -->
+<!-- to show deleted categories to Uncatagoriges
+ {% if blog.category %}
+    {{ blog.category.category_name }}
+{% else %}
+    Uncategorized
+{% endif %}
+or (shorter)
+{{ blog.category.category_name|default:"Uncategorized" }}
+ -->
 
 <h2 class="bn-category-title">Categories</h2>
  {% if categories %}
 <div class="bn-category-grid">
-   
     {% for cate in categories %}
         <a href="{% url 'posts_by_category' cate.id %}" class="bn-category-card">
-            <span class="bn-category-name">{{ cate.category_name }}</span>
+            <span class="bn-category-name">{{ cate.category_name }} ({{ cate.blog_count }} blogs)</span>
         </a>
     {% endfor %}
+    {% if uncategorized_count > 0 %}
+        <a href="{% url 'posts_by_category' 0 %}" class="bn-category-card">
+            <span class="bn-category-name">Uncategorized ({{ uncategorized_count }} blogs)</span>
+        </a>
+    {% endif %}
+
 </div>
 {% else %}
     <p>Category not found.</p>
