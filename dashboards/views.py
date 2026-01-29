@@ -4,6 +4,7 @@ from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django.contrib.auth.decorators import permission_required
 
 from follow_following.models import Follow
+from inymce.django.contrib.auth.decorators import login_required
 from inymce.django.template.context_processors import request
 from .forms import BlogPostForm, CategoryForm, AddUserForm, EditUserForm, ProfileEditForm  
 from django.contrib.auth.models import User
@@ -31,25 +32,77 @@ from django.urls import reverse # If email is missing, show a clickable link
 #     }
 
 #     return render(request, 'dashboard/dashboard.html',context)
-
+from django.db.models import Count
+from calendar import month_name
 
 def dashboard(request):
     user = request.user
 
-    # Categories count (only self for normal users)
-    if user.is_superuser or user.groups.filter(name__in=['Editor','Manager']).exists():
-        category_count = Category.objects.all().count()
-        blogs_count = Blog.objects.all().count()
-    else:
-        category_count = Category.objects.filter(author=user).count()
-        blogs_count = Blog.objects.filter(author=user).count()
+    # ----------------------------
+    # Role flags
+    # ----------------------------
+    is_editor = user.groups.filter(name='Editor').exists()
+    is_manager = user.groups.filter(name='Manager').exists()
+    can_see_all = is_manager or user.is_superuser
+    can_see_own = not can_see_all  # regular users/editors
 
+    # ----------------------------
+    # Counts
+    # ----------------------------
+    category_count = Category.objects.count() if can_see_all else Category.objects.filter(blog__author=user).distinct().count()
+    blogs_count = Blog.objects.count() if can_see_all else Blog.objects.filter(author=user).count()
+    self_posts_count = Blog.objects.filter(author=user).count()
+
+    # ----------------------------
+    # Posts per Category
+    # ----------------------------
+    if can_see_all:
+        posts_per_category_qs = Category.objects.annotate(posts_count=Count('blog')).values('category_name', 'posts_count')
+    else:
+        posts_per_category_qs = Category.objects.annotate(
+            posts_count=Count('blog', filter=Q(blog__author=user))
+        ).values('category_name', 'posts_count')
+
+    posts_per_category = list(posts_per_category_qs)
+    if not posts_per_category:
+        posts_per_category = [{'category_name': 'No Categories', 'posts_count': 0}]
+
+    # ----------------------------
+    # Posts per Month
+    # ----------------------------
+    if can_see_all:
+        posts_per_month_qs = Blog.objects.values('created_at__month').annotate(count=Count('id')).order_by('created_at__month')
+    else:
+        posts_per_month_qs = Blog.objects.filter(author=user).values('created_at__month').annotate(count=Count('id')).order_by('created_at__month')
+
+    posts_per_month = list(posts_per_month_qs)
+    if not posts_per_month:
+        posts_per_month = [{'created_at__month': 1, 'count': 0}]  # show Jan if no posts
+
+    # Map month numbers to names for template
+    month_labels = [month_name[item['created_at__month']] for item in posts_per_month]
+
+    # ----------------------------
+    # Context
+    # ----------------------------
     context = {
+        'is_editor': is_editor,
+        'is_manager': is_manager,
+        'can_see_all': can_see_all,
+        'can_see_own': can_see_own,
         'category_count': category_count,
         'blogs_count': blogs_count,
+        'self_posts_count': self_posts_count,
+        'posts_per_category': posts_per_category,
+        'posts_per_month': posts_per_month,
+        'month_labels': month_labels,
     }
 
     return render(request, 'dashboard.html', context)
+
+
+
+
 
 
 def categories(request):
