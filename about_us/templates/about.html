@@ -1,7 +1,13 @@
 {% for about in about %}
 <div class="homepage-widget homepage-about">
-          
-          <h4 class="homepage-widget-title">{{ about.question }}</h4>
-          <p class="homepage-about-description"><em>{{ about.answer }}</em></p>
+    
+    <h4 class="homepage-widget-title">
+        Q{{ forloop.counter }}. {{ about.question }}
+    </h4>
+
+    <p class="homepage-about-description">
+        <strong>Ans:</strong> <em>{{ about.answer }}</em>
+    </p>
+
 </div>
 {% endfor %}
