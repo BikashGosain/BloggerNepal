@@ -1,0 +1,43 @@
+<hr>
+            <div class="container">
+            <h2>Welcome to your Dashboard, {{ user }}!</h2>
+            <p>Use the sidebar to navigate through your dashboard options.</p>
+    </div>
+<hr>
+    {% if is_editor %}
+            <div id="dashboard-note"><strong>Note:</strong> As an Editor, you can edit posts and categories but not delete others' posts.</div>
+        {% elif is_manager %}
+            <div id="dashboard-note"><strong>Note:</strong> As a Manager, you can add, edit, and delete all posts, categories, and users.</div>
+        {% elif user.is_superuser %}
+            <div id="dashboard-note"><strong>Note:</strong> As an Admin, you have full access.</div>
+        {% else %}
+            <div id="dashboard-note">{{ user }}! You can create, edit, and delete your posts.</div>
+        {% endif %}
+<div class="row">
+    {% if can_see_all %}
+    <div class="col">
+        <div class="card text-center">
+            <div class="card-header">All Categories</div>
+            <div class="card-body"><h5>{{ category_count }}</h5></div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="col">
+        <div class="card text-center">
+            <div class="card-header">
+                {% if can_see_all %}All Posts{% else %}My Posts{% endif %}
+            </div>
+            <div class="card-body"><h5>{{ blogs_count }}</h5></div>
+        </div>
+    </div>
+
+    {% if can_see_all %}
+    <div class="col">
+        <div class="card text-center">
+            <div class="card-header">My Posts</div>
+            <div class="card-body"><h5>{{ self_posts_count }}</h5></div>
+        </div>
+    </div>
+    {% endif %}
+</div>

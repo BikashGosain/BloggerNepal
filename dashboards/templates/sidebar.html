@@ -2,6 +2,10 @@
     <div class="nav flex-column nav-pills bg-light" aria-orientation="vertical">
         <a href="{% url 'dashboard' %}"
             class="nav-link text-dark {% if '/dashboard/' == request.path %}bg-warning{% endif %}">Dashboard</a>
+            <a href="{% url 'posts_per_category' %}"
+            class="nav-link text-dark {% if '/posts_per_category/' == request.path %}bg-warning{% endif %}">Posts Per Category</a>
+            <a href="{% url 'posts_per_month' %}"
+            class="nav-link text-dark {% if '/posts_per_month/' == request.path %}bg-warning{% endif %}">Posts Per Month</a>
         <a href="{% url 'profile' %}"
             class="nav-link text-dark {% if '/profile/' in request.path %}bg-warning{% endif %}">Profile</a>
         <a href="{% url 'dashboardfollowers_list' request.user.username %}"

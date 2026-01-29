@@ -8,6 +8,9 @@ from blogs import views as notification_views
 urlpatterns = [
     # Dashboard Home
     path('', login_required(views.dashboard, login_url='login'), name='dashboard'),
+    path('analytics/category/', login_required(views.posts_per_category, login_url='login'), name='posts_per_category'),
+    path('analytics/month/', login_required(views.posts_per_month, login_url='login'), name='posts_per_month'),
+
     # Category CRUD
     path('categories/', login_required(views.categories, login_url='login'), name='categories'),
     path('categories/add/', login_required(views.add_category, login_url='login'), name='add_category'),

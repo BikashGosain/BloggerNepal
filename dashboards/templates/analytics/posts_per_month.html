@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    {% include 'sidebar.html' %}
+    <div class="col-md-9">
+        {% include 'analytics/dashboard_header.html' %}
+
+        <div class="container">
+
+    {% if can_see_all %}
+    <div class="card mt-4">
+        <div class="card-header text-center">All Posts per Month</div>
+        <div class="card-body">
+            <canvas id="allMonthChart"></canvas>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card mt-4">
+        <div class="card-header text-center">My Posts per Month</div>
+        <div class="card-body">
+            <canvas id="myMonthChart"></canvas>
+        </div>
+    </div>
+</div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+{% if can_see_all %}
+new Chart(document.getElementById('allMonthChart'), {
+    type: 'bar',
+    data: {
+        labels: [{% for i in all_posts_per_month %}'{{ month_name.i.month }}',{% endfor %}],
+        datasets: [{
+            label: 'All Posts',
+            data: [{% for i in all_posts_per_month %}{{ i.count }},{% endfor %}]
+        }]
+    }
+});
+{% endif %}
+
+new Chart(document.getElementById('myMonthChart'), {
+    type: 'bar',
+    data: {
+        labels: [{% for i in my_posts_per_month %}'{{ month_name.i.month }}',{% endfor %}],
+        datasets: [{
+            label: 'My Posts',
+            data: [{% for i in my_posts_per_month %}{{ i.count }},{% endfor %}]
+        }]
+    }
+});
+</script>
+{% endblock %}
