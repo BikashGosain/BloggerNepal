@@ -18,7 +18,12 @@
     <div class="col">
         <div class="card text-center">
             <div class="card-header">All Categories</div>
-            <div class="card-body"><h5>{{ category_count }}</h5></div>
+            <div class="card-body"><h5>{{ category_count }}{% if uncategorized_count > 0 %}
+                <small> + 1</small>
+                {% endif %}</h5>
+                <!-- {% if uncategorized_count > 0 %}
+        <small>(Including {{ uncategorized_count }} Post with Uncategorized)</small>
+    {% endif %} --></div>
         </div>
     </div>
     {% endif %}
@@ -32,11 +37,30 @@
         </div>
     </div>
 
+    {% if all_posts_uncategorized_count > 0 %}
+    <div class="col">
+        <div class="card text-center">
+            <div class="card-header">All Posts with Uncategorized</div>
+            <div class="card-body"><h5>{{ all_posts_uncategorized_count }}</h5></div>
+        </div>
+    </div>
+    {% endif %}
+
     {% if can_see_all %}
     <div class="col">
         <div class="card text-center">
             <div class="card-header">My Posts</div>
             <div class="card-body"><h5>{{ self_posts_count }}</h5></div>
+        </div>
+    </div>
+    {% endif %}
+
+
+    {% if self_posts_uncategorized_count > 0 %}
+    <div class="col">
+        <div class="card text-center">
+            <div class="card-header">My Posts with Uncategorized</div>
+            <div class="card-body"><h5>{{ self_posts_uncategorized_count }}</h5></div>
         </div>
     </div>
     {% endif %}

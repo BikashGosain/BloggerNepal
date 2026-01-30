@@ -23,6 +23,12 @@ from .forms import BlogPostForm, CategoryForm, AddUserForm, EditUserForm, Profil
 from .utils import dashboard_header_context
 from follow_following.models import Follow
 
+from django.shortcuts import render
+from django.db.models import Count
+from django.db.models.functions import ExtractMonth
+from calendar import month_name
+from blogs.models import Blog
+
 # Create your views here.
 
 
@@ -44,6 +50,10 @@ def dashboard(request):
     return render(request, 'dashboard.html', context)
 
 
+from django.db.models import Count, Q
+from django.shortcuts import render
+from blogs.models import Blog, Category
+
 def posts_per_category(request):
     user = request.user
 
@@ -60,10 +70,22 @@ def posts_per_category(request):
         count=Count('blog')
     ).values('category_name', 'count')
 
+    # Count Uncategorized for all posts
+    uncategorized_count_all = Blog.objects.filter(category__isnull=True).count()
+    all_posts = list(all_posts)  # convert to list so we can append
+    if uncategorized_count_all > 0:
+        all_posts.append({'category_name': 'Uncategorized', 'count': uncategorized_count_all})
+
     # My posts per category
     my_posts = Category.objects.annotate(
         count=Count('blog', filter=Q(blog__author=user))
     ).values('category_name', 'count')
+
+    # Count Uncategorized for my posts
+    uncategorized_count_my = Blog.objects.filter(category__isnull=True, author=user).count()
+    my_posts = list(my_posts)
+    if uncategorized_count_my > 0:
+        my_posts.append({'category_name': 'Uncategorized', 'count': uncategorized_count_my})
 
     context = {
         'can_see_all': can_see_all,
@@ -77,12 +99,6 @@ def posts_per_category(request):
     return render(request, 'analytics/posts_per_category.html', context)
 
 
-
-from django.shortcuts import render
-from django.db.models import Count
-from django.db.models.functions import ExtractMonth
-from calendar import month_name
-from blogs.models import Blog
 
 def posts_per_month(request):
     user = request.user

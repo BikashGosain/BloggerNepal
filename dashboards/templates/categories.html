@@ -4,7 +4,6 @@
 
 <div class="row">
     <!-- Left sidebar -->
-    <!-- load the sidebar here -->
     {% include 'sidebar.html' %}
 
     <!-- Right side content -->
@@ -12,13 +11,14 @@
       {% if perms.blogs.view_category %}
         <h2>All Categories</h2>
         <a href="{% url 'add_category' %}" class="btn btn-dark text-light float-right mb-2">Add New</a>
+
         <table class="table table-hover">
             <thead>
               <tr>
                 <th>#</th>
                 <th>Category Name</th>
                 <th>Total Blogs</th>
-                <Th>Author</Th>
+                <th>Author</th>
                 <th>Created At</th>
                 <th>Updated At</th>
                 <th>Action</th>
@@ -26,13 +26,32 @@
               </tr>
             </thead>
             <tbody>
-            {% for cat in categories %}
-              <tr>
 
+            {# Show Uncategorized first (if any) #}
+            {% if uncategorized_count > 0 %}
+            <tr>
+                <td>—</td>
+                <td>
+                    <a href="{% url 'posts_by_category' 0 %}">Uncategorized ({{ uncategorized_count }} blogs)</a>
+                </td>
+                <td>{{ uncategorized_count }}</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+            </tr>
+            {% endif %}
+
+            {# Loop through normal categories #}
+            {% for cat in categories %}
+            <tr>
                 <td>{{ forloop.counter }}</td>
-                <td>{{ cat }}</td>
+                <td>
+                    <a href="{% url 'posts_by_category' cat.id %}">{{ cat.category_name }}</a>
+                </td>
                 <td>{{ cat.blog_count }}</td>
-                <td>{{cat.author}}</td>
+                <td>{{ cat.author }}</td>
                 <td>{{ cat.created_at }}</td>
                 <td>{{ cat.updated_at }}</td>
                 <td>
@@ -40,55 +59,46 @@
                     &nbsp;
                     <a href="{% url 'delete_category' cat.id %}" onclick="return confirm('Delete this category?');"><i class="fa fa-trash text-danger"></i></a>
                 </td>
-                
-<td>
-    {% if cat.author %}
-        {% if cat.author == user %}
-            <span class="badge bg-primary">Your Category</span>
-        {% else %}
-            <span class="badge bg-warning">Admin/Editor/Manager View</span>
-        {% endif %}
-    {% else %}
-        <span class="badge bg-secondary">No Author</span>
-    {% endif %}
-</td>
-
-
-
-              </tr>
+                <td>
+                    {% if cat.author %}
+                        {% if cat.author == user %}
+                            <span class="badge bg-primary">Your Category</span>
+                        {% else %}
+                            <span class="badge bg-warning">Admin/Editor/Manager View</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="badge bg-secondary">No Author</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8">No categories found.</td>
+            </tr>
             {% endfor %}
-              
+
             </tbody>
-          </table>
-          {% else %}
-            <h3>You do not have permission to view this page.</h3>
-        {% endif %}
+        </table>
+
+        {# Pagination #}
+        <div class="pagination">
+            {% if categories.has_previous %}
+                <a href="?page=1">First</a>
+                <a href="?page={{ categories.previous_page_number }}">Previous</a>
+            {% endif %}
+
+            <span>Page {{ categories.number }} of {{ categories.paginator.num_pages }}</span>
+
+            {% if categories.has_next %}
+                <a href="?page={{ categories.next_page_number }}">Next</a>
+                <a href="?page={{ categories.paginator.num_pages }}">Last</a>
+            {% endif %}
+        </div>
+
+      {% else %}
+        <h3>You do not have permission to view this page.</h3>
+      {% endif %}
     </div>
-    <div class="pagination">
-    <!-- First page link -->
-    {% if categories.has_previous %}
-        <a href="?page=1">First</a>
-    {% endif %}
-
-    <!-- Previous page link -->
-    {% if categories.has_previous %}
-        <a href="?page={{ categories.previous_page_number }}">Previous</a>
-    {% endif %}
-
-    <!-- Current page info -->
-    <span>Page {{ categories.number }} of {{ categories.paginator.num_pages }}</span>
-
-    <!-- Next page link -->
-    {% if categories.has_next %}
-        <a href="?page={{ categories.next_page_number }}">Next</a>
-    {% endif %}
-
-    <!-- Last page link -->
-    {% if categories.has_next %}
-        <a href="?page={{ categories.paginator.num_pages }}">Last</a>
-    {% endif %}
 </div>
-</div>
-
 
 {% endblock %}

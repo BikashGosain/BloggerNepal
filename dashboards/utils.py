@@ -13,10 +13,17 @@ def dashboard_header_context(user):
     )
 
     self_posts_count = Blog.objects.filter(author=user).count()
+    self_posts_uncategorized_count = Blog.objects.filter(author=user, category__isnull=True).count()
+
+    all_posts_uncategorized_count = Blog.objects.filter(category__isnull=True).count()
 
     return {
         'can_see_all': can_see_all,
         'category_count': category_count,
         'blogs_count': blogs_count,
         'self_posts_count': self_posts_count,
+        'self_posts_uncategorized_count': self_posts_uncategorized_count,
+        'all_posts_uncategorized_count': all_posts_uncategorized_count,
     }
+
+
