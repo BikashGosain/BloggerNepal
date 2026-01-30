@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+
+# Load environment variables from .env
 load_dotenv()
 
 
@@ -24,13 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-2bbu0@f+k=k=8j_=46j-t2*7)=5aeswp_tj0p8s+ndozrry0$z'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-default-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '*']
-
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
 # Application definition
 
@@ -66,7 +67,7 @@ INSTALLED_APPS = [
     'follow_following',
 ]
 
-# SITE_ID = 1
+SITE_ID = int(os.getenv('DJANGO_SITE_ID', 1))
 
 AUTHENTICATION_BACKENDS = [
     # 'django.contrib.auth.backends.ModelBackend' #default
@@ -119,8 +120,12 @@ WSGI_APPLICATION = 'blog_main.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': os.getenv('DJANGO_DB_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.getenv('DJANGO_DB_NAME', BASE_DIR / 'db.sqlite3'),
+        'USER': os.getenv('DJANGO_DB_USER', ''),
+        'PASSWORD': os.getenv('DJANGO_DB_PASSWORD', ''),
+        'HOST': os.getenv('DJANGO_DB_HOST', ''),
+        'PORT': os.getenv('DJANGO_DB_PORT', ''),
     }
 }
 
@@ -149,7 +154,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = os.getenv('DJANGO_TIME_ZONE', 'UTC')
 
 USE_I18N = True
 
@@ -161,9 +166,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'static'
-STATICFILES_DIRS = [
-    'blog_main/static',
-]
+STATICFILES_DIRS = [BASE_DIR / 'blog_main' / 'static']
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -186,8 +189,6 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_IMAGE_BACKEND = "pillow"
-
-
 CKEDITOR_CONFIGS = {
     'default': {
         'toolbar': 'full',
@@ -209,32 +210,25 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 LOGIN_URL = '/accounts/login/'        # default login page
 LOGIN_REDIRECT_URL = '/'              # default redirect after login
 
-# Social Login settings
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
-            'client_id':'14664610456-a9sa2e5taevfrq43agip779713r8rafv.apps.googleusercontent.com',
-            'secret':'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',
+            'client_id': os.getenv('GOOGLE_CLIENT_ID'),
+            'secret': os.getenv('GOOGLE_SECRET'),
         },
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        },
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
         'MeTHOD': 'oauth2',
         'VERIFIED_EMAIL': True,
     },
     'github': {
         'APP': {
-            'client_id': 'Ov23liRELn9r3BefeYxJ',
-            'secret':'43ceadc7b1b2d215dda0580ad7c1fafb4ffdaa72',
+            'client_id': os.getenv('GITHUB_CLIENT_ID'),
+            'secret': os.getenv('GITHUB_SECRET'),
         },
-        
     },
 }
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
-# LOGIN_REDIRECT_URL = '/'  # where users go after login
-# LOGOUT_REDIRECT_URL = '/' # optional
+# # LOGIN_REDIRECT_URL = '/'  # where users go after login
+# # LOGOUT_REDIRECT_URL = '/' # optional
