@@ -11,7 +11,7 @@ from django.core.paginator import Paginator
 
 def home(request):
     categories = Category.objects.all()
-    featured_posts = Blog.objects.filter(is_featured=True, status='Published')
+    featured_posts = Blog.objects.filter(is_featured=True, status='Published').order_by('-created_at')
     paginator = Paginator(featured_posts, 6)
     page = request.GET.get('page', 1)
     blogs_page = paginator.get_page(page)
@@ -24,6 +24,7 @@ def home(request):
         'featured_posts': blogs_page,
         'posts': posts,
         'about': about,
+        'categories': categories,
     }
     return render(request, 'home.html', context)
         

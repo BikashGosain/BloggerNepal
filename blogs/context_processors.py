@@ -32,7 +32,10 @@ def get_categories(request):
 
 def get_social_links(request):
     social_links = SocialLinks.objects.all()
-    return dict(social_links=social_links)
+    return {
+        'social_links': social_links
+    }
+
 
 
 def user_roles(request):

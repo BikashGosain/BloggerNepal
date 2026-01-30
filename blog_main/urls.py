@@ -23,6 +23,9 @@ from blogs import views as BlogsView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    path('accounts/', include('allauth.urls')),
+    
     path('', views.home, name='home'),
 
     path('randomblogs/', views.randomblogs, name='randomblogs'),

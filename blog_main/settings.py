@@ -29,29 +29,50 @@ SECRET_KEY = 'django-insecure-2bbu0@f+k=k=8j_=46j-t2*7)=5aeswp_tj0p8s+ndozrry0$z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    # Django core
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'blogs',
-    'about_us',
-    'social_links',
+    'django.contrib.sites',
+
+    # Third-party apps
     'crispy_forms',
     'crispy_bootstrap4',
-    'dashboards',
     'ckeditor',
     'ckeditor_uploader',
+
+    # Authentication (allauth)
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.github',
+
+    # Local apps
+    'blogs',
+    'about_us',
     'contact',
+    'dashboards',
+    'social_links',
     'follow_following',
 ]
+
+# SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = [
+    # 'django.contrib.auth.backends.ModelBackend' #default
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -61,6 +82,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'blog_main.urls'
@@ -187,3 +209,36 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 LOGIN_URL = '/accounts/login/'        # default login page
 LOGIN_REDIRECT_URL = '/'              # default redirect after login
+
+
+
+
+# Social Login settings
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id':'14664610456-a9sa2e5taevfrq43agip779713r8rafv.apps.googleusercontent.com',
+            'secret':'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',
+        },
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'MeTHOD': 'oauth2',
+        'VERIFIED_EMAIL': True,
+    },
+    'github': {
+        'APP': {
+            'client_id': 'Ov23liRELn9r3BefeYxJ',
+            'secret':'43ceadc7b1b2d215dda0580ad7c1fafb4ffdaa72',
+        },
+        
+    },
+}
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+# LOGIN_REDIRECT_URL = '/'  # where users go after login
+# LOGOUT_REDIRECT_URL = '/' # optional

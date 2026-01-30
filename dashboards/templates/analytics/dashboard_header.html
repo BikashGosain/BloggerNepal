@@ -11,7 +11,7 @@
         {% elif user.is_superuser %}
             <div id="dashboard-note"><strong>Note:</strong> As an Admin, you have full access.</div>
         {% else %}
-            <div id="dashboard-note">{{ user }}! You can create, edit, and delete your posts.</div>
+            <div id="dashboard-note"><strong>Note:</strong> {{ user }}! You can create, edit, and delete your posts.</div>
         {% endif %}
 <div class="row">
     {% if can_see_all %}

@@ -1,9 +1,23 @@
 {% extends 'base.html' %}
 
-{% block content %}
+
 {% load crispy_forms_tags %}
-    <div class="container">
+{% load socialaccount %}
+
+{% block content %}
+\    <div class="container">
         <h3 class="text-center">Register</h3>
+        <!-- Google Signup Button -->
+<!-- Google Signup Button -->
+<a class="btn mb-3 w-100" style="background-color:#24292e; color:white;" href="{% provider_login_url 'google' %}">
+    Signup with Google
+</a>
+
+<!-- GitHub Signup Button -->
+<a class="btn mb-3 w-100" style="background-color:#24292e; color:white;" 
+   href="{% provider_login_url 'github' %}">
+    Signup with GitHub
+</a>
         <form action="{% url 'register' %}" method="POST" style="width:500px; margin:auto">
             {% csrf_token %}
             {{ form | crispy }}
