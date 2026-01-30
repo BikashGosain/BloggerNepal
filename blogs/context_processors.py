@@ -36,18 +36,22 @@ def get_social_links(request):
 
 
 def user_roles(request):
-    user = request.user
+    # Use getattr to safely get user; returns None if user doesn't exist
+    user = getattr(request, 'user', None)
+
     can_see_all = False
     blogs_count = 0
     self_posts_count = 0
     is_editor = False
     is_manager = False
 
-    if user.is_authenticated:
+    if user and getattr(user, 'is_authenticated', False):
+        # Admin / Editor / Manager check
         can_see_all = user.is_superuser or user.groups.filter(name__in=['Admin', 'Manager', 'Editor']).exists()
         is_editor = user.groups.filter(name='Editor').exists()
         is_manager = user.groups.filter(name='Manager').exists()
-        
+
+        # Count blogs
         if can_see_all:
             blogs_count = Blog.objects.count()
         self_posts_count = Blog.objects.filter(author=user).count()
@@ -62,34 +66,40 @@ def user_roles(request):
     }
 
 
+from blogs.models import Notification
+
 def unread_notifications_count(request):
     """
     Context processor to make unread notification count available in all templates
+    Safely handles cases when request.user may not exist (e.g., 404/500 pages)
     """
-    if request.user.is_authenticated:
+    user = getattr(request, 'user', None)
+    
+    unread_count = 0  # default if no user or anonymous
+
+    if user and getattr(user, 'is_authenticated', False):
         is_manager_editor = (
-            request.user.groups.filter(name__in=['Manager', 'Editor']).exists() 
-            or request.user.is_staff
+            user.groups.filter(name__in=['Manager', 'Editor']).exists()
+            or user.is_staff
         )
-        
+
         if is_manager_editor:
             # Count notifications not marked as read by this admin
             unread_count = Notification.objects.exclude(
-                deleted_by_admins=request.user
+                deleted_by_admins=user
             ).exclude(
-                read_by_admins=request.user
+                read_by_admins=user
             ).count()
         else:
             # Count unread notifications for regular user
-            unread_count = request.user.notifications.filter(
+            unread_count = user.notifications.filter(
                 read=False
             ).exclude(
-                deleted_by_users=request.user
+                deleted_by_users=user
             ).count()
-        
-        return {'unread_count': unread_count}
-    
-    return {'unread_count': 0}
+
+    return {'unread_count': unread_count}
+
 
 
 def latestpost(request):

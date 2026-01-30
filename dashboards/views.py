@@ -1,26 +1,31 @@
+# Django shortcuts & utilities
 from django.shortcuts import get_object_or_404, render, redirect
-from blogs.models import Category, Blog, Notification
-from ckeditor_uploader.widgets import CKEditorUploadingWidget
-from django.contrib.auth.decorators import permission_required
-
-from follow_following.models import Follow
-from inymce.django.contrib.auth.decorators import login_required
-from inymce.django.template.context_processors import request
-from .forms import BlogPostForm, CategoryForm, AddUserForm, EditUserForm, ProfileEditForm  
-from django.contrib.auth.models import User
-from django.template.defaultfilters import slugify
-from django.db.models import Q
-
-from django.contrib import messages
-from django.core.exceptions import PermissionDenied
-
-from django.contrib import messages
-from django.http import JsonResponse
-from django.core.paginator import Paginator
-
-
 from django.urls import reverse # If email is missing, show a clickable link 
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import permission_required, login_required
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponseBadRequest, JsonResponse
+from django.core.paginator import Paginator
+from django.template.defaultfilters import slugify
+
+# Django ORM & utilities
+from django.db.models import Q, Count
+from django.db.models.functions import ExtractMonth
+from calendar import month_name
+
+# Third-party editors
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
+
+# Local apps & utilities
+from blogs.models import Blog, Category, Notification
+from .forms import BlogPostForm, CategoryForm, AddUserForm, EditUserForm, ProfileEditForm
+from .utils import dashboard_header_context
+from follow_following.models import Follow
+
 # Create your views here.
+
+
 
 # def dashboard(request):
 #     category_count = Category.objects.all().count()
@@ -34,19 +39,10 @@ from django.urls import reverse # If email is missing, show a clickable link
 #     return render(request, 'dashboard/dashboard.html',context)
 # blogs/views.py
 
-from django.db.models import Count
-from django.db.models.functions import ExtractMonth
-from calendar import month_name
-from .utils import dashboard_header_context
-
-
 def dashboard(request):
     context = dashboard_header_context(request.user)
     return render(request, 'dashboard.html', context)
 
-from django.shortcuts import render
-from django.db.models import Count, Q
-from blogs.models import Blog, Category
 
 def posts_per_category(request):
     user = request.user
@@ -151,8 +147,10 @@ def add_category(request):
     can_add = request.user.is_superuser or request.user.groups.filter(name__in=allowed_roles).exists()
     
     if not can_add:
-        messages.error(request, "You are not allowed to add a category.")
-        return redirect('categories')
+        raise PermissionDenied
+        # now no need to show messages.error and return redirect direct 403.html page triger due to raise PermissionDenied
+        # messages.error(request, "You are not allowed to add a category.")
+        # return redirect('categories')
 
     if request.method == 'POST' and form.is_valid():
         category = form.save(commit=False)  # ← don't save yet
@@ -164,6 +162,7 @@ def add_category(request):
             f"✅ Category '{category.category_name}' added successfully."
         )
         return redirect('categories')
+
     context = {
         'form': form,
         'can_add': can_add,

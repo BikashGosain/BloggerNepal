@@ -57,7 +57,7 @@
     {% if post.author == user or can_see_all %}
         <a href="{% url 'edit_post' post.id %}"><i class="fa fa-edit text-success"></i></a>
         &nbsp;
-        <a href="{% url 'delete_post' post.id %}"><i class="fa fa-trash text-danger"></i></a>
+        <a href="{% url 'delete_post' post.id %}" onclick="return confirm('Delete this post?');"><i class="fa fa-trash text-danger"></i></a>
     {% else %}
         <span class="text-muted">—</span>
     {% endif %}

@@ -5,9 +5,10 @@ def user_following_ids(request):
     """
     IDs of users that the logged-in user is following
     """
-    if request.user.is_authenticated:
+    user = getattr(request, 'user', None)
+    if user and getattr(user, 'is_authenticated', False):
         following_ids = Follow.objects.filter(
-            follower=request.user
+            follower=user
         ).values_list('following_id', flat=True)
     else:
         following_ids = []
@@ -16,25 +17,32 @@ def user_following_ids(request):
         'user_following_ids': list(following_ids)
     }
 
+
 def follow_counts(request):
-    if request.user.is_authenticated:
+    user = getattr(request, 'user', None)
+    if user and getattr(user, 'is_authenticated', False):
         return {
-            'my_followers_count': Follow.objects.filter(following=request.user).count(),
-            'my_following_count': Follow.objects.filter(follower=request.user).count(),
+            'my_followers_count': Follow.objects.filter(following=user).count(),
+            'my_following_count': Follow.objects.filter(follower=user).count(),
         }
-    return {}
+    return {
+        'my_followers_count': 0,
+        'my_following_count': 0,
+    }
 
 
 def followers_list(request):
-    if not request.resolver_match:
+    """
+    Followers of a user specified in the URL: /profile/<username>/
+    """
+    if not getattr(request, 'resolver_match', None):
         return {}
 
-    username = request.resolver_match.kwargs.get('username')
+    username = request.resolver_match.kwargs.get('username', None)
     if not username:
         return {}
 
     user_obj = User.objects.filter(username=username).first()
-
     if not user_obj:
         return {
             'follow_error': 'User does not exist.',
@@ -59,15 +67,17 @@ def followers_list(request):
 
 
 def following_list(request):
-    if not request.resolver_match:
+    """
+    Users that a user is following, based on URL: /profile/<username>/
+    """
+    if not getattr(request, 'resolver_match', None):
         return {}
 
-    username = request.resolver_match.kwargs.get('username')
+    username = request.resolver_match.kwargs.get('username', None)
     if not username:
         return {}
 
     user_obj = User.objects.filter(username=username).first()
-
     if not user_obj:
         return {
             'follow_error': 'User does not exist.',

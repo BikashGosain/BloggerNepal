@@ -44,7 +44,7 @@
                 <td>
                     <a href="{% url 'edit_user' user.id %}"><i class="fa fa-edit text-success"></i></a>
                     &nbsp;
-                    <a href="{% url 'delete_user' user.id %}"><i class="fa fa-trash text-danger"></i></a>
+                    <a href="{% url 'delete_user' user.id %}" onclick="return confirm('Delete this user?');"><i class="fa fa-trash text-danger"></i></a>
                 </td>
               </tr>
             {% endfor %}

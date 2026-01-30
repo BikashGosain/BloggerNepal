@@ -52,6 +52,16 @@ urlpatterns = [
     path('', include('contact.urls')),
 
     path('accounts/', include('follow_following.urls')),
-    re_path(r'^.*$', views.page_not_found_redirect)
+    # for global error page redirection if page not exit
+    # re_path(r'^.*$', views.page_not_found_redirect)
+    
 
 ] +static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT )
+
+# 👇 custom 404 handler
+handler404 = 'blog_main.views.custom_404'
+handler400 = 'blog_main.views.custom_400'
+handler403 = 'blog_main.views.custom_403'
+handler500 = 'blog_main.views.custom_500'
+
+

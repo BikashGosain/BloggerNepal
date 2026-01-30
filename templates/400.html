@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bad Request</title>
+</head>
+<body>
+    <h1>400 - Bad Request</h1>
+    <p>Your request is invalid.</p>
+    <a href="javascript:history.length > 1 ? history.back() : '{% url 'home' %}'">
+    Go back one step
+</a>
+
+    <a href="{% url 'home' %}">Go back to home</a>
+</body>
+</html>

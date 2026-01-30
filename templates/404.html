@@ -6,6 +6,16 @@
 <body>
     <h1>404 - Blog Not Found</h1>
     <p>Sorry, the blog you’re looking for doesn’t exist or is unpublished.</p>
-    <a href="{% url 'home' %}">Go back home</a>
+
+        <!-- You don’t want “Go Home”, you want “Go back ONE step” (previous page). That’s very common for 404 pages.: <a href="javascript:history.back()">Go back</a>
+
+     If user opened the page directly (no history), back won’t work.
+So add a fallback to home: <a href="javascript:history.length > 1 ? history.back() : '{% url 'home' %}'"> -->
+    
+    <a href="javascript:history.length > 1 ? history.back() : '{% url 'home' %}'">
+    Go back one step
+</a>
+
+    <a href="{% url 'home' %}">Go back to home</a>
 </body>
 </html>
