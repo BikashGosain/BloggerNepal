@@ -108,9 +108,7 @@ def unread_notifications_count(request):
 def latestpost(request):
     """Provides paginated latest published blogs to all templates."""
     latestpost = Blog.objects.filter(status='Published').order_by('-created_at')
-    if not latestpost:
-        messages.warning(request, "The blog you tried to visit does not exist.")
-        return redirect('home')
+
     current_path = request.path
     
     # Set different pagination based on page
