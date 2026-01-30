@@ -196,7 +196,6 @@ CKEDITOR_CONFIGS = {
     },
 }
 
-
 # contact through email
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -209,9 +208,6 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 LOGIN_URL = '/accounts/login/'        # default login page
 LOGIN_REDIRECT_URL = '/'              # default redirect after login
-
-
-
 
 # Social Login settings
 SOCIALACCOUNT_PROVIDERS = {
