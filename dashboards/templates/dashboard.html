@@ -2,17 +2,105 @@
 {% load static %}
 
 {% block extra_css %}
-<link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
+<style>
+    /* Dashboard Home Unique Styles */
+    .dashboard-home-container {
+        padding: 1.5rem 0;
+    }
+
+    .dashboard-home-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -15px;
+    }
+
+    .dashboard-home-sidebar {
+        flex: 0 0 25%;
+        max-width: 25%;
+        padding: 0 15px;
+    }
+
+    .dashboard-home-content {
+        flex: 0 0 75%;
+        max-width: 75%;
+        padding: 0 15px;
+    }
+
+    /* Responsive Layout */
+    @media (max-width: 992px) {
+        .dashboard-home-sidebar {
+            flex: 0 0 30%;
+            max-width: 30%;
+        }
+
+        .dashboard-home-content {
+            flex: 0 0 70%;
+            max-width: 70%;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-home-sidebar {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
+        .dashboard-home-content {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .dashboard-home-container {
+            padding: 1rem 0;
+        }
+
+        .dashboard-home-row {
+            margin: 0 -10px;
+        }
+
+        .dashboard-home-sidebar,
+        .dashboard-home-content {
+            padding: 0 10px;
+        }
+
+        .dashboard-home-sidebar {
+            margin-bottom: 1rem;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .dashboard-home-container {
+            padding: 0.75rem 0;
+        }
+
+        .dashboard-home-row {
+            margin: 0 -8px;
+        }
+
+        .dashboard-home-sidebar,
+        .dashboard-home-content {
+            padding: 0 8px;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    {% include 'sidebar.html' %}
-    <div class="col-md-9">
-        {% include 'analytics/dashboard_header.html' %}
+<div class="dashboard-home-container">
+    <div class="dashboard-home-row">
+        <div class="dashboard-home-sidebar">
+            {% include 'sidebar.html' %}
+        </div>
+        <div class="dashboard-home-content">
+            {% include 'analytics/dashboard_header.html' %}
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-
+<!-- No JavaScript needed for dashboard home -->
 {% endblock %}

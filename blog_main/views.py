@@ -8,6 +8,11 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import auth
 from django.db.models import Count
 from django.core.paginator import Paginator
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.models import User
+
+
 
 def home(request):
     categories = Category.objects.all()
@@ -70,18 +75,76 @@ def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('login')
-        else:
-            print(form.errors)
+            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
+
+            user = User.objects.filter(username=username, email=email, is_active=False).first()
+
+            if not user:
+                user = form.save(commit=False)
+                user.is_active = False
+                user.save()
+
+            otp = random.randint(100000, 999999)
+            request.session['otp'] = str(otp)
+            request.session['user_id'] = user.id
+
+            send_mail(
+                'OTP Verification',
+                f'Your OTP is {otp}',
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False,
+            )
+
+            return redirect('verify_otp')
     else:
         form = RegistrationForm()
-        
-            # You can add a success message or redirect to login page
-    context = {
-        'form': form,
-        }
-    return render(request, 'register.html', context)
+
+    return render(request, 'register.html', {'form': form})
+
+def verify_otp(request):
+    user_id = request.session.get('user_id')
+    session_otp = request.session.get('otp')
+
+    if not user_id or not session_otp:
+        return redirect('register')
+
+    if request.method == 'POST':
+        entered_otp = request.POST.get('otp')
+
+        if entered_otp == str(session_otp):
+            user = User.objects.get(id=user_id)
+            user.is_active = True
+            user.save()
+            request.session.pop('otp', None)
+            request.session.pop('user_id', None)
+            return redirect('login')
+        else:
+            return render(request, 'verify_otp.html', {'error': 'Invalid OTP'})
+
+    return render(request, 'verify_otp.html')
+
+def resend_otp(request):
+    user_id = request.session.get('user_id')
+
+    if not user_id:
+        return redirect('register')
+
+    user = User.objects.get(id=user_id)
+
+    otp = random.randint(100000, 999999)
+    request.session['otp'] = str(otp)
+
+    send_mail(
+        'OTP Verification (Resent)',
+        f'Your OTP is {otp}',
+        settings.EMAIL_HOST_USER,
+        [user.email],
+        fail_silently=False,
+    )
+
+    return redirect('verify_otp')
 
 def login(request):
     if request.method == 'POST':

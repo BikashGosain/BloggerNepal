@@ -21,7 +21,6 @@ class Category(models.Model):
         return self.category_name
     
 
-
 # status may be draft or published so we made dropdown
 STATUS_CHOICES = (
     # (0, 'Draft'),

@@ -1,104 +1,527 @@
 {% extends 'base.html' %}
 
+{% block extra_css %}
+<style>
+    /* Dashboard Category Unique Styles */
+    .dashboard-category-container {
+        padding: 1.5rem 0;
+    }
+
+    .dashboard-category-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -15px;
+    }
+
+    .dashboard-category-sidebar {
+        flex: 0 0 25%;
+        max-width: 25%;
+        padding: 0 15px;
+    }
+
+    .dashboard-category-content {
+        flex: 0 0 75%;
+        max-width: 75%;
+        padding: 0 15px;
+    }
+
+    .dashboard-category-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .dashboard-category-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+    }
+
+    .dashboard-category-add-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.625rem 1.25rem;
+        border-radius: 0.375rem;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .dashboard-category-add-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .dashboard-category-table-wrapper {
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .dashboard-category-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .dashboard-category-table thead {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .dashboard-category-table thead th {
+        padding: 1rem 0.875rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.95rem;
+        border: none;
+    }
+
+    .dashboard-category-table tbody tr {
+        border-bottom: 1px solid #e0e0e0;
+        transition: background-color 0.2s ease;
+    }
+
+    .dashboard-category-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .dashboard-category-table tbody td {
+        padding: 0.875rem;
+        font-size: 0.9rem;
+        color: #555;
+    }
+
+    .dashboard-category-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .dashboard-category-link {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .dashboard-category-link:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+
+    .dashboard-category-action-icon {
+        margin: 0 0.25rem;
+        font-size: 1.1rem;
+        transition: transform 0.2s ease;
+    }
+
+    .dashboard-category-action-icon:hover {
+        transform: scale(1.2);
+    }
+
+    .dashboard-category-badge {
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.25rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .dashboard-category-badge-primary {
+        background-color: #667eea;
+        color: white;
+    }
+
+    .dashboard-category-badge-warning {
+        background-color: #ffc107;
+        color: #333;
+    }
+
+    .dashboard-category-badge-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .dashboard-category-no-permission {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+        font-size: 1.2rem;
+    }
+
+    /* Pagination Styles */
+    .dashboard-category-pagination-wrapper {
+        margin-top: 2rem;
+        display: flex;
+        justify-content: center;
+        padding: 1rem 0;
+    }
+
+    .dashboard-category-pagination {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: white;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .dashboard-category-pagination-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        border: 2px solid transparent;
+    }
+
+    .dashboard-category-pagination-btn-nav {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .dashboard-category-pagination-btn-nav:hover:not(.dashboard-category-pagination-disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .dashboard-category-pagination-btn-nav:active:not(.dashboard-category-pagination-disabled) {
+        transform: translateY(0);
+    }
+
+    .dashboard-category-pagination-disabled {
+        background: #e0e0e0;
+        color: #999;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .dashboard-category-pagination-info {
+        padding: 0.5rem 1.25rem;
+        font-size: 0.95rem;
+        color: #555;
+        font-weight: 500;
+        background-color: #f8f9fa;
+        border-radius: 0.375rem;
+        margin: 0 0.25rem;
+    }
+
+    .dashboard-category-pagination-info strong {
+        color: #667eea;
+        font-weight: 700;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .dashboard-category-sidebar {
+            flex: 0 0 30%;
+            max-width: 30%;
+        }
+
+        .dashboard-category-content {
+            flex: 0 0 70%;
+            max-width: 70%;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-category-sidebar {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
+        .dashboard-category-content {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+        .dashboard-category-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .dashboard-category-add-btn {
+            width: 100%;
+            text-align: center;
+        }
+
+        .dashboard-category-table-wrapper {
+            overflow-x: auto;
+        }
+
+        .dashboard-category-table {
+            min-width: 800px;
+        }
+
+        .dashboard-category-table thead th,
+        .dashboard-category-table tbody td {
+            padding: 0.75rem 0.625rem;
+            font-size: 0.85rem;
+        }
+
+        .dashboard-category-pagination {
+            gap: 0.375rem;
+            padding: 0.625rem 0.75rem;
+        }
+
+        .dashboard-category-pagination-btn {
+            padding: 0.4rem 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .dashboard-category-pagination-info {
+            padding: 0.4rem 0.875rem;
+            font-size: 0.875rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .dashboard-category-container {
+            padding: 1rem 0;
+        }
+
+        .dashboard-category-row {
+            margin: 0 -10px;
+        }
+
+        .dashboard-category-sidebar,
+        .dashboard-category-content {
+            padding: 0 10px;
+        }
+
+        .dashboard-category-title {
+            font-size: 1.5rem;
+        }
+
+        .dashboard-category-table {
+            min-width: 700px;
+        }
+
+        .dashboard-category-pagination-wrapper {
+            margin-top: 1.5rem;
+        }
+
+        .dashboard-category-pagination {
+            gap: 0.25rem;
+            padding: 0.5rem;
+        }
+
+        .dashboard-category-pagination-btn {
+            padding: 0.375rem 0.625rem;
+            font-size: 0.8rem;
+        }
+
+        .dashboard-category-pagination-btn i {
+            font-size: 0.9rem;
+        }
+
+        .dashboard-category-pagination-info {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8rem;
+            width: 100%;
+            text-align: center;
+            margin: 0.25rem 0;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .dashboard-category-container {
+            padding: 0.75rem 0;
+        }
+
+        .dashboard-category-row {
+            margin: 0 -8px;
+        }
+
+        .dashboard-category-sidebar,
+        .dashboard-category-content {
+            padding: 0 8px;
+        }
+
+        .dashboard-category-title {
+            font-size: 1.35rem;
+        }
+
+        .dashboard-category-pagination-btn {
+            padding: 0.35rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .dashboard-category-pagination-info {
+            font-size: 0.75rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-
-<div class="row">
-    <!-- Left sidebar -->
-    {% include 'sidebar.html' %}
-
-    <!-- Right side content -->
-    <div class="col-md-9">
-      {% if perms.blogs.view_category %}
-        <h2>All Categories</h2>
-        <a href="{% url 'add_category' %}" class="btn btn-dark text-light float-right mb-2">Add New</a>
-
-        <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Category Name</th>
-                <th>Total Blogs</th>
-                <th>Author</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Action</th>
-                <th>Created By</th>
-              </tr>
-            </thead>
-            <tbody>
-
-            {# Show Uncategorized first (if any) #}
-            {% if uncategorized_count > 0 %}
-            <tr>
-                <td>—</td>
-                <td>
-                    <a href="{% url 'posts_by_category' 0 %}">Uncategorized ({{ uncategorized_count }} blogs)</a>
-                </td>
-                <td>{{ uncategorized_count }}</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-            </tr>
-            {% endif %}
-
-            {# Loop through normal categories #}
-            {% for cat in categories %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>
-                    <a href="{% url 'posts_by_category' cat.id %}">{{ cat.category_name }}</a>
-                </td>
-                <td>{{ cat.blog_count }}</td>
-                <td>{{ cat.author }}</td>
-                <td>{{ cat.created_at }}</td>
-                <td>{{ cat.updated_at }}</td>
-                <td>
-                    <a href="{% url 'edit_category' cat.id %}"><i class="fa fa-edit text-success"></i></a>
-                    &nbsp;
-                    <a href="{% url 'delete_category' cat.id %}" onclick="return confirm('Delete this category?');"><i class="fa fa-trash text-danger"></i></a>
-                </td>
-                <td>
-                    {% if cat.author %}
-                        {% if cat.author == user %}
-                            <span class="badge bg-primary">Your Category</span>
-                        {% else %}
-                            <span class="badge bg-warning">Admin/Editor/Manager View</span>
-                        {% endif %}
-                    {% else %}
-                        <span class="badge bg-secondary">No Author</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="8">No categories found.</td>
-            </tr>
-            {% endfor %}
-
-            </tbody>
-        </table>
-
-        {# Pagination #}
-        <div class="pagination">
-            {% if categories.has_previous %}
-                <a href="?page=1">First</a>
-                <a href="?page={{ categories.previous_page_number }}">Previous</a>
-            {% endif %}
-
-            <span>Page {{ categories.number }} of {{ categories.paginator.num_pages }}</span>
-
-            {% if categories.has_next %}
-                <a href="?page={{ categories.next_page_number }}">Next</a>
-                <a href="?page={{ categories.paginator.num_pages }}">Last</a>
-            {% endif %}
+<div class="dashboard-category-container">
+    <div class="dashboard-category-row">
+        <div class="dashboard-category-sidebar">
+            {% include 'sidebar.html' %}
         </div>
 
-      {% else %}
-        <h3>You do not have permission to view this page.</h3>
-      {% endif %}
+        <div class="dashboard-category-content">
+            {% if perms.blogs.view_category %}
+                <div class="dashboard-category-header">
+                    <h2 class="dashboard-category-title">All Categories</h2>
+                    <a href="{% url 'add_category' %}" class="dashboard-category-add-btn">+ Add New</a>
+                </div>
+
+                <div class="dashboard-category-table-wrapper">
+                    <table class="dashboard-category-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Category Name</th>
+                                <th>Total Blogs</th>
+                                <th>Author</th>
+                                <th>Created At</th>
+                                <th>Updated At</th>
+                                <th>Action</th>
+                                <th>Created By</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if uncategorized_count > 0 %}
+                            <tr>
+                                <td>—</td>
+                                <td>
+                                    <a href="{% url 'posts_by_category' 0 %}" class="dashboard-category-link">
+                                        Uncategorized ({{ uncategorized_count }} blogs)
+                                    </a>
+                                </td>
+                                <td>{{ uncategorized_count }}</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                            </tr>
+                            {% endif %}
+
+                            {% for cat in categories %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    <a href="{% url 'posts_by_category' cat.id %}" class="dashboard-category-link">
+                                        {{ cat.category_name }}
+                                    </a>
+                                </td>
+                                <td>{{ cat.blog_count }}</td>
+                                <td>{{ cat.author }}</td>
+                                <td>{{ cat.created_at }}</td>
+                                <td>{{ cat.updated_at }}</td>
+                                <td>
+                                    <a href="{% url 'edit_category' cat.id %}">
+                                        <i class="fa fa-edit text-success dashboard-category-action-icon"></i>
+                                    </a>
+                                    <a href="{% url 'delete_category' cat.id %}" 
+                                       onclick="return confirm('Delete this category?');">
+                                        <i class="fa fa-trash text-danger dashboard-category-action-icon"></i>
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if cat.author %}
+                                        {% if cat.author == user %}
+                                            <span class="dashboard-category-badge dashboard-category-badge-primary">Your Category</span>
+                                        {% else %}
+                                            <span class="dashboard-category-badge dashboard-category-badge-warning">Admin/Editor/Manager View</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="dashboard-category-badge dashboard-category-badge-secondary">No Author</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 2rem; color: #999;">
+                                    No categories found.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+          
+                <div class="dashboard-category-pagination-wrapper">
+                    <div class="dashboard-category-pagination">
+                        <!-- First Page Button -->
+                        {% if categories.has_previous %}
+                            <a href="?page=1" class="dashboard-category-pagination-btn dashboard-category-pagination-btn-nav" title="First Page">
+                                <i class="fa fa-angle-double-left"></i> First
+                            </a>
+                        {% else %}
+                            <span class="dashboard-category-pagination-btn dashboard-category-pagination-btn-nav dashboard-category-pagination-disabled" title="First Page">
+                                <i class="fa fa-angle-double-left"></i> First
+                            </span>
+                        {% endif %}
+
+                        <!-- Previous Page Button -->
+                        {% if categories.has_previous %}
+                            <a href="?page={{ categories.previous_page_number }}" class="dashboard-category-pagination-btn dashboard-category-pagination-btn-nav" title="Previous Page">
+                                <i class="fa fa-angle-left"></i> Previous
+                            </a>
+                        {% else %}
+                            <span class="dashboard-category-pagination-btn dashboard-category-pagination-btn-nav dashboard-category-pagination-disabled" title="Previous Page">
+                                <i class="fa fa-angle-left"></i> Previous
+                            </span>
+                        {% endif %}
+
+                        <!-- Page Info -->
+                        <span class="dashboard-category-pagination-info">
+                            Page <strong>{{ categories.number }}</strong> of <strong>{{ categories.paginator.num_pages }}</strong>
+                        </span>
+
+                        <!-- Next Page Button -->
+                        {% if categories.has_next %}
+                            <a href="?page={{ categories.next_page_number }}" class="dashboard-category-pagination-btn dashboard-category-pagination-btn-nav" title="Next Page">
+                                Next <i class="fa fa-angle-right"></i>
+                            </a>
+                        {% else %}
+                            <span class="dashboard-category-pagination-btn dashboard-category-pagination-btn-nav dashboard-category-pagination-disabled" title="Next Page">
+                                Next <i class="fa fa-angle-right"></i>
+                            </span>
+                        {% endif %}
+
+                        <!-- Last Page Button -->
+                        {% if categories.has_next %}
+                            <a href="?page={{ categories.paginator.num_pages }}" class="dashboard-category-pagination-btn dashboard-category-pagination-btn-nav" title="Last Page">
+                                Last <i class="fa fa-angle-double-right"></i>
+                            </a>
+                        {% else %}
+                            <span class="dashboard-category-pagination-btn dashboard-category-pagination-btn-nav dashboard-category-pagination-disabled" title="Last Page">
+                                Last <i class="fa fa-angle-double-right"></i>
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+
+            {% else %}
+                <div class="dashboard-category-no-permission">
+                    <h3>You do not have permission to view this page.</h3>
+                </div>
+            {% endif %}
+        </div>
     </div>
 </div>
-
 {% endblock %}

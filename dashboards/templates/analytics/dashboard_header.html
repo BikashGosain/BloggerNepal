@@ -1,66 +1,277 @@
-<hr>
-            <div class="container">
-            <h2>Welcome to your Dashboard, {{ user }}!</h2>
-            <p>Use the sidebar to navigate through your dashboard options.</p>
+<style>
+    /* Dashboard Header Unique Styles */
+    .dashboard-header-divider {
+        border: 0;
+        border-top: 2px solid #dee2e6;
+        margin: 1.5rem 0;
+    }
+
+    .dashboard-header-welcome {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-header-welcome h2 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.75rem;
+        font-weight: 600;
+    }
+
+    .dashboard-header-welcome p {
+        margin: 0;
+        font-size: 1rem;
+        opacity: 0.95;
+    }
+
+    .dashboard-header-note {
+        background-color: #e7f3ff;
+        border-left: 4px solid #2196f3;
+        padding: 1rem 1.25rem;
+        border-radius: 0.375rem;
+        margin-bottom: 1.5rem;
+        color: #1565c0;
+        font-size: 0.95rem;
+    }
+
+    .dashboard-header-note strong {
+        font-weight: 600;
+        color: #0d47a1;
+    }
+
+    .dashboard-header-cards-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .dashboard-header-card {
+        background-color: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .dashboard-header-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .dashboard-header-card-title {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.875rem 1rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-align: center;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .dashboard-header-card-body {
+        padding: 1.5rem 1rem;
+        text-align: center;
+    }
+
+    .dashboard-header-card-body h5 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #667eea;
+    }
+
+    .dashboard-header-card-body small {
+        font-size: 1rem;
+        color: #757575;
+        font-weight: 500;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .dashboard-header-cards-row {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+
+        .dashboard-header-welcome {
+            padding: 1.5rem;
+        }
+
+        .dashboard-header-welcome h2 {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-header-cards-row {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.875rem;
+        }
+
+        .dashboard-header-welcome {
+            padding: 1.25rem;
+        }
+
+        .dashboard-header-welcome h2 {
+            font-size: 1.4rem;
+        }
+
+        .dashboard-header-welcome p {
+            font-size: 0.95rem;
+        }
+
+        .dashboard-header-note {
+            padding: 0.875rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .dashboard-header-card-body h5 {
+            font-size: 1.75rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .dashboard-header-cards-row {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        .dashboard-header-divider {
+            margin: 1rem 0;
+        }
+
+        .dashboard-header-welcome {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .dashboard-header-welcome h2 {
+            font-size: 1.25rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .dashboard-header-welcome p {
+            font-size: 0.9rem;
+        }
+
+        .dashboard-header-note {
+            padding: 0.75rem 0.875rem;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .dashboard-header-card-title {
+            padding: 0.75rem 0.875rem;
+            font-size: 0.9rem;
+        }
+
+        .dashboard-header-card-body {
+            padding: 1.25rem 0.875rem;
+        }
+
+        .dashboard-header-card-body h5 {
+            font-size: 1.6rem;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .dashboard-header-welcome h2 {
+            font-size: 1.15rem;
+        }
+
+        .dashboard-header-welcome p {
+            font-size: 0.85rem;
+        }
+
+        .dashboard-header-note {
+            font-size: 0.85rem;
+        }
+
+        .dashboard-header-card-body h5 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<hr class="dashboard-header-divider">
+
+<div class="dashboard-header-welcome">
+    <h2>Welcome to your Dashboard, {{ user }}!</h2>
+    <p>Use the sidebar to navigate through your dashboard options.</p>
+</div>
+
+<hr class="dashboard-header-divider">
+
+{% if is_editor %}
+    <div class="dashboard-header-note">
+        <strong>Note:</strong> As an Editor, you can edit posts and categories but not delete others' posts.
     </div>
-<hr>
-    {% if is_editor %}
-            <div id="dashboard-note"><strong>Note:</strong> As an Editor, you can edit posts and categories but not delete others' posts.</div>
-        {% elif is_manager %}
-            <div id="dashboard-note"><strong>Note:</strong> As a Manager, you can add, edit, and delete all posts, categories, and users.</div>
-        {% elif user.is_superuser %}
-            <div id="dashboard-note"><strong>Note:</strong> As an Admin, you have full access.</div>
-        {% else %}
-            <div id="dashboard-note"><strong>Note:</strong> {{ user }}! You can create, edit, and delete your posts.</div>
-        {% endif %}
-<div class="row">
+{% elif is_manager %}
+    <div class="dashboard-header-note">
+        <strong>Note:</strong> As a Manager, you can add, edit, and delete all posts, categories, and users.
+    </div>
+{% elif user.is_superuser %}
+    <div class="dashboard-header-note">
+        <strong>Note:</strong> As an Admin, you have full access.
+    </div>
+{% else %}
+    <div class="dashboard-header-note">
+        <strong>Note:</strong> {{ user }}! You can create, edit, and delete your posts.
+    </div>
+{% endif %}
+
+<div class="dashboard-header-cards-row">
     {% if can_see_all %}
-    <div class="col">
-        <div class="card text-center">
-            <div class="card-header">All Categories</div>
-            <div class="card-body"><h5>{{ category_count }}{% if uncategorized_count > 0 %}
+    <div class="dashboard-header-card">
+        <div class="dashboard-header-card-title">All Categories</div>
+        <div class="dashboard-header-card-body">
+            <h5>
+                {{ category_count }}
+                {% if uncategorized_count > 0 %}
                 <small> + 1</small>
-                {% endif %}</h5>
-                <!-- {% if uncategorized_count > 0 %}
-        <small>(Including {{ uncategorized_count }} Post with Uncategorized)</small>
-    {% endif %} --></div>
+                {% endif %}
+            </h5>
         </div>
     </div>
     {% endif %}
 
-    <div class="col">
-        <div class="card text-center">
-            <div class="card-header">
-                {% if can_see_all %}All Posts{% else %}My Posts{% endif %}
-            </div>
-            <div class="card-body"><h5>{{ blogs_count }}</h5></div>
+    <div class="dashboard-header-card">
+        <div class="dashboard-header-card-title">
+            {% if can_see_all %}All Posts{% else %}My Posts{% endif %}
+        </div>
+        <div class="dashboard-header-card-body">
+            <h5>{{ blogs_count }}</h5>
         </div>
     </div>
 
     {% if all_posts_uncategorized_count > 0 %}
-    <div class="col">
-        <div class="card text-center">
-            <div class="card-header">All Posts with Uncategorized</div>
-            <div class="card-body"><h5>{{ all_posts_uncategorized_count }}</h5></div>
+    <div class="dashboard-header-card">
+        <div class="dashboard-header-card-title">All Posts with Uncategorized</div>
+        <div class="dashboard-header-card-body">
+            <h5>{{ all_posts_uncategorized_count }}</h5>
         </div>
     </div>
     {% endif %}
 
     {% if can_see_all %}
-    <div class="col">
-        <div class="card text-center">
-            <div class="card-header">My Posts</div>
-            <div class="card-body"><h5>{{ self_posts_count }}</h5></div>
+    <div class="dashboard-header-card">
+        <div class="dashboard-header-card-title">My Posts</div>
+        <div class="dashboard-header-card-body">
+            <h5>{{ self_posts_count }}</h5>
         </div>
     </div>
     {% endif %}
 
-
     {% if self_posts_uncategorized_count > 0 %}
-    <div class="col">
-        <div class="card text-center">
-            <div class="card-header">My Posts with Uncategorized</div>
-            <div class="card-body"><h5>{{ self_posts_uncategorized_count }}</h5></div>
+    <div class="dashboard-header-card">
+        <div class="dashboard-header-card-title">My Posts with Uncategorized</div>
+        <div class="dashboard-header-card-body">
+            <h5>{{ self_posts_uncategorized_count }}</h5>
         </div>
     </div>
     {% endif %}

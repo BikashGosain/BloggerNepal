@@ -1,0 +1,13 @@
+<h3 class="text-center">Verify EMAIL</h3>
+{% if error %}
+<p style="color:red">{{ error }}</p>
+{% endif %}
+<form method="POST">
+    {% csrf_token %}
+    <input type="text" name="otp" placeholder="Enter OTP" required>
+    <button type="submit">Verify</button>
+</form>
+<form method="POST" action="{% url 'resend_otp' %}">
+    {% csrf_token %}
+    <button type="submit">Didn’t get OTP? Send again</button>
+</form>

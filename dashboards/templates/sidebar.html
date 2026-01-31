@@ -1,47 +1,139 @@
-<div class="col-md-3">
-    <div class="nav flex-column nav-pills bg-light" aria-orientation="vertical">
+<!-- Hamburger + Sidebar -->
+<div id="sidebar-container">
+    <!-- Hamburger button -->
+    <button id="sidebar-toggle" aria-label="Toggle Sidebar">
+        &#9776; <!-- 3-line icon -->
+    </button>
 
-        <a href="{% url 'dashboard' %}"
-            class="nav-link text-dark {% if '/dashboard/' == request.path %}bg-warning{% endif %}">Dashboard</a>
+    <!-- Sidebar -->
+    <nav id="sidebar">
+        <ul>
+            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
 
-        <a href="{% url 'posts_per_category' %}"
-            class="nav-link text-dark {% if '/posts_per_category/' == request.path %}bg-warning{% endif %}">Posts Per Category</a>
+            <!-- Analytics Dropdown -->
+            <li class="dropdown">
+                <button class="dropdown-toggle">Analytics ▼</button>
+                <ul class="dropdown-menu">
+                    <li><a href="{% url 'posts_per_category' %}">Posts Per Category</a></li>
+                    <li><a href="{% url 'posts_per_month' %}">Posts Per Month</a></li>
+                </ul>
+            </li>
 
-        <a href="{% url 'posts_per_month' %}"
-            class="nav-link text-dark {% if '/posts_per_month/' == request.path %}bg-warning{% endif %}">Posts Per Month</a>
+            <li><a href="{% url 'profile' %}">Profile</a></li>
+            <li><a href="{% url 'dashboardfollowers_list' request.user.username %}">Followers</a></li>
+            <li><a href="{% url 'dashboardfollowing_list' request.user.username %}">Following</a></li>
+            <li><a href="{% url 'dashboardnotification' %}">Notifications{% if unread_count > 0 %} ({{ unread_count }}){% endif %}</a></li>
 
-        <a href="{% url 'profile' %}"
-            class="nav-link text-dark {% if '/profile/' in request.path %}bg-warning{% endif %}">Profile</a>
+            {% if perms.auth.view_user %}
+            <li><a href="{% url 'users' %}">Users</a></li>
+            {% endif %}
 
-        <a href="{% url 'dashboardfollowers_list' request.user.username %}"
-            class="nav-link text-dark {% if '/dashboardfollowers_list/' in request.path %}bg-warning{% endif %}">Followers</a>
+            {% if can_see_all %}
+            <li><a href="{% url 'categories' %}">Categories</a></li>
+            {% endif %}
 
-        <a href="{% url 'dashboardfollowing_list' request.user.username %}"
-            class="nav-link text-dark {% if '/dashboardfollowing_list/' in request.path %}bg-warning{% endif %}">Following</a>
-
-        <a href="{% url 'dashboardnotification' %}"
-            class="nav-link text-dark {% if '/dashboardnotification/' in request.path %}bg-warning{% endif %}">Notification
-            {%if unread_count > 0 %}
-            <span style="color:red; font-weight:bold;">({{ unread_count }})</span>
-            {% endif %} </a>
-
-        {% if perms.auth.view_user %}
-        <a href="{% url 'users' %}"
-            class="nav-link text-dark {% if '/users/' in request.path %}bg-warning{% endif %}">Users</a>
-        {% endif %}
-
-        {% if can_see_all %}
-        <a href="{% url 'categories' %}"
-            class="nav-link text-dark {% if '/categories/' in request.path %}bg-warning{% endif %}">Categories</a>
-        {% endif %}
-
-        <a href="{% url 'posts' %}"
-            class="nav-link text-dark {% if '/posts/' in request.path %}bg-warning{% endif %}">Posts</a>
-
-        <a href="{% url 'logout' %}" class="nav-link text-dark {% if '/logout/' in request.path %}bg-warning{% endif %}"
-            onclick="return confirm('Are you sure you want to logout?');">
-            Logout
-        </a>
-
-    </div><br>
+            <li><a href="{% url 'posts' %}">Posts</a></li>
+            <li><a href="{% url 'logout' %}" onclick="return confirm('Are you sure you want to logout?');">Logout</a></li>
+        </ul>
+    </nav>
 </div>
+
+<style>
+/* Basic reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Sidebar container */
+#sidebar-container {
+    position: relative;
+}
+
+/* Hamburger button */
+#sidebar-toggle {
+    font-size: 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin: 1rem;
+}
+
+/* Sidebar */
+#sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px; /* hidden by default */
+    width: 250px;
+    height: 100%;
+    background-color: #f8f9fa;
+    padding: 1rem;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+    transition: left 0.3s ease;
+    z-index: 1000;
+}
+
+/* Sidebar open state */
+#sidebar.open {
+    left: 0;
+}
+
+/* Sidebar links */
+#sidebar ul {
+    list-style: none;
+}
+
+#sidebar a, #sidebar button.dropdown-toggle {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.7rem 1rem;
+    margin-bottom: 0.3rem;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #212529;
+    text-decoration: none;
+}
+
+#sidebar a:hover, #sidebar button.dropdown-toggle:hover {
+    background-color: #e9ecef;
+}
+
+/* Dropdown menu */
+.dropdown-menu {
+    display: none;
+    list-style: none;
+    padding-left: 1rem;
+}
+
+.dropdown.open .dropdown-menu {
+    display: block;
+}
+</style>
+
+<script>
+// Sidebar toggle
+const sidebar = document.getElementById('sidebar');
+const toggleBtn = document.getElementById('sidebar-toggle');
+
+toggleBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+});
+
+// Close sidebar when clicking outside
+document.addEventListener('click', (e) => {
+    if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+        sidebar.classList.remove('open');
+    }
+});
+
+// Dropdown toggle
+document.querySelectorAll('.dropdown-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+        btn.parentElement.classList.toggle('open');
+    });
+});
+</script>
