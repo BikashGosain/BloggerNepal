@@ -12,8 +12,6 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.models import User
 
-
-
 def home(request):
     categories = Category.objects.all()
     featured_posts = Blog.objects.filter(is_featured=True, status='Published').order_by('-created_at')
@@ -74,15 +72,22 @@ def contact(request):
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
+        
         if form.is_valid():
             username = form.cleaned_data['username']
             email = form.cleaned_data['email']
 
+            # Check if there's an inactive user with this username/email
             user = User.objects.filter(username=username, email=email, is_active=False).first()
 
             if not user:
+                # Create new user
                 user = form.save(commit=False)
                 user.is_active = False
+                user.save()
+            else:
+                # Update the password for the existing inactive user
+                user.set_password(form.cleaned_data['password1'])
                 user.save()
 
             otp = random.randint(100000, 999999)
@@ -160,6 +165,125 @@ def login(request):
         'form': form,
     }
     return render(request, 'login.html', context)
+
+
+def forgot_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        
+        try:
+            user = User.objects.get(email=email, is_active=True)
+            
+            # Generate OTP
+            otp = random.randint(100000, 999999)
+            request.session['reset_otp'] = str(otp)
+            request.session['reset_user_id'] = user.id
+            
+            # Send OTP via email
+            send_mail(
+                'Password Reset OTP',
+                f'Your OTP for password reset is: {otp}',
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False,
+            )
+            
+            messages.success(request, 'OTP has been sent to your email.')
+            return redirect('verify_reset_otp')
+            
+        except User.DoesNotExist:
+            messages.error(request, 'No account found with this email address.')
+    
+    return render(request, 'forgot_password.html')
+
+
+def verify_reset_otp(request):
+    reset_user_id = request.session.get('reset_user_id')
+    session_otp = request.session.get('reset_otp')
+    
+    if not reset_user_id or not session_otp:
+        messages.error(request, 'Invalid session. Please try again.')
+        return redirect('forgot_password')
+    
+    if request.method == 'POST':
+        entered_otp = request.POST.get('otp')
+        
+        if entered_otp == str(session_otp):
+            return redirect('reset_password')
+        else:
+            messages.error(request, 'Invalid OTP. Please try again.')
+    
+    return render(request, 'verify_reset_otp.html')
+
+
+def reset_password(request):
+    reset_user_id = request.session.get('reset_user_id')
+    
+    if not reset_user_id:
+        messages.error(request, 'Invalid session. Please try again.')
+        return redirect('forgot_password')
+    
+    if request.method == 'POST':
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        
+        if password1 != password2:
+            messages.error(request, 'Passwords do not match.')
+            return render(request, 'reset_password.html')
+        
+        if len(password1) < 8:
+            messages.error(request, 'Password must be at least 8 characters long.')
+            return render(request, 'reset_password.html')
+        
+        try:
+            user = User.objects.get(id=reset_user_id)
+            user.set_password(password1)
+            user.save()
+            
+            # Clear session
+            request.session.pop('reset_otp', None)
+            request.session.pop('reset_user_id', None)
+            
+            messages.success(request, 'Password reset successful! Please login with your new password.')
+            return redirect('login')
+            
+        except User.DoesNotExist:
+            messages.error(request, 'User not found.')
+            return redirect('forgot_password')
+    
+    return render(request, 'reset_password.html')
+
+
+def resend_reset_otp(request):
+    reset_user_id = request.session.get('reset_user_id')
+    
+    if not reset_user_id:
+        messages.error(request, 'Invalid session. Please try again.')
+        return redirect('forgot_password')
+    
+    try:
+        user = User.objects.get(id=reset_user_id)
+        
+        # Generate new OTP
+        otp = random.randint(100000, 999999)
+        request.session['reset_otp'] = str(otp)
+        
+        # Send OTP via email
+        send_mail(
+            'Password Reset OTP (Resent)',
+            f'Your new OTP for password reset is: {otp}',
+            settings.EMAIL_HOST_USER,
+            [user.email],
+            fail_silently=False,
+        )
+        
+        messages.success(request, 'A new OTP has been sent to your email.')
+        
+    except User.DoesNotExist:
+        messages.error(request, 'User not found.')
+        return redirect('forgot_password')
+    
+    return redirect('verify_reset_otp')
 
 def logout(request):
     auth.logout(request)

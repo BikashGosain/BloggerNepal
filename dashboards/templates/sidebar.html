@@ -1,139 +1,633 @@
-<!-- Hamburger + Sidebar -->
-<div id="sidebar-container">
-    <!-- Hamburger button -->
-    <button id="sidebar-toggle" aria-label="Toggle Sidebar">
-        &#9776; <!-- 3-line icon -->
+<!-- Dashboard Sidebar -->
+<div class="dash-sidebar-wrapper">
+    <!-- Modern Hamburger Toggle Button -->
+    <button class="dash-hamburger" aria-label="Toggle Menu">
+        <div class="dash-hamburger-box">
+            <div class="dash-hamburger-inner"></div>
+        </div>
     </button>
 
-    <!-- Sidebar -->
-    <nav id="sidebar">
-        <ul>
-            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+    <!-- Sidebar Overlay -->
+    <div class="dash-overlay"></div>
 
-            <!-- Analytics Dropdown -->
-            <li class="dropdown">
-                <button class="dropdown-toggle">Analytics ▼</button>
-                <ul class="dropdown-menu">
-                    <li><a href="{% url 'posts_per_category' %}">Posts Per Category</a></li>
-                    <li><a href="{% url 'posts_per_month' %}">Posts Per Month</a></li>
-                </ul>
-            </li>
+    <!-- Modern Sidebar -->
+    <aside class="dash-sidebar">
+        <!-- Sidebar Top Section -->
+        <div class="dash-sidebar-top">
+            <div class="dash-brand">
+                <span class="dash-brand-icon">📊</span>
+                <span class="dash-brand-text">Dashboard</span>
+            </div>
+            <button class="dash-close-btn">&times;</button>
+        </div>
 
-            <li><a href="{% url 'profile' %}">Profile</a></li>
-            <li><a href="{% url 'dashboardfollowers_list' request.user.username %}">Followers</a></li>
-            <li><a href="{% url 'dashboardfollowing_list' request.user.username %}">Following</a></li>
-            <li><a href="{% url 'dashboardnotification' %}">Notifications{% if unread_count > 0 %} ({{ unread_count }}){% endif %}</a></li>
+        <!-- Search Bar -->
+        <div class="dash-search">
+            <form method="GET" action="{% url 'search' %}">
+                <div class="dash-search-box">
+                    <span class="dash-search-icon">🔍</span>
+                    <input type="text" name="keyword" placeholder="Search..." value="{{ keyword }}">
+                </div>
+            </form>
+        </div>
 
-            {% if perms.auth.view_user %}
-            <li><a href="{% url 'users' %}">Users</a></li>
-            {% endif %}
+        <!-- Navigation Menu -->
+        <nav class="dash-nav">
+            <ul class="dash-menu">
+                <li class="dash-menu-item">
+                    <a href="{% url 'dashboard' %}" class="dash-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <span class="dash-link-icon">🏠</span>
+                        <span class="dash-link-text">Dashboard</span>
+                    </a>
+                </li>
 
-            {% if can_see_all %}
-            <li><a href="{% url 'categories' %}">Categories</a></li>
-            {% endif %}
+                <!-- Analytics Dropdown -->
+                <li class="dash-menu-item dash-dropdown">
+                    <button class="dash-link dash-dropdown-toggle">
+                        <span class="dash-link-icon">📈</span>
+                        <span class="dash-link-text">Analytics</span>
+                        <span class="dash-chevron">›</span>
+                    </button>
+                    <ul class="dash-submenu">
+                        <li><a href="{% url 'posts_per_category' %}" class="dash-sublink {% if request.resolver_match.url_name == 'posts_per_category' %}active{% endif %}">Posts Per Category</a></li>
+                        <li><a href="{% url 'posts_per_month' %}" class="dash-sublink {% if request.resolver_match.url_name == 'posts_per_month' %}active{% endif %}">Posts Per Month</a></li>
+                    </ul>
+                </li>
 
-            <li><a href="{% url 'posts' %}">Posts</a></li>
-            <li><a href="{% url 'logout' %}" onclick="return confirm('Are you sure you want to logout?');">Logout</a></li>
-        </ul>
-    </nav>
+                <li class="dash-menu-item">
+                    <a href="{% url 'profile' %}" class="dash-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                        <span class="dash-link-icon">👤</span>
+                        <span class="dash-link-text">Profile</span>
+                    </a>
+                </li>
+
+                <li class="dash-menu-item">
+                    <a href="{% url 'dashboardfollowers_list' request.user.username %}" class="dash-link {% if request.resolver_match.url_name == 'dashboardfollowers_list' %}active{% endif %}">
+                        <span class="dash-link-icon">👥</span>
+                        <span class="dash-link-text">Followers</span>
+                    </a>
+                </li>
+
+                <li class="dash-menu-item">
+                    <a href="{% url 'dashboardfollowing_list' request.user.username %}" class="dash-link {% if request.resolver_match.url_name == 'dashboardfollowing_list' %}active{% endif %}">
+                        <span class="dash-link-icon">➕</span>
+                        <span class="dash-link-text">Following</span>
+                    </a>
+                </li>
+
+                <li class="dash-menu-item">
+                    <a href="{% url 'dashboardnotification' %}" class="dash-link {% if request.resolver_match.url_name == 'dashboardnotification' %}active{% endif %}">
+                        <span class="dash-link-icon">🔔</span>
+                        <span class="dash-link-text">Notifications</span>
+                        {% if unread_count > 0 %}
+                        <span class="dash-notification-badge">{{ unread_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+
+                {% if perms.auth.view_user %}
+                <li class="dash-menu-item">
+                    <a href="{% url 'users' %}" class="dash-link {% if request.resolver_match.url_name == 'users' %}active{% endif %}">
+                        <span class="dash-link-icon">👨‍💼</span>
+                        <span class="dash-link-text">Users</span>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% if can_see_all %}
+                <li class="dash-menu-item">
+                    <a href="{% url 'categories' %}" class="dash-link {% if request.resolver_match.url_name == 'categories' %}active{% endif %}">
+                        <span class="dash-link-icon">📁</span>
+                        <span class="dash-link-text">Categories</span>
+                    </a>
+                </li>
+                {% endif %}
+
+                <li class="dash-menu-item">
+                    <a href="{% url 'posts' %}" class="dash-link {% if request.resolver_match.url_name == 'posts' %}active{% endif %}">
+                        <span class="dash-link-icon">📝</span>
+                        <span class="dash-link-text">Posts</span>
+                    </a>
+                </li>
+
+                <li class="dash-menu-item dash-logout-item">
+                    <a href="{% url 'logout' %}" class="dash-link dash-logout-link" onclick="return confirm('Are you sure you want to logout?');">
+                        <span class="dash-link-icon">🚪</span>
+                        <span class="dash-link-text">Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
 </div>
 
 <style>
-/* Basic reset */
-* {
+/* ============================================
+   MODERN DASHBOARD SIDEBAR - SCOPED STYLES
+   ============================================ */
+
+/* Reset for sidebar elements only */
+.dash-sidebar-wrapper,
+.dash-sidebar-wrapper *,
+.dash-sidebar-wrapper *::before,
+.dash-sidebar-wrapper *::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Sidebar container */
-#sidebar-container {
+/* Main Wrapper */
+.dash-sidebar-wrapper {
+    position: relative;
+    z-index: 999;
+}
+
+/* ==================== HAMBURGER BUTTON ==================== */
+.dash-hamburger {
+    position: fixed;
+    top: 160px; /* Adjust based on your header */
+    left: 20px;
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    z-index: 1002;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dash-hamburger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.dash-hamburger:active {
+    transform: translateY(0);
+}
+
+.dash-hamburger-box {
+    width: 24px;
+    height: 18px;
     position: relative;
 }
 
-/* Hamburger button */
-#sidebar-toggle {
-    font-size: 2rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-    margin: 1rem;
+.dash-hamburger-inner,
+.dash-hamburger-inner::before,
+.dash-hamburger-inner::after {
+    position: absolute;
+    width: 24px;
+    height: 2.5px;
+    background-color: #fff;
+    border-radius: 4px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Sidebar */
-#sidebar {
+.dash-hamburger-inner {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.dash-hamburger-inner::before {
+    content: '';
+    top: -8px;
+}
+
+.dash-hamburger-inner::after {
+    content: '';
+    top: 8px;
+}
+
+/* Animated Hamburger (When Active) */
+.dash-sidebar-wrapper.is-open .dash-hamburger {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.dash-sidebar-wrapper.is-open .dash-hamburger-inner {
+    background-color: transparent;
+}
+
+.dash-sidebar-wrapper.is-open .dash-hamburger-inner::before {
+    top: 0;
+    transform: rotate(45deg);
+}
+
+.dash-sidebar-wrapper.is-open .dash-hamburger-inner::after {
+    top: 0;
+    transform: rotate(-45deg);
+}
+
+/* ==================== OVERLAY ==================== */
+.dash-overlay {
     position: fixed;
     top: 0;
-    left: -250px; /* hidden by default */
-    width: 250px;
+    left: 0;
+    width: 100%;
     height: 100%;
-    background-color: #f8f9fa;
-    padding: 1rem;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
-    transition: left 0.3s ease;
-    z-index: 1000;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 998;
 }
 
-/* Sidebar open state */
-#sidebar.open {
+.dash-sidebar-wrapper.is-open .dash-overlay {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ==================== SIDEBAR ==================== */
+.dash-sidebar {
+    position: fixed;
+    top: 0;
+    left: -320px;
+    width: 320px;
+    height: 100vh;
+    background: #1e293b;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.dash-sidebar-wrapper.is-open .dash-sidebar {
     left: 0;
 }
 
-/* Sidebar links */
-#sidebar ul {
+/* ==================== SIDEBAR TOP ==================== */
+.dash-sidebar-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dash-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.dash-brand-icon {
+    font-size: 1.8rem;
+}
+
+.dash-brand-text {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+.dash-close-btn {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.dash-close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* ==================== SEARCH BAR ==================== */
+.dash-search {
+    padding: 20px;
+    background: #0f172a;
+}
+
+.dash-search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.dash-search-icon {
+    position: absolute;
+    left: 14px;
+    font-size: 1.1rem;
+    pointer-events: none;
+}
+
+.dash-search input {
+    width: 100%;
+    padding: 12px 14px 12px 42px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.dash-search input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.dash-search input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #667eea;
+}
+
+/* ==================== NAVIGATION MENU ==================== */
+.dash-nav {
+    padding: 12px 0;
+}
+
+.dash-menu {
     list-style: none;
 }
 
-#sidebar a, #sidebar button.dropdown-toggle {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 0.7rem 1rem;
-    margin-bottom: 0.3rem;
+.dash-menu-item {
+    margin: 4px 12px;
+}
+
+/* ==================== MENU LINKS ==================== */
+.dash-link {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    cursor: pointer;
     background: none;
     border: none;
-    font-size: 1rem;
-    cursor: pointer;
-    color: #212529;
-    text-decoration: none;
+    width: 100%;
+    text-align: left;
+    position: relative;
 }
 
-#sidebar a:hover, #sidebar button.dropdown-toggle:hover {
-    background-color: #e9ecef;
+.dash-link:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: #fff;
+    transform: translateX(4px);
 }
 
-/* Dropdown menu */
-.dropdown-menu {
-    display: none;
+.dash-link.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.dash-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 60%;
+    background: #fff;
+    border-radius: 0 4px 4px 0;
+}
+
+.dash-link-icon {
+    font-size: 1.3rem;
+    margin-right: 14px;
+    min-width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dash-link-text {
+    flex: 1;
+}
+
+.dash-chevron {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+    margin-left: auto;
+}
+
+/* ==================== NOTIFICATION BADGE ==================== */
+.dash-notification-badge {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: #fff;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-left: 8px;
+    box-shadow: 0 2px 8px rgba(245, 87, 108, 0.4);
+}
+
+/* ==================== DROPDOWN ==================== */
+.dash-dropdown-toggle {
+    position: relative;
+}
+
+.dash-submenu {
     list-style: none;
-    padding-left: 1rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    margin-top: 4px;
 }
 
-.dropdown.open .dropdown-menu {
+.dash-dropdown.is-open .dash-submenu {
+    max-height: 300px;
+}
+
+.dash-dropdown.is-open .dash-chevron {
+    transform: rotate(90deg);
+}
+
+.dash-sublink {
     display: block;
+    padding: 10px 16px 10px 54px;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    margin: 2px 0;
+    transition: all 0.2s ease;
+}
+
+.dash-sublink:hover {
+    background: rgba(102, 126, 234, 0.08);
+    color: #e2e8f0;
+    padding-left: 58px;
+}
+
+.dash-sublink.active {
+    background: rgba(102, 126, 234, 0.15);
+    color: #fff;
+    font-weight: 600;
+}
+
+/* ==================== LOGOUT ==================== */
+.dash-logout-item {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dash-logout-link:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #fca5a5;
+}
+
+/* ==================== SCROLLBAR ==================== */
+.dash-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dash-sidebar::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+
+.dash-sidebar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+}
+
+.dash-sidebar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #764ba2 0%, #667eea 100%);
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    .dash-hamburger {
+        top: 80px;
+        left: 16px;
+        width: 50px;
+        height: 50px;
+    }
+
+    .dash-sidebar {
+        width: 85%;
+        max-width: 320px;
+    }
+
+    .dash-close-btn {
+        display: flex;
+    }
+}
+
+@media (max-width: 480px) {
+    .dash-sidebar {
+        width: 90%;
+    }
+
+    .dash-hamburger {
+        width: 48px;
+        height: 48px;
+    }
 }
 </style>
 
 <script>
-// Sidebar toggle
-const sidebar = document.getElementById('sidebar');
-const toggleBtn = document.getElementById('sidebar-toggle');
+(function() {
+    'use strict';
+    
+    const wrapper = document.querySelector('.dash-sidebar-wrapper');
+    const sidebar = document.querySelector('.dash-sidebar');
+    const hamburger = document.querySelector('.dash-hamburger');
+    const closeBtn = document.querySelector('.dash-close-btn');
+    const overlay = document.querySelector('.dash-overlay');
+    const dropdowns = document.querySelectorAll('.dash-dropdown-toggle');
 
-toggleBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('open');
-});
-
-// Close sidebar when clicking outside
-document.addEventListener('click', (e) => {
-    if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
-        sidebar.classList.remove('open');
+    // Toggle sidebar
+    function toggleSidebar() {
+        wrapper.classList.toggle('is-open');
+        document.body.style.overflow = wrapper.classList.contains('is-open') ? 'hidden' : '';
     }
-});
 
-// Dropdown toggle
-document.querySelectorAll('.dropdown-toggle').forEach(btn => {
-    btn.addEventListener('click', () => {
-        btn.parentElement.classList.toggle('open');
+    // Close sidebar
+    function closeSidebar() {
+        wrapper.classList.remove('is-open');
+        document.body.style.overflow = '';
+    }
+
+    // Hamburger click
+    if (hamburger) {
+        hamburger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+    }
+
+    // Close button click
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeSidebar);
+    }
+
+    // Overlay click
+    if (overlay) {
+        overlay.addEventListener('click', closeSidebar);
+    }
+
+    // Close on outside click (desktop only)
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth > 768 && wrapper.classList.contains('is-open')) {
+            if (!sidebar.contains(e.target) && !hamburger.contains(e.target)) {
+                closeSidebar();
+            }
+        }
     });
-});
+
+    // Dropdown toggles
+    dropdowns.forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const parent = btn.closest('.dash-dropdown');
+            
+            // Close other dropdowns
+            document.querySelectorAll('.dash-dropdown').forEach(function(item) {
+                if (item !== parent) {
+                    item.classList.remove('is-open');
+                }
+            });
+            
+            parent.classList.toggle('is-open');
+        });
+    });
+
+    // Auto-open dropdown if active link inside
+    document.querySelectorAll('.dash-sublink.active').forEach(function(link) {
+        const dropdown = link.closest('.dash-dropdown');
+        if (dropdown) {
+            dropdown.classList.add('is-open');
+        }
+    });
+
+    // Close sidebar when clicking links (mobile)
+    const allLinks = document.querySelectorAll('.dash-link:not(.dash-dropdown-toggle), .dash-sublink');
+    allLinks.forEach(function(link) {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                closeSidebar();
+            }
+        });
+    });
+
+    // Prevent body scroll when sidebar is open
+    wrapper.addEventListener('transitionend', function() {
+        if (!wrapper.classList.contains('is-open')) {
+            document.body.style.overflow = '';
+        }
+    });
+})();
 </script>

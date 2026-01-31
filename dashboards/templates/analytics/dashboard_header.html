@@ -1,277 +1,534 @@
 <style>
-    /* Dashboard Header Unique Styles */
-    .dashboard-header-divider {
-        border: 0;
-        border-top: 2px solid #dee2e6;
-        margin: 1.5rem 0;
+    /* Modern Dashboard Header Styles */
+    :root {
+        --dashboard-primary: #667eea;
+        --dashboard-secondary: #764ba2;
+        --dashboard-accent: #4f46e5;
+        --dashboard-success: #10b981;
+        --dashboard-info: #3b82f6;
+        --dashboard-warning: #f59e0b;
+        --dashboard-danger: #ef4444;
+        --dashboard-light: #f8fafc;
+        --dashboard-dark: #1e293b;
+        --dashboard-border: #e2e8f0;
+        --dashboard-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        --dashboard-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
 
-    .dashboard-header-welcome {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* Welcome Banner */
+    .dashboard-welcome-banner {
+        background: linear-gradient(135deg, var(--dashboard-primary) 0%, var(--dashboard-secondary) 100%);
         color: white;
-        padding: 2rem;
-        border-radius: 0.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 2.5rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--dashboard-shadow-lg);
+        position: relative;
+        overflow: hidden;
     }
 
-    .dashboard-header-welcome h2 {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.75rem;
-        font-weight: 600;
+    .dashboard-welcome-banner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        transform: translate(30%, -30%);
     }
 
-    .dashboard-header-welcome p {
+    .dashboard-welcome-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .dashboard-welcome-content h2 {
+        margin: 0 0 0.75rem 0;
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+    }
+
+    .dashboard-welcome-content p {
         margin: 0;
-        font-size: 1rem;
+        font-size: 1.125rem;
         opacity: 0.95;
+        font-weight: 400;
     }
 
-    .dashboard-header-note {
-        background-color: #e7f3ff;
-        border-left: 4px solid #2196f3;
-        padding: 1rem 1.25rem;
-        border-radius: 0.375rem;
-        margin-bottom: 1.5rem;
-        color: #1565c0;
-        font-size: 0.95rem;
+    /* Role Badge */
+    .dashboard-role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        padding: 0.75rem 1.25rem;
+        border-radius: 2rem;
+        margin-top: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
-    .dashboard-header-note strong {
+    .dashboard-role-badge svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Note Alert */
+    .dashboard-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.25rem;
+        border-radius: 0.75rem;
+        margin-bottom: 2rem;
+        border: 1px solid;
+        box-shadow: var(--dashboard-shadow);
+    }
+
+    .dashboard-alert-icon {
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+    }
+
+    .dashboard-alert-content {
+        flex: 1;
+    }
+
+    .dashboard-alert-content strong {
         font-weight: 600;
-        color: #0d47a1;
+        display: block;
+        margin-bottom: 0.25rem;
     }
 
-    .dashboard-header-cards-row {
+    .dashboard-alert-admin {
+        background: #fef3c7;
+        border-color: #fbbf24;
+        color: #92400e;
+    }
+
+    .dashboard-alert-manager {
+        background: #dbeafe;
+        border-color: #60a5fa;
+        color: #1e40af;
+    }
+
+    .dashboard-alert-editor {
+        background: #e0e7ff;
+        border-color: #818cf8;
+        color: #3730a3;
+    }
+
+    .dashboard-alert-user {
+        background: #d1fae5;
+        border-color: #34d399;
+        color: #065f46;
+    }
+
+    /* Stats Grid */
+    .dashboard-stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.25rem;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
         margin-bottom: 2rem;
     }
 
-    .dashboard-header-card {
-        background-color: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 0.5rem;
+    .dashboard-stat-card {
+        background: white;
+        border: 1px solid var(--dashboard-border);
+        border-radius: 0.75rem;
         overflow: hidden;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: var(--dashboard-shadow);
+        transition: all 0.3s ease;
+        position: relative;
     }
 
-    .dashboard-header-card:hover {
+    .dashboard-stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--dashboard-primary), var(--dashboard-secondary));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+    }
+
+    .dashboard-stat-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        box-shadow: var(--dashboard-shadow-lg);
     }
 
-    .dashboard-header-card-title {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 0.875rem 1rem;
-        font-weight: 600;
-        font-size: 0.95rem;
-        text-align: center;
-        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    .dashboard-stat-card:hover::before {
+        transform: scaleX(1);
     }
 
-    .dashboard-header-card-body {
-        padding: 1.5rem 1rem;
-        text-align: center;
+    .dashboard-stat-header {
+        padding: 1.25rem;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-bottom: 1px solid var(--dashboard-border);
     }
 
-    .dashboard-header-card-body h5 {
+    .dashboard-stat-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
         margin: 0;
-        font-size: 2rem;
-        font-weight: 700;
-        color: #667eea;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--dashboard-dark);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
 
-    .dashboard-header-card-body small {
-        font-size: 1rem;
-        color: #757575;
+    .dashboard-stat-icon {
+        width: 20px;
+        height: 20px;
+        color: var(--dashboard-accent);
+    }
+
+    .dashboard-stat-body {
+        padding: 1.5rem 1.25rem;
+        text-align: center;
+    }
+
+    .dashboard-stat-value {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--dashboard-primary), var(--dashboard-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+    }
+
+    .dashboard-stat-suffix {
+        font-size: 1.25rem;
+        opacity: 0.7;
+        margin-left: 0.25rem;
+    }
+
+    .dashboard-stat-label {
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        color: #64748b;
         font-weight: 500;
     }
 
+    /* Divider */
+    .dashboard-divider {
+        border: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--dashboard-border), transparent);
+        margin: 2rem 0;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .dashboard-stat-card {
+        animation: fadeInUp 0.5s ease;
+    }
+
+    .dashboard-stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .dashboard-stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .dashboard-stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .dashboard-stat-card:nth-child(4) { animation-delay: 0.4s; }
+    .dashboard-stat-card:nth-child(5) { animation-delay: 0.5s; }
+
     /* Responsive Design */
-    @media (max-width: 992px) {
-        .dashboard-header-cards-row {
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1rem;
-        }
-
-        .dashboard-header-welcome {
-            padding: 1.5rem;
-        }
-
-        .dashboard-header-welcome h2 {
-            font-size: 1.5rem;
+    @media (max-width: 1024px) {
+        .dashboard-stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
         }
     }
 
     @media (max-width: 768px) {
-        .dashboard-header-cards-row {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.875rem;
+        .dashboard-welcome-banner {
+            padding: 2rem;
         }
 
-        .dashboard-header-welcome {
-            padding: 1.25rem;
-        }
-
-        .dashboard-header-welcome h2 {
-            font-size: 1.4rem;
-        }
-
-        .dashboard-header-welcome p {
-            font-size: 0.95rem;
-        }
-
-        .dashboard-header-note {
-            padding: 0.875rem 1rem;
-            font-size: 0.9rem;
-        }
-
-        .dashboard-header-card-body h5 {
+        .dashboard-welcome-content h2 {
             font-size: 1.75rem;
+        }
+
+        .dashboard-welcome-content p {
+            font-size: 1rem;
+        }
+
+        .dashboard-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .dashboard-stat-value {
+            font-size: 2rem;
+        }
+
+        .dashboard-alert {
+            padding: 1rem;
+            gap: 0.75rem;
         }
     }
 
     @media (max-width: 576px) {
-        .dashboard-header-cards-row {
-            grid-template-columns: 1fr;
-            gap: 0.75rem;
+        .dashboard-welcome-banner {
+            padding: 1.5rem;
         }
 
-        .dashboard-header-divider {
-            margin: 1rem 0;
+        .dashboard-welcome-content h2 {
+            font-size: 1.5rem;
         }
 
-        .dashboard-header-welcome {
-            padding: 1rem;
-            margin-bottom: 1rem;
+        .dashboard-welcome-content p {
+            font-size: 0.95rem;
         }
 
-        .dashboard-header-welcome h2 {
-            font-size: 1.25rem;
-            margin-bottom: 0.4rem;
-        }
-
-        .dashboard-header-welcome p {
-            font-size: 0.9rem;
-        }
-
-        .dashboard-header-note {
-            padding: 0.75rem 0.875rem;
+        .dashboard-role-badge {
+            padding: 0.5rem 1rem;
             font-size: 0.875rem;
-            margin-bottom: 1rem;
         }
 
-        .dashboard-header-card-title {
-            padding: 0.75rem 0.875rem;
+        .dashboard-stats-grid {
+            grid-template-columns: 1fr;
+            gap: 0.875rem;
+        }
+
+        .dashboard-stat-header {
+            padding: 1rem;
+        }
+
+        .dashboard-stat-body {
+            padding: 1.25rem 1rem;
+        }
+
+        .dashboard-stat-value {
+            font-size: 1.875rem;
+        }
+
+        .dashboard-alert {
+            padding: 0.875rem;
             font-size: 0.9rem;
-        }
-
-        .dashboard-header-card-body {
-            padding: 1.25rem 0.875rem;
-        }
-
-        .dashboard-header-card-body h5 {
-            font-size: 1.6rem;
         }
     }
 
     @media (max-width: 420px) {
-        .dashboard-header-welcome h2 {
-            font-size: 1.15rem;
+        .dashboard-welcome-banner {
+            padding: 1.25rem;
         }
 
-        .dashboard-header-welcome p {
-            font-size: 0.85rem;
+        .dashboard-welcome-content h2 {
+            font-size: 1.35rem;
         }
 
-        .dashboard-header-note {
-            font-size: 0.85rem;
+        .dashboard-welcome-content p {
+            font-size: 0.9rem;
         }
 
-        .dashboard-header-card-body h5 {
-            font-size: 1.5rem;
+        .dashboard-stat-value {
+            font-size: 1.75rem;
+        }
+
+        .dashboard-stat-title {
+            font-size: 0.8rem;
         }
     }
 </style>
 
-<hr class="dashboard-header-divider">
-
-<div class="dashboard-header-welcome">
-    <h2>Welcome to your Dashboard, {{ user }}!</h2>
-    <p>Use the sidebar to navigate through your dashboard options.</p>
+<!-- Welcome Banner -->
+<div class="dashboard-welcome-banner">
+    <div class="dashboard-welcome-content">
+        <h2>👋 Welcome back, {{ user }}!</h2>
+        <p>Here's what's happening with your content today</p>
+        
+        {% if user.is_superuser %}
+        <div class="dashboard-role-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+            </svg>
+            <span>Administrator</span>
+        </div>
+        {% elif is_manager %}
+        <div class="dashboard-role-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>Manager</span>
+        </div>
+        {% elif is_editor %}
+        <div class="dashboard-role-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            <span>Editor</span>
+        </div>
+        {% endif %}
+    </div>
 </div>
 
-<hr class="dashboard-header-divider">
-
-{% if is_editor %}
-    <div class="dashboard-header-note">
-        <strong>Note:</strong> As an Editor, you can edit posts and categories but not delete others' posts.
+<!-- Role Information Alert -->
+{% if user.is_superuser %}
+<div class="dashboard-alert dashboard-alert-admin">
+    <svg class="dashboard-alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+        <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+    </svg>
+    <div class="dashboard-alert-content">
+        <strong>Administrator Access</strong>
+        You have full access to all features and settings across the platform.
     </div>
+</div>
 {% elif is_manager %}
-    <div class="dashboard-header-note">
-        <strong>Note:</strong> As a Manager, you can add, edit, and delete all posts, categories, and users.
+<div class="dashboard-alert dashboard-alert-manager">
+    <svg class="dashboard-alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path>
+    </svg>
+    <div class="dashboard-alert-content">
+        <strong>Manager Permissions</strong>
+        You can add, edit, and delete all posts, categories, and manage users.
     </div>
-{% elif user.is_superuser %}
-    <div class="dashboard-header-note">
-        <strong>Note:</strong> As an Admin, you have full access.
+</div>
+{% elif is_editor %}
+<div class="dashboard-alert dashboard-alert-editor">
+    <svg class="dashboard-alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+    </svg>
+    <div class="dashboard-alert-content">
+        <strong>Editor Permissions</strong>
+        You can edit posts and categories, but cannot delete content created by others.
     </div>
+</div>
 {% else %}
-    <div class="dashboard-header-note">
-        <strong>Note:</strong> {{ user }}! You can create, edit, and delete your posts.
+<div class="dashboard-alert dashboard-alert-user">
+    <svg class="dashboard-alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+    </svg>
+    <div class="dashboard-alert-content">
+        <strong>Author Access</strong>
+        You can create, edit, and delete your own posts.
     </div>
+</div>
 {% endif %}
 
-<div class="dashboard-header-cards-row">
+<hr class="dashboard-divider">
+
+<!-- Statistics Grid -->
+<div class="dashboard-stats-grid">
     {% if can_see_all %}
-    <div class="dashboard-header-card">
-        <div class="dashboard-header-card-title">All Categories</div>
-        <div class="dashboard-header-card-body">
-            <h5>
+    <div class="dashboard-stat-card">
+        <div class="dashboard-stat-header">
+            <h3 class="dashboard-stat-title">
+                <svg class="dashboard-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+                All Categories
+            </h3>
+        </div>
+        <div class="dashboard-stat-body">
+            <h4 class="dashboard-stat-value">
                 {{ category_count }}
                 {% if uncategorized_count > 0 %}
-                <small> + 1</small>
+                <span class="dashboard-stat-suffix">+ 1</span>
                 {% endif %}
-            </h5>
+            </h4>
+            <p class="dashboard-stat-label">Total Categories</p>
         </div>
     </div>
     {% endif %}
 
-    <div class="dashboard-header-card">
-        <div class="dashboard-header-card-title">
-            {% if can_see_all %}All Posts{% else %}My Posts{% endif %}
+    <div class="dashboard-stat-card">
+        <div class="dashboard-stat-header">
+            <h3 class="dashboard-stat-title">
+                <svg class="dashboard-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                {% if can_see_all %}All Posts{% else %}My Posts{% endif %}
+            </h3>
         </div>
-        <div class="dashboard-header-card-body">
-            <h5>{{ blogs_count }}</h5>
+        <div class="dashboard-stat-body">
+            <h4 class="dashboard-stat-value">{{ blogs_count }}</h4>
+            <p class="dashboard-stat-label">Published Posts</p>
         </div>
     </div>
 
     {% if all_posts_uncategorized_count > 0 %}
-    <div class="dashboard-header-card">
-        <div class="dashboard-header-card-title">All Posts with Uncategorized</div>
-        <div class="dashboard-header-card-body">
-            <h5>{{ all_posts_uncategorized_count }}</h5>
+    <div class="dashboard-stat-card">
+        <div class="dashboard-stat-header">
+            <h3 class="dashboard-stat-title">
+                <svg class="dashboard-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"></path>
+                </svg>
+                Posts + Uncategorized
+            </h3>
+        </div>
+        <div class="dashboard-stat-body">
+            <h4 class="dashboard-stat-value">{{ all_posts_uncategorized_count }}</h4>
+            <p class="dashboard-stat-label">All Posts Total</p>
         </div>
     </div>
     {% endif %}
 
     {% if can_see_all %}
-    <div class="dashboard-header-card">
-        <div class="dashboard-header-card-title">My Posts</div>
-        <div class="dashboard-header-card-body">
-            <h5>{{ self_posts_count }}</h5>
+    <div class="dashboard-stat-card">
+        <div class="dashboard-stat-header">
+            <h3 class="dashboard-stat-title">
+                <svg class="dashboard-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                My Posts
+            </h3>
+        </div>
+        <div class="dashboard-stat-body">
+            <h4 class="dashboard-stat-value">{{ self_posts_count }}</h4>
+            <p class="dashboard-stat-label">Your Published Posts</p>
         </div>
     </div>
     {% endif %}
 
     {% if self_posts_uncategorized_count > 0 %}
-    <div class="dashboard-header-card">
-        <div class="dashboard-header-card-title">My Posts with Uncategorized</div>
-        <div class="dashboard-header-card-body">
-            <h5>{{ self_posts_uncategorized_count }}</h5>
+    <div class="dashboard-stat-card">
+        <div class="dashboard-stat-header">
+            <h3 class="dashboard-stat-title">
+                <svg class="dashboard-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                My Posts + Uncategorized
+            </h3>
+        </div>
+        <div class="dashboard-stat-body">
+            <h4 class="dashboard-stat-value">{{ self_posts_uncategorized_count }}</h4>
+            <p class="dashboard-stat-label">Your Total Posts</p>
         </div>
     </div>
     {% endif %}
