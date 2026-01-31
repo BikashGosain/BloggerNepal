@@ -65,7 +65,14 @@ INSTALLED_APPS = [
     'dashboards',
     'social_links',
     'follow_following',
+
+    'rest_framework',
 ]
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ],
+}
 
 SITE_ID = int(os.getenv('DJANGO_SITE_ID', 1))
 
@@ -164,12 +171,23 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'static'
-STATICFILES_DIRS = [BASE_DIR / 'blog_main' / 'static']
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+STATIC_URL = '/static/'
+
+# where collectstatic will copy files
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# where your app static files live
+STATICFILES_DIRS = [
+    BASE_DIR / 'blog_main' / 'static',
+]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 

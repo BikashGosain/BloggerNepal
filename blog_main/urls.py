@@ -67,7 +67,14 @@ urlpatterns = [
     # re_path(r'^.*$', views.page_not_found_redirect)
     
 
-] +static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT )
+] #+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT )
+
+# serve media ONLY for local testing when DEBUG=False
+if not settings.DEBUG:
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT
+    )
 
 # 👇 custom 404 handler
 handler404 = 'blog_main.views.custom_404'

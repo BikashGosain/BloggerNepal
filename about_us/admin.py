@@ -15,7 +15,8 @@ class AboutUsAdmin(admin.ModelAdmin):
     #         return False
     
     def is_manager_or_superuser(self, user):
-        return user.is_superuser or user.groups.filter(name='Manager').exists()
+        return user.is_superuser or user.groups.filter(name="Manager").exists()
+
 
     # Allow add
     def has_add_permission(self, request):

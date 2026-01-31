@@ -10,3 +10,23 @@
 {% endblock %}
 {% block extra_js %}
 {% endblock %}
+
+
+<!-- <div id="about-container"></div>
+
+<script>
+fetch("/about-us/api/")
+  .then(res => res.json())
+  .then(data => {
+    const container = document.getElementById("about-container");
+
+    data.forEach(item => {
+      container.innerHTML += `
+        <h3>${item.question}</h3>
+        <p>${item.answer}</p>
+        <hr/>
+      `;
+    });
+  });
+</script>
+ -->
