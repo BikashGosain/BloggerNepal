@@ -8,8 +8,12 @@
 {% block content %}
 {% include 'about.html' %}
 {% endblock %}
+
 {% block extra_js %}
 {% endblock %}
+
+
+
 
 
 <!-- <div id="about-container"></div>
@@ -30,3 +34,61 @@ fetch("/about-us/api/")
   });
 </script>
  -->
+
+<!-- 
+ 1️⃣ Add error handling
+fetch("/about-us/api/")
+  .then(res => {
+    if (!res.ok) throw new Error("API error");
+    return res.json();
+  })
+  .then(data => {
+    const container = document.getElementById("about-container");
+    data.forEach(item => {
+      container.innerHTML += `
+        <h3>${item.question}</h3>
+        <p>${item.answer}</p>
+        <hr/>
+      `;
+    });
+  })
+  .catch(err => {
+    console.error(err);
+  }); -->
+
+
+
+
+
+  <!-- That <script> is doing exactly this:
+
+🔹 Fetch data from a Django API endpoint
+🔹 Convert JSON → normal HTML
+🔹 Display it on the website like regular content
+
+So yes — API → frontend → looks like normal page data.
+
+🔍 What your code does (plain English)
+fetch("/about-us/api/")
+
+
+➡️ Calls your Django API URL
+
+.then(res => res.json())
+
+
+➡️ Converts response into JSON
+
+data.forEach(item => { ... })
+
+
+➡️ Loops through API objects
+
+<h3>${item.question}</h3>
+<p>${item.answer}</p>
+
+
+➡️ Injects content into the page
+
+End result:
+📄 User sees text like it was hard-coded HTML -->
