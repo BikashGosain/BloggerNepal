@@ -13,12 +13,28 @@
     <!-- Sidebar Container -->
     <aside class="gmail-sidebar">
         <!-- Close Button Inside Sidebar (Top Right) -->
+        <div class="gmail-sidebar-topbar">
+    <!-- Search Field -->
+    <input type="text" class="gmail-search" placeholder="Search...">
         <button class="gmail-hamburger gmail-hamburger-inside" aria-label="Close Menu">
             <span class="gmail-hamburger-line"></span>
             <span class="gmail-hamburger-line"></span>
             <span class="gmail-hamburger-line"></span>
         </button>
 
+<!-- Search Field -->
+    </div>
+<div class="gmail-compose-wrapper">
+            <a href="{% url 'home' %}" 
+                       class="gmail-compose-btn {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                        <div class="gmail-link-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                            </svg>
+                        </div>
+                        <span class="gmail-link-text">Home</span>
+                    </a>
+        </div>
         <!-- Compose Button -->
         <div class="gmail-compose-wrapper">
             <a href="{% url 'posts' %}" class="gmail-compose-btn">
@@ -272,6 +288,43 @@
     z-index: 1002;
     display: none; /* Hidden by default */
 }
+/* Sidebar top bar: search field left, close button right */
+.gmail-sidebar-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Search left, close right */
+    padding: 16px;
+    gap: 10px;
+    position: absolute;
+    top: 4px;
+    left: 0;
+    right: 0;
+}
+
+/* Adjust inside hamburger button in this topbar */
+.gmail-hamburger-inside {
+    position: static; /* remove absolute positioning */
+    top: 20px;
+    right: 20px;
+    z-index: 1002;
+    display: flex;
+}
+
+/* Search field styling */
+.gmail-search {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 24px;
+    border: 1px solid var(--gmail-border);
+    font-size: 14px;
+    outline: none;
+}
+
+.gmail-search:focus {
+    border-color: var(--gmail-primary);
+    box-shadow: 0 0 0 2px rgba(194, 24, 91, 0.2);
+}
+
 
 /* Show inside close button when sidebar is open */
 .gmail-sidebar-wrapper.is-open .gmail-hamburger-inside {
@@ -572,89 +625,52 @@
 </style>
 
 <script>
-(function() {
+(function () {
     'use strict';
-    
+
     const wrapper = document.querySelector('.gmail-sidebar-wrapper');
     const hamburgerOutside = document.querySelector('.gmail-hamburger-outside');
     const hamburgerInside = document.querySelector('.gmail-hamburger-inside');
     const overlay = document.querySelector('.gmail-overlay');
-    const sidebar = document.querySelector('.gmail-sidebar');
     const dropdowns = document.querySelectorAll('.gmail-dropdown-toggle');
-    const links = document.querySelectorAll('.gmail-link:not(.gmail-dropdown-toggle), .gmail-sublink');
 
-    // Open sidebar
     function openSidebar() {
         wrapper.classList.add('is-open');
-        document.body.style.overflow = 'hidden';
     }
 
-    // Close sidebar
     function closeSidebar() {
         wrapper.classList.remove('is-open');
-        document.body.style.overflow = '';
     }
 
-    // Outside hamburger click - opens sidebar
-    if (hamburgerOutside) {
-        hamburgerOutside.addEventListener('click', function(e) {
-            e.stopPropagation();
-            openSidebar();
-        });
-    }
+    hamburgerOutside?.addEventListener('click', openSidebar);
+    hamburgerInside?.addEventListener('click', closeSidebar);
+    overlay?.addEventListener('click', closeSidebar);
 
-    // Inside hamburger click - closes sidebar
-    if (hamburgerInside) {
-        hamburgerInside.addEventListener('click', function(e) {
-            e.stopPropagation();
-            closeSidebar();
-        });
-    }
-
-    // Overlay click - closes sidebar
-    if (overlay) {
-        overlay.addEventListener('click', closeSidebar);
-    }
-
-    // Dropdown toggles
-    dropdowns.forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
+    dropdowns.forEach(btn => {
+        btn.addEventListener('click', e => {
             e.preventDefault();
             const parent = btn.closest('.gmail-dropdown');
-            
-            document.querySelectorAll('.gmail-dropdown').forEach(function(item) {
-                if (item !== parent) item.classList.remove('is-open');
-            });
-            
+
+            document.querySelectorAll('.gmail-dropdown')
+                .forEach(d => d !== parent && d.classList.remove('is-open'));
+
             parent.classList.toggle('is-open');
         });
     });
 
-    // Auto-open active dropdown
-    document.querySelectorAll('.gmail-sublink.active').forEach(function(link) {
+})();
+
+
+(function () {
+    'use strict';
+
+    /* 🔹 AUTO-OPEN DROPDOWN IF ACTIVE SUBLINK EXISTS */
+    document.querySelectorAll('.gmail-sublink.active').forEach(function (link) {
         const dropdown = link.closest('.gmail-dropdown');
-        if (dropdown) dropdown.classList.add('is-open');
-    });
-
-    // Close sidebar when clicking links (mobile only)
-    links.forEach(function(link) {
-        link.addEventListener('click', function() {
-            if (window.innerWidth < 1198) closeSidebar();
-        });
-    });
-
-    // Close on outside click (mobile only)
-    document.addEventListener('click', function(e) {
-        if (window.innerWidth < 1198 && wrapper.classList.contains('is-open')) {
-            if (!sidebar.contains(e.target) && !hamburgerOutside.contains(e.target)) {
-                closeSidebar();
-            }
+        if (dropdown) {
+            dropdown.classList.add('is-open');
         }
     });
 
-    // Handle window resize - don't auto-close on desktop anymore
-    window.addEventListener('resize', function() {
-        // Remove auto-close behavior - let user control sidebar on all screen sizes
-    });
 })();
 </script>

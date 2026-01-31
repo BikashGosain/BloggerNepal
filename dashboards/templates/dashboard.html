@@ -3,104 +3,61 @@
 
 {% block extra_css %}
 <style>
-    /* Dashboard Home Unique Styles */
-    .dashboard-home-container {
-        padding: 1.5rem 0;
+/* =========================================
+   DASHBOARD LAYOUT (SIDEBAR-AWARE)
+   ========================================= */
+
+/* Root layout */
+.app-layout {
+    min-height: 100vh;
+    background: #f8f9fa;
+}
+
+/* Main content area */
+.app-content {
+    margin-left: 0;
+    padding: 24px;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Push content when sidebar is open (desktop only) */
+@media (min-width: 1198px) {
+    .gmail-sidebar-wrapper.is-open ~ .app-content {
+        margin-left: var(--sidebar-width);
     }
+}
 
-    .dashboard-home-row {
-        display: flex;
-        flex-wrap: wrap;
-        margin: 0 -15px;
+/* Mobile & tablet: sidebar overlays, content stays fixed */
+@media (max-width: 1197px) {
+    .app-content {
+        margin-left: 0 !important;
+        padding: 16px;
     }
+}
 
-    .dashboard-home-sidebar {
-        flex: 0 0 25%;
-        max-width: 25%;
-        padding: 0 15px;
+/* Extra small devices */
+@media (max-width: 576px) {
+    .app-content {
+        padding: 12px;
     }
-
-    .dashboard-home-content {
-        flex: 0 0 75%;
-        max-width: 75%;
-        padding: 0 15px;
-    }
-
-    /* Responsive Layout */
-    @media (max-width: 992px) {
-        .dashboard-home-sidebar {
-            flex: 0 0 30%;
-            max-width: 30%;
-        }
-
-        .dashboard-home-content {
-            flex: 0 0 70%;
-            max-width: 70%;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .dashboard-home-sidebar {
-            flex: 0 0 100%;
-            max-width: 100%;
-            margin-bottom: 1.5rem;
-        }
-
-        .dashboard-home-content {
-            flex: 0 0 100%;
-            max-width: 100%;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .dashboard-home-container {
-            padding: 1rem 0;
-        }
-
-        .dashboard-home-row {
-            margin: 0 -10px;
-        }
-
-        .dashboard-home-sidebar,
-        .dashboard-home-content {
-            padding: 0 10px;
-        }
-
-        .dashboard-home-sidebar {
-            margin-bottom: 1rem;
-        }
-    }
-
-    @media (max-width: 420px) {
-        .dashboard-home-container {
-            padding: 0.75rem 0;
-        }
-
-        .dashboard-home-row {
-            margin: 0 -8px;
-        }
-
-        .dashboard-home-sidebar,
-        .dashboard-home-content {
-            padding: 0 8px;
-        }
-    }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-home-container">
-    <div class="dashboard-home-row">
-        <div class="dashboard-home-sidebar">
-            {% include 'sidebar.html' %}
-        </div>
-        <div class="dashboard-home-content">
-            {% include 'analytics/dashboard_header.html' %}
-        </div>
-    </div>
+<div class="app-layout">
+
+    {# FIXED SIDEBAR #}
+    {% include 'sidebar.html' %}
+
+    {# MAIN DASHBOARD CONTENT #}
+    <main class="app-content">
+        {% include 'analytics/dashboard_header.html' %}
+    </main>
+
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<!-- No JavaScript needed for dashboard home -->
+{# No page-specific JS needed #}
 {% endblock %}
