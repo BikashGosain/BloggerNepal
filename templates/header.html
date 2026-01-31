@@ -2,9 +2,18 @@
 {% block extra_css %}
 <link href="{% static 'css/headers.css' %}" rel="stylesheet">
 {% endblock %}
+
 <!-- DESKTOP HEADER -->
 <header class="desktop-header">
     <div class="logo">
+        {% if user.is_authenticated and request.resolver_match.url_name in 'dashboard,profile,posts,categories,users,dashboardnotification,dashboardfollowers_list,dashboardfollowing_list,posts_per_category,posts_per_month' %}
+        <!-- Dashboard Hamburger Icon -->
+        <button class="header-sidebar-toggle" aria-label="Toggle Sidebar">
+            <span class="header-hamburger-line"></span>
+            <span class="header-hamburger-line"></span>
+            <span class="header-hamburger-line"></span>
+        </button>
+        {% endif %}
         <a href="/">BlogNova</a>
     </div>
 
@@ -33,6 +42,14 @@
 <!-- MOBILE HEADER -->
 <header class="mobile-header">
     <div class="mobile-top">
+        {% if user.is_authenticated and request.resolver_match.url_name in 'dashboard,profile,posts,categories,users,dashboardnotification,dashboardfollowers_list,dashboardfollowing_list,posts_per_category,posts_per_month' %}
+        <!-- Dashboard Hamburger Icon for Mobile -->
+        <button class="header-sidebar-toggle mobile" aria-label="Toggle Sidebar">
+            <span class="header-hamburger-line"></span>
+            <span class="header-hamburger-line"></span>
+            <span class="header-hamburger-line"></span>
+        </button>
+        {% endif %}
         <a href="/" class="logo">BlogNova</a>
         <button id="menu-btn">☰</button>
     </div>
@@ -85,7 +102,6 @@
     <a href="{% url 'about_us' %}" class="nav-link">About</a>
     <a href="{% url 'contact' %}" class="nav-link">Contact</a>
 
-
     <div class="nav-dropdown">
         <button type="button" class="nav-dropdown-btn">Social Links ▼</button>
         <div class="nav-dropdown-menu">
@@ -95,6 +111,84 @@
         </div>
     </div>
 </nav>
+
+<!-- Hamburger Icon Styles -->
+<style>
+.header-sidebar-toggle {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    transition: all 0.2s ease;
+}
+
+.header-sidebar-toggle:hover {
+    opacity: 0.7;
+}
+
+.header-hamburger-line {
+    width: 22px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+/* Desktop header */
+.desktop-header .logo {
+    display: flex;
+    align-items: center;
+}
+
+.desktop-header .header-sidebar-toggle {
+    color: #fff;
+}
+
+/* Mobile header */
+.mobile-header .mobile-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mobile-header .header-sidebar-toggle {
+    color: #333;
+    order: -1;
+}
+</style>
+
+<!-- JavaScript to connect header hamburger with sidebar -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const headerToggles = document.querySelectorAll('.header-sidebar-toggle');
+    const sidebarWrapper = document.querySelector('.gmail-sidebar-wrapper');
+    
+    if (headerToggles.length > 0 && sidebarWrapper) {
+        headerToggles.forEach(function(toggle) {
+            toggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                // Toggle sidebar
+                if (sidebarWrapper.classList.contains('is-open')) {
+                    sidebarWrapper.classList.remove('is-open');
+                    document.body.style.overflow = '';
+                } else {
+                    sidebarWrapper.classList.add('is-open');
+                    if (window.innerWidth < 1198) {
+                        document.body.style.overflow = 'hidden';
+                    }
+                }
+            });
+        });
+    }
+});
+</script>
 
 {% block extra_js %}
 <script src="{% static 'js/headers.js' %}"></script>

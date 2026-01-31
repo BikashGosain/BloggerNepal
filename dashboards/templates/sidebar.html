@@ -1,539 +1,572 @@
-<!-- Dashboard Sidebar -->
-<div class="dash-sidebar-wrapper">
-    <!-- Modern Hamburger Toggle Button -->
-    <button class="dash-hamburger" aria-label="Toggle Menu">
-        <div class="dash-hamburger-box">
-            <div class="dash-hamburger-inner"></div>
-        </div>
-    </button>
+{% load static %}
 
-    <!-- Sidebar Overlay -->
-    <div class="dash-overlay"></div>
+<!-- Gmail-Inspired Dashboard Sidebar - FINAL VERSION -->
+<div class="gmail-sidebar-wrapper is-open">
+    <!-- Hamburger Toggle Button (Outside - Mobile/Tablet Only) -->
+     <!-- since this opens sidebar is on header.html before blognova so i comment it in sidebar.html -->
+    <!-- <button class="gmail-hamburger gmail-hamburger-outside" aria-label="Toggle Menu">
+        <span class="gmail-hamburger-line"></span>
+        <span class="gmail-hamburger-line"></span>
+        <span class="gmail-hamburger-line"></span>
+    </button> -->
 
-    <!-- Modern Sidebar -->
-    <aside class="dash-sidebar">
-        <!-- Sidebar Top Section -->
-        <div class="dash-sidebar-top">
-            <div class="dash-brand">
-                <span class="dash-brand-icon">📊</span>
-                <span class="dash-brand-text">Dashboard</span>
-            </div>
-            <button class="dash-close-btn">&times;</button>
-        </div>
+    <!-- Sidebar Container -->
+    <aside class="gmail-sidebar">
+        <!-- Close Button Inside Sidebar (Top Right) -->
+        <button class="gmail-hamburger gmail-hamburger-inside" aria-label="Close Menu">
+            <span class="gmail-hamburger-line"></span>
+            <span class="gmail-hamburger-line"></span>
+            <span class="gmail-hamburger-line"></span>
+        </button>
 
-        <!-- Search Bar -->
-        <div class="dash-search">
-            <form method="GET" action="{% url 'search' %}">
-                <div class="dash-search-box">
-                    <span class="dash-search-icon">🔍</span>
-                    <input type="text" name="keyword" placeholder="Search..." value="{{ keyword }}">
-                </div>
-            </form>
+        <!-- Compose Button -->
+        <div class="gmail-compose-wrapper">
+            <a href="{% url 'posts' %}" class="gmail-compose-btn">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+                <span>Create Post</span>
+            </a>
         </div>
 
         <!-- Navigation Menu -->
-        <nav class="dash-nav">
-            <ul class="dash-menu">
-                <li class="dash-menu-item">
-                    <a href="{% url 'dashboard' %}" class="dash-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                        <span class="dash-link-icon">🏠</span>
-                        <span class="dash-link-text">Dashboard</span>
+        <nav class="gmail-nav">
+            <ul class="gmail-menu">
+                <li>
+                    <a href="{% url 'dashboard' %}" 
+                       class="gmail-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <div class="gmail-link-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                            </svg>
+                        </div>
+                        <span class="gmail-link-text">Dashboard</span>
                     </a>
                 </li>
 
-                <!-- Analytics Dropdown -->
-                <li class="dash-menu-item dash-dropdown">
-                    <button class="dash-link dash-dropdown-toggle">
-                        <span class="dash-link-icon">📈</span>
-                        <span class="dash-link-text">Analytics</span>
-                        <span class="dash-chevron">›</span>
+                <li class="gmail-dropdown">
+                    <button class="gmail-link gmail-dropdown-toggle">
+                        <div class="gmail-link-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                            </svg>
+                        </div>
+                        <span class="gmail-link-text">Analytics</span>
+                        <svg class="gmail-chevron" viewBox="0 0 24 24" width="18" height="18">
+                            <path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
                     </button>
-                    <ul class="dash-submenu">
-                        <li><a href="{% url 'posts_per_category' %}" class="dash-sublink {% if request.resolver_match.url_name == 'posts_per_category' %}active{% endif %}">Posts Per Category</a></li>
-                        <li><a href="{% url 'posts_per_month' %}" class="dash-sublink {% if request.resolver_match.url_name == 'posts_per_month' %}active{% endif %}">Posts Per Month</a></li>
+                    <ul class="gmail-submenu">
+                        <li>
+                            <a href="{% url 'posts_per_category' %}" 
+                               class="gmail-sublink {% if request.resolver_match.url_name == 'posts_per_category' %}active{% endif %}">
+                                Posts Per Category
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'posts_per_month' %}" 
+                               class="gmail-sublink {% if request.resolver_match.url_name == 'posts_per_month' %}active{% endif %}">
+                                Posts Per Month
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
-                <li class="dash-menu-item">
-                    <a href="{% url 'profile' %}" class="dash-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-                        <span class="dash-link-icon">👤</span>
-                        <span class="dash-link-text">Profile</span>
+                <li>
+                    <a href="{% url 'profile' %}" 
+                       class="gmail-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                        <div class="gmail-link-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                        </div>
+                        <span class="gmail-link-text">Profile</span>
                     </a>
                 </li>
 
-                <li class="dash-menu-item">
-                    <a href="{% url 'dashboardfollowers_list' request.user.username %}" class="dash-link {% if request.resolver_match.url_name == 'dashboardfollowers_list' %}active{% endif %}">
-                        <span class="dash-link-icon">👥</span>
-                        <span class="dash-link-text">Followers</span>
+                <li>
+                    <a href="{% url 'dashboardfollowers_list' request.user.username %}" 
+                       class="gmail-link {% if request.resolver_match.url_name == 'dashboardfollowers_list' %}active{% endif %}">
+                        <div class="gmail-link-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                            </svg>
+                        </div>
+                        <span class="gmail-link-text">Followers</span>
                     </a>
                 </li>
 
-                <li class="dash-menu-item">
-                    <a href="{% url 'dashboardfollowing_list' request.user.username %}" class="dash-link {% if request.resolver_match.url_name == 'dashboardfollowing_list' %}active{% endif %}">
-                        <span class="dash-link-icon">➕</span>
-                        <span class="dash-link-text">Following</span>
+                <li>
+                    <a href="{% url 'dashboardfollowing_list' request.user.username %}" 
+                       class="gmail-link {% if request.resolver_match.url_name == 'dashboardfollowing_list' %}active{% endif %}">
+                        <div class="gmail-link-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                        </div>
+                        <span class="gmail-link-text">Following</span>
                     </a>
                 </li>
 
-                <li class="dash-menu-item">
-                    <a href="{% url 'dashboardnotification' %}" class="dash-link {% if request.resolver_match.url_name == 'dashboardnotification' %}active{% endif %}">
-                        <span class="dash-link-icon">🔔</span>
-                        <span class="dash-link-text">Notifications</span>
+                <li>
+                    <a href="{% url 'dashboardnotification' %}" 
+                       class="gmail-link {% if request.resolver_match.url_name == 'dashboardnotification' %}active{% endif %}">
+                        <div class="gmail-link-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                            </svg>
+                        </div>
+                        <span class="gmail-link-text">Notifications</span>
                         {% if unread_count > 0 %}
-                        <span class="dash-notification-badge">{{ unread_count }}</span>
+                        <span class="gmail-badge">{{ unread_count }}</span>
                         {% endif %}
                     </a>
                 </li>
 
                 {% if perms.auth.view_user %}
-                <li class="dash-menu-item">
-                    <a href="{% url 'users' %}" class="dash-link {% if request.resolver_match.url_name == 'users' %}active{% endif %}">
-                        <span class="dash-link-icon">👨‍💼</span>
-                        <span class="dash-link-text">Users</span>
+                <li>
+                    <a href="{% url 'users' %}" 
+                       class="gmail-link {% if request.resolver_match.url_name == 'users' %}active{% endif %}">
+                        <div class="gmail-link-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                            </svg>
+                        </div>
+                        <span class="gmail-link-text">Users</span>
                     </a>
                 </li>
                 {% endif %}
 
                 {% if can_see_all %}
-                <li class="dash-menu-item">
-                    <a href="{% url 'categories' %}" class="dash-link {% if request.resolver_match.url_name == 'categories' %}active{% endif %}">
-                        <span class="dash-link-icon">📁</span>
-                        <span class="dash-link-text">Categories</span>
+                <li>
+                    <a href="{% url 'categories' %}" 
+                       class="gmail-link {% if request.resolver_match.url_name == 'categories' %}active{% endif %}">
+                        <div class="gmail-link-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
+                            </svg>
+                        </div>
+                        <span class="gmail-link-text">Categories</span>
                     </a>
                 </li>
                 {% endif %}
 
-                <li class="dash-menu-item">
-                    <a href="{% url 'posts' %}" class="dash-link {% if request.resolver_match.url_name == 'posts' %}active{% endif %}">
-                        <span class="dash-link-icon">📝</span>
-                        <span class="dash-link-text">Posts</span>
+                <li>
+                    <a href="{% url 'posts' %}" 
+                       class="gmail-link {% if request.resolver_match.url_name == 'posts' %}active{% endif %}">
+                        <div class="gmail-link-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
+                            </svg>
+                        </div>
+                        <span class="gmail-link-text">Posts</span>
                     </a>
                 </li>
 
-                <li class="dash-menu-item dash-logout-item">
-                    <a href="{% url 'logout' %}" class="dash-link dash-logout-link" onclick="return confirm('Are you sure you want to logout?');">
-                        <span class="dash-link-icon">🚪</span>
-                        <span class="dash-link-text">Logout</span>
+                <li class="gmail-divider"></li>
+
+                <li>
+                    <a href="{% url 'logout' %}" 
+                       class="gmail-link gmail-logout"
+                       onclick="return confirm('Are you sure you want to logout?');">
+                        <div class="gmail-link-icon">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                            </svg>
+                        </div>
+                        <span class="gmail-link-text">Logout</span>
                     </a>
                 </li>
             </ul>
         </nav>
+
+        <div class="gmail-footer">
+            <span>BlogNova Dashboard</span>
+        </div>
     </aside>
+
+    <!-- Overlay for Mobile -->
+    <div class="gmail-overlay"></div>
 </div>
 
 <style>
 /* ============================================
-   MODERN DASHBOARD SIDEBAR - SCOPED STYLES
+   GMAIL SIDEBAR - FINAL PERFECT VERSION
    ============================================ */
 
-/* Reset for sidebar elements only */
-.dash-sidebar-wrapper,
-.dash-sidebar-wrapper *,
-.dash-sidebar-wrapper *::before,
-.dash-sidebar-wrapper *::after {
+:root {
+    --gmail-primary: #c2185b;
+    --gmail-primary-hover: #d81b60;
+    --gmail-bg: #ffffff;
+    --gmail-hover: #f5f5f5;
+    --gmail-active: #fce4ec;
+    --gmail-text: #202124;
+    --gmail-text-secondary: #5f6368;
+    --gmail-border: #e0e0e0;
+    --sidebar-width: 280px;
+}
+
+.gmail-sidebar-wrapper * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Main Wrapper */
-.dash-sidebar-wrapper {
-    position: relative;
-    z-index: 999;
-}
-
-/* ==================== HAMBURGER BUTTON ==================== */
-.dash-hamburger {
-    position: fixed;
-    top: 160px; /* Adjust based on your header */
-    left: 20px;
-    width: 56px;
-    height: 56px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    border-radius: 12px;
+/* ==================== HAMBURGER BUTTONS ==================== */
+.gmail-hamburger {
+    width: 48px;
+    height: 48px;
+    background: white;
+    border: 1px solid var(--gmail-border);
+    border-radius: 50%;
     cursor: pointer;
-    z-index: 1002;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.dash-hamburger:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-}
-
-.dash-hamburger:active {
-    transform: translateY(0);
-}
-
-.dash-hamburger-box {
-    width: 24px;
-    height: 18px;
-    position: relative;
-}
-
-.dash-hamburger-inner,
-.dash-hamburger-inner::before,
-.dash-hamburger-inner::after {
-    position: absolute;
-    width: 24px;
-    height: 2.5px;
-    background-color: #fff;
-    border-radius: 4px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.dash-hamburger-inner {
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-.dash-hamburger-inner::before {
-    content: '';
-    top: -8px;
-}
-
-.dash-hamburger-inner::after {
-    content: '';
-    top: 8px;
-}
-
-/* Animated Hamburger (When Active) */
-.dash-sidebar-wrapper.is-open .dash-hamburger {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
-
-.dash-sidebar-wrapper.is-open .dash-hamburger-inner {
-    background-color: transparent;
-}
-
-.dash-sidebar-wrapper.is-open .dash-hamburger-inner::before {
-    top: 0;
-    transform: rotate(45deg);
-}
-
-.dash-sidebar-wrapper.is-open .dash-hamburger-inner::after {
-    top: 0;
-    transform: rotate(-45deg);
-}
-
-/* ==================== OVERLAY ==================== */
-.dash-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(2px);
-    opacity: 0;
-    visibility: hidden;
+    gap: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
-    z-index: 998;
 }
 
-.dash-sidebar-wrapper.is-open .dash-overlay {
-    opacity: 1;
-    visibility: visible;
+.gmail-hamburger:hover {
+    background: var(--gmail-hover);
+}
+
+.gmail-hamburger-line {
+    width: 22px;
+    height: 2px;
+    background: var(--gmail-text-secondary);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+/* Outside hamburger (opens sidebar) */
+.gmail-hamburger-outside {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1001;
+    display: flex; /* Always visible */
+}
+
+/* Hide outside hamburger when sidebar is open on mobile */
+@media (max-width: 1197px) {
+    .gmail-sidebar-wrapper.is-open .gmail-hamburger-outside {
+        display: none;
+    }
+}
+
+/* Hide outside hamburger when sidebar is open on DESKTOP too */
+@media (min-width: 1198px) {
+    .gmail-sidebar-wrapper.is-open .gmail-hamburger-outside {
+        display: none;
+    }
+}
+
+/* Inside hamburger (closes sidebar) */
+.gmail-hamburger-inside {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1002;
+    display: none; /* Hidden by default */
+}
+
+/* Show inside close button when sidebar is open */
+.gmail-sidebar-wrapper.is-open .gmail-hamburger-inside {
+    display: flex;
+}
+
+/* Transform inside button to X when sidebar is open */
+.gmail-sidebar-wrapper.is-open .gmail-hamburger-inside .gmail-hamburger-line:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.gmail-sidebar-wrapper.is-open .gmail-hamburger-inside .gmail-hamburger-line:nth-child(2) {
+    opacity: 0;
+}
+
+.gmail-sidebar-wrapper.is-open .gmail-hamburger-inside .gmail-hamburger-line:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
 }
 
 /* ==================== SIDEBAR ==================== */
-.dash-sidebar {
+.gmail-sidebar {
     position: fixed;
     top: 0;
-    left: -320px;
-    width: 320px;
+    left: 0;
+    width: var(--sidebar-width);
     height: 100vh;
-    background: #1e293b;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
-    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--gmail-bg);
+    border-right: 1px solid var(--gmail-border);
     z-index: 1000;
     overflow-y: auto;
     overflow-x: hidden;
+    padding: 80px 0 20px 0;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.dash-sidebar-wrapper.is-open .dash-sidebar {
+/* Show sidebar when open */
+.gmail-sidebar-wrapper.is-open .gmail-sidebar {
     left: 0;
 }
 
-/* ==================== SIDEBAR TOP ==================== */
-.dash-sidebar-top {
+/* ==================== COMPOSE BUTTON ==================== */
+.gmail-compose-wrapper {
+    padding: 0 16px 20px 16px;
+}
+
+.gmail-compose-btn {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 24px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.dash-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.dash-brand-icon {
-    font-size: 1.8rem;
-}
-
-.dash-brand-text {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: 0.5px;
-}
-
-.dash-close-btn {
-    width: 36px;
-    height: 36px;
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 1.5rem;
-    cursor: pointer;
-    display: none;
-    align-items: center;
-    justify-content: center;
+    gap: 16px;
+    padding: 12px 24px;
+    background: var(--gmail-primary);
+    color: white;
+    border-radius: 24px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     transition: all 0.2s ease;
 }
 
-.dash-close-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
+.gmail-compose-btn:hover {
+    background: var(--gmail-primary-hover);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
 }
 
-/* ==================== SEARCH BAR ==================== */
-.dash-search {
-    padding: 20px;
-    background: #0f172a;
+/* ==================== NAVIGATION ==================== */
+.gmail-nav {
+    padding: 0 8px;
 }
 
-.dash-search-box {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.dash-search-icon {
-    position: absolute;
-    left: 14px;
-    font-size: 1.1rem;
-    pointer-events: none;
-}
-
-.dash-search input {
-    width: 100%;
-    padding: 12px 14px 12px 42px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    color: #e2e8f0;
-    font-size: 0.95rem;
-    transition: all 0.2s ease;
-}
-
-.dash-search input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
-}
-
-.dash-search input:focus {
-    outline: none;
-    background: rgba(255, 255, 255, 0.12);
-    border-color: #667eea;
-}
-
-/* ==================== NAVIGATION MENU ==================== */
-.dash-nav {
-    padding: 12px 0;
-}
-
-.dash-menu {
+.gmail-menu {
     list-style: none;
 }
 
-.dash-menu-item {
-    margin: 4px 12px;
+.gmail-menu > li {
+    margin-bottom: 2px;
 }
 
-/* ==================== MENU LINKS ==================== */
-.dash-link {
+.gmail-link {
     display: flex;
     align-items: center;
-    padding: 14px 16px;
-    color: #cbd5e1;
+    gap: 16px;
+    padding: 8px 16px;
+    color: var(--gmail-text);
     text-decoration: none;
-    font-size: 0.95rem;
+    font-size: 14px;
     font-weight: 500;
-    border-radius: 10px;
-    transition: all 0.2s ease;
+    border-radius: 0 24px 24px 0;
+    transition: background 0.15s ease;
     cursor: pointer;
     background: none;
     border: none;
     width: 100%;
     text-align: left;
-    position: relative;
 }
 
-.dash-link:hover {
-    background: rgba(102, 126, 234, 0.1);
-    color: #fff;
-    transform: translateX(4px);
+.gmail-link:hover {
+    background: var(--gmail-hover);
 }
 
-.dash-link.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+.gmail-link.active {
+    background: var(--gmail-active);
+    color: var(--gmail-primary);
 }
 
-.dash-link.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 60%;
-    background: #fff;
-    border-radius: 0 4px 4px 0;
-}
-
-.dash-link-icon {
-    font-size: 1.3rem;
-    margin-right: 14px;
-    min-width: 24px;
+.gmail-link-icon {
+    width: 20px;
+    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
-.dash-link-text {
+.gmail-link-icon svg {
+    color: var(--gmail-text-secondary);
+}
+
+.gmail-link.active .gmail-link-icon svg {
+    color: var(--gmail-primary);
+}
+
+.gmail-link-text {
     flex: 1;
 }
 
-.dash-chevron {
-    font-size: 1.2rem;
-    transition: transform 0.3s ease;
+.gmail-chevron {
+    margin-left: auto;
+    transition: transform 0.2s ease;
+    color: var(--gmail-text-secondary);
+}
+
+.gmail-badge {
+    background: var(--gmail-primary);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
     margin-left: auto;
 }
 
-/* ==================== NOTIFICATION BADGE ==================== */
-.dash-notification-badge {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: #fff;
-    padding: 3px 9px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    margin-left: 8px;
-    box-shadow: 0 2px 8px rgba(245, 87, 108, 0.4);
-}
-
 /* ==================== DROPDOWN ==================== */
-.dash-dropdown-toggle {
-    position: relative;
-}
-
-.dash-submenu {
+.gmail-submenu {
     list-style: none;
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease;
-    margin-top: 4px;
 }
 
-.dash-dropdown.is-open .dash-submenu {
-    max-height: 300px;
+.gmail-dropdown.is-open .gmail-submenu {
+    max-height: 200px;
 }
 
-.dash-dropdown.is-open .dash-chevron {
+.gmail-dropdown.is-open .gmail-chevron {
     transform: rotate(90deg);
 }
 
-.dash-sublink {
+.gmail-sublink {
     display: block;
-    padding: 10px 16px 10px 54px;
-    color: #94a3b8;
+    padding: 8px 16px 8px 52px;
+    color: var(--gmail-text-secondary);
     text-decoration: none;
-    font-size: 0.9rem;
-    border-radius: 8px;
-    margin: 2px 0;
-    transition: all 0.2s ease;
+    font-size: 13px;
+    border-radius: 0 24px 24px 0;
+    transition: all 0.15s ease;
 }
 
-.dash-sublink:hover {
-    background: rgba(102, 126, 234, 0.08);
-    color: #e2e8f0;
-    padding-left: 58px;
+.gmail-sublink:hover {
+    background: var(--gmail-hover);
+    color: var(--gmail-text);
 }
 
-.dash-sublink.active {
-    background: rgba(102, 126, 234, 0.15);
-    color: #fff;
-    font-weight: 600;
+.gmail-sublink.active {
+    background: var(--gmail-active);
+    color: var(--gmail-primary);
+    font-weight: 500;
+}
+
+/* ==================== DIVIDER ==================== */
+.gmail-divider {
+    height: 1px;
+    background: var(--gmail-border);
+    margin: 8px 16px;
 }
 
 /* ==================== LOGOUT ==================== */
-.dash-logout-item {
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+.gmail-logout:hover {
+    background: #fee;
+    color: #d32f2f;
 }
 
-.dash-logout-link:hover {
-    background: rgba(239, 68, 68, 0.1);
-    color: #fca5a5;
+.gmail-logout:hover .gmail-link-icon svg {
+    color: #d32f2f;
+}
+
+/* ==================== FOOTER ==================== */
+.gmail-footer {
+    padding: 16px 24px;
+    text-align: center;
+    color: var(--gmail-text-secondary);
+    font-size: 12px;
+    border-top: 1px solid var(--gmail-border);
+    margin-top: 20px;
+}
+
+/* ==================== OVERLAY ==================== */
+.gmail-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 999;
+    display: none;
 }
 
 /* ==================== SCROLLBAR ==================== */
-.dash-sidebar::-webkit-scrollbar {
-    width: 6px;
+.gmail-sidebar::-webkit-scrollbar {
+    width: 8px;
 }
 
-.dash-sidebar::-webkit-scrollbar-track {
-    background: #0f172a;
+.gmail-sidebar::-webkit-scrollbar-track {
+    background: transparent;
 }
 
-.dash-sidebar::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-    border-radius: 10px;
+.gmail-sidebar::-webkit-scrollbar-thumb {
+    background: #dadce0;
+    border-radius: 4px;
 }
 
-.dash-sidebar::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #764ba2 0%, #667eea 100%);
+/* ==================== ALL SCREEN SIZES ==================== */
+/* Sidebar hidden by default */
+.gmail-sidebar {
+    left: -100%;
 }
 
-/* ==================== RESPONSIVE ==================== */
+/* Show sidebar when toggled open */
+.gmail-sidebar-wrapper.is-open .gmail-sidebar {
+    left: 0;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+}
+
+/* ==================== MOBILE/TABLET (Below 1198px) ==================== */
+@media (max-width: 1197px) {
+    /* Show overlay on mobile */
+    .gmail-overlay {
+        display: block;
+    }
+    
+    .gmail-sidebar-wrapper.is-open .gmail-overlay {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
 @media (max-width: 768px) {
-    .dash-hamburger {
-        top: 80px;
-        left: 16px;
-        width: 50px;
-        height: 50px;
+    .gmail-hamburger-outside {
+        top: 15px;
+        left: 15px;
+        width: 44px;
+        height: 44px;
     }
-
-    .dash-sidebar {
+    
+    .gmail-hamburger-inside {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .gmail-sidebar {
         width: 85%;
-        max-width: 320px;
-    }
-
-    .dash-close-btn {
-        display: flex;
+        max-width: 300px;
     }
 }
 
 @media (max-width: 480px) {
-    .dash-sidebar {
+    .gmail-sidebar {
         width: 90%;
     }
+}
 
-    .dash-hamburger {
-        width: 48px;
-        height: 48px;
+/* ==================== DESKTOP (1198px and above) ==================== */
+@media (min-width: 1198px) {
+    /* No overlay on desktop */
+    .gmail-overlay {
+        display: none !important;
+    }
+    
+    /* Desktop sidebar styling */
+    .gmail-sidebar {
+        width: var(--sidebar-width);
     }
 }
 </style>
@@ -542,17 +575,18 @@
 (function() {
     'use strict';
     
-    const wrapper = document.querySelector('.dash-sidebar-wrapper');
-    const sidebar = document.querySelector('.dash-sidebar');
-    const hamburger = document.querySelector('.dash-hamburger');
-    const closeBtn = document.querySelector('.dash-close-btn');
-    const overlay = document.querySelector('.dash-overlay');
-    const dropdowns = document.querySelectorAll('.dash-dropdown-toggle');
+    const wrapper = document.querySelector('.gmail-sidebar-wrapper');
+    const hamburgerOutside = document.querySelector('.gmail-hamburger-outside');
+    const hamburgerInside = document.querySelector('.gmail-hamburger-inside');
+    const overlay = document.querySelector('.gmail-overlay');
+    const sidebar = document.querySelector('.gmail-sidebar');
+    const dropdowns = document.querySelectorAll('.gmail-dropdown-toggle');
+    const links = document.querySelectorAll('.gmail-link:not(.gmail-dropdown-toggle), .gmail-sublink');
 
-    // Toggle sidebar
-    function toggleSidebar() {
-        wrapper.classList.toggle('is-open');
-        document.body.style.overflow = wrapper.classList.contains('is-open') ? 'hidden' : '';
+    // Open sidebar
+    function openSidebar() {
+        wrapper.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
     }
 
     // Close sidebar
@@ -561,73 +595,66 @@
         document.body.style.overflow = '';
     }
 
-    // Hamburger click
-    if (hamburger) {
-        hamburger.addEventListener('click', function(e) {
+    // Outside hamburger click - opens sidebar
+    if (hamburgerOutside) {
+        hamburgerOutside.addEventListener('click', function(e) {
             e.stopPropagation();
-            toggleSidebar();
+            openSidebar();
         });
     }
 
-    // Close button click
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeSidebar);
+    // Inside hamburger click - closes sidebar
+    if (hamburgerInside) {
+        hamburgerInside.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeSidebar();
+        });
     }
 
-    // Overlay click
+    // Overlay click - closes sidebar
     if (overlay) {
         overlay.addEventListener('click', closeSidebar);
     }
-
-    // Close on outside click (desktop only)
-    document.addEventListener('click', function(e) {
-        if (window.innerWidth > 768 && wrapper.classList.contains('is-open')) {
-            if (!sidebar.contains(e.target) && !hamburger.contains(e.target)) {
-                closeSidebar();
-            }
-        }
-    });
 
     // Dropdown toggles
     dropdowns.forEach(function(btn) {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
-            const parent = btn.closest('.dash-dropdown');
+            const parent = btn.closest('.gmail-dropdown');
             
-            // Close other dropdowns
-            document.querySelectorAll('.dash-dropdown').forEach(function(item) {
-                if (item !== parent) {
-                    item.classList.remove('is-open');
-                }
+            document.querySelectorAll('.gmail-dropdown').forEach(function(item) {
+                if (item !== parent) item.classList.remove('is-open');
             });
             
             parent.classList.toggle('is-open');
         });
     });
 
-    // Auto-open dropdown if active link inside
-    document.querySelectorAll('.dash-sublink.active').forEach(function(link) {
-        const dropdown = link.closest('.dash-dropdown');
-        if (dropdown) {
-            dropdown.classList.add('is-open');
-        }
+    // Auto-open active dropdown
+    document.querySelectorAll('.gmail-sublink.active').forEach(function(link) {
+        const dropdown = link.closest('.gmail-dropdown');
+        if (dropdown) dropdown.classList.add('is-open');
     });
 
-    // Close sidebar when clicking links (mobile)
-    const allLinks = document.querySelectorAll('.dash-link:not(.dash-dropdown-toggle), .dash-sublink');
-    allLinks.forEach(function(link) {
+    // Close sidebar when clicking links (mobile only)
+    links.forEach(function(link) {
         link.addEventListener('click', function() {
-            if (window.innerWidth <= 768) {
-                closeSidebar();
-            }
+            if (window.innerWidth < 1198) closeSidebar();
         });
     });
 
-    // Prevent body scroll when sidebar is open
-    wrapper.addEventListener('transitionend', function() {
-        if (!wrapper.classList.contains('is-open')) {
-            document.body.style.overflow = '';
+    // Close on outside click (mobile only)
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth < 1198 && wrapper.classList.contains('is-open')) {
+            if (!sidebar.contains(e.target) && !hamburgerOutside.contains(e.target)) {
+                closeSidebar();
+            }
         }
+    });
+
+    // Handle window resize - don't auto-close on desktop anymore
+    window.addEventListener('resize', function() {
+        // Remove auto-close behavior - let user control sidebar on all screen sizes
     });
 })();
 </script>
