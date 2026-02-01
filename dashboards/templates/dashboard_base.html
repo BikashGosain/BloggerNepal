@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlogNova Dashboard {% block title %} {% endblock %}</title>
+
+    <link href="{% static 'css/messages.css' %}" rel="stylesheet">
+
+
+    {% block extra_css %}{% endblock %}
+
+
+</head>
+
+<body>
+    <!--message success or error -->
+    {% if messages %}
+    <div id="global-django-messages">
+        {% for message in messages %}
+        <div class="global-message {{ message.tags }}">
+            <span class="global-message-text">
+                {{ message|safe }}
+            </span>
+            <button class="global-message-close" aria-label="Close">
+                &times;
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+
+
+    {% include 'sidebar.html' %}
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+
+
+    </div>
+
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+
+    <script src="{% static 'js/message.js' %}"></script>
+
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+
+</html>

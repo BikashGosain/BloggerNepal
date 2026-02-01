@@ -1,110 +1,1192 @@
-{% extends 'base.html' %}
-
+{% extends 'dashboard_base.html' %}
 
 {% block content %}
 
-<div class="row">
-    <!-- Left sidebar -->
-    <!-- load the sidebar here -->
-    {% include 'sidebar.html' %}
-
-    <!-- Right side content -->
-    <div class="col-md-9">
+<!-- Main Content Area - Dynamically adjusts to sidebar -->
+<div class="posts-page-wrapper" id="postsPageWrapper">
+    <div class="posts-container">
         
-        <h2>All Posts</h2>
-        <!-- search box -->
-        <div class="row mb-3">
-    <div class="col-md-8">
-        <form method="GET" class="d-flex">
-            <input type="text" name="q" value="{{ query }}" class="form-control me-2" placeholder="Search posts...">
-            <select name="status" class="form-select me-2">
-                <option value="">All Status</option>
-                <option value="Draft" {% if status_filter == "Draft" %}selected{% endif %}>Draft</option>
-                <option value="Published" {% if status_filter == "Published" %}selected{% endif %}>Published</option>
-            </select>
-            <button type="submit" class="btn btn-dark">Search</button>
-        </form>
-    </div>
-</div>
+        <!-- Page Header -->
+        <div class="posts-page-header">
+            <div class="posts-header-left">
+                <h1 class="posts-page-title">Posts Management</h1>
+                <p class="posts-page-subtitle">Create, edit, and manage your blog posts</p>
+            </div>
+            <div class="posts-header-right">
+                <a href="{% url 'add_post' %}" class="posts-add-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M12 5v14M5 12h14" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Add New Post
+                </a>
+            </div>
+        </div>
 
-        <a href="{% url 'add_post' %}" class="btn btn-dark text-light float-right mb-2">Add New</a>
-        <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Title</th>
-                <th>Category</th>
-                <th>Author</th>
-                <th>Status</th>
-                <th>Featured</th>
-                <th>Action</th>
-                {% if can_see_all %}
-                <th>Created By</th>
+        <!-- Search & Filter Section -->
+        <div class="posts-search-card">
+            <form method="GET" class="posts-search-form">
+                <div class="posts-search-input-wrapper">
+                    <svg class="posts-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="11" cy="11" r="8" stroke-width="2"/>
+                        <path d="M21 21l-4.35-4.35" stroke-width="2"/>
+                    </svg>
+                    <input type="text" name="q" value="{{ query }}" class="posts-search-input" placeholder="Search posts by title, category, or author...">
+                </div>
+                
+                <div class="posts-filter-wrapper">
+                    <select name="status" class="posts-select">
+                        <option value="">All Status</option>
+                        <option value="Draft" {% if status_filter == "Draft" %}selected{% endif %}>Draft</option>
+                        <option value="Published" {% if status_filter == "Published" %}selected{% endif %}>Published</option>
+                    </select>
+
+                    <!-- Category Filter -->
+    <select name="category" class="posts-select">
+        <option value="">All Categories</option>
+        {% for category in categories %}
+            <option value="{{ category.id }}"
+                {% if category_id|stringformat:"s" == category.id|stringformat:"s" %}
+                    selected
                 {% endif %}
+            >
+                {{ category.category_name }}
+            </option>
+        {% endfor %}
+    </select>
 
-              </tr>
-            </thead>
-            <tbody>
-            {% for post in posts %}
-              <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ post.title }}</td>
-                <td>{{ post.category }}</td>
-                <td>{{ post.author }}</td>
-                <td>{{ post.status }}</td>
-                <td>{% if post.is_featured %}<i class="fa fa-check text-success"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</td>
-               <td>
-    {% if post.author == user or can_see_all %}
-        <a href="{% url 'edit_post' post.id %}"><i class="fa fa-edit text-success"></i></a>
-        &nbsp;
-        <a href="{% url 'delete_post' post.id %}" onclick="return confirm('Delete this post?');"><i class="fa fa-trash text-danger"></i></a>
-    {% else %}
-        <span class="text-muted">—</span>
-    {% endif %}
-</td>
-  {% if can_see_all %}
-    <td>
-        {% if post.author == user %}
-            <span class="badge bg-primary">Your Post</span>
-        {% elif can_see_all %}
-            <span class="badge bg-warning">Admin/Editor View</span>
-        {% endif %}
-        
-    </td>
+    <!-- Featured Filter -->
+    <label class="posts-select">
+        <input
+            type="checkbox"
+            name="featured"
+            value="1"
+            {% if featured == "1" %}checked{% endif %}
+        >
+        Featured only
+    </label>
+                    
+                    <button type="submit" class="posts-search-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="11" cy="11" r="8" stroke-width="2"/>
+                            <path d="M21 21l-4.35-4.35" stroke-width="2"/>
+                        </svg>
+                        Search
+                    </button>
+                    {% if query or status_filter or category_id or featured %}
+<a href="{% url 'posts' %}" class="posts-page-btn">
+    Reset
+</a>
 {% endif %}
-              </tr>
-            {% endfor %}
-              
+
+                </div>
+            </form>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="posts-stats-grid">
+            <div class="posts-stat-card">
+                <div class="posts-stat-icon posts-stat-total">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke-width="2"/>
+                        <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="posts-stat-content">
+                    <div class="posts-stat-value">{{ posts.paginator.count }}</div>
+                    <div class="posts-stat-label">Total Posts</div>
+                </div>
+            </div>
             
-            </tbody>
-          </table>
-          
+            <div class="posts-stat-card">
+                <div class="posts-stat-icon posts-stat-active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke-width="2"/>
+                        <path d="M22 4L12 14.01l-3-3" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="posts-stat-content">
+                    <div class="posts-stat-value">{{ posts|length }}</div>
+                    <div class="posts-stat-label">This Page</div>
+                </div>
+            </div>
+            
+            <div class="posts-stat-card">
+                <div class="posts-stat-icon posts-stat-page">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="posts-stat-content">
+                    <div class="posts-stat-value">{{ posts.number }}/{{ posts.paginator.num_pages }}</div>
+                    <div class="posts-stat-label">Current Page</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Posts Table Card -->
+        <div class="posts-table-card">
+            <div class="posts-table-wrapper">
+                <table class="posts-table">
+                    <thead class="posts-table-head">
+                        <tr>
+                            <th class="posts-th posts-th-index">#</th>
+                            <th class="posts-th posts-th-title">TITLE</th>
+                            <th class="posts-th posts-th-category">CATEGORY</th>
+                            <th class="posts-th posts-th-author">AUTHOR</th>
+                            <th class="posts-th posts-th-status">STATUS</th>
+                            <th class="posts-th posts-th-featured">FEATURED</th>
+                            {% if can_see_all %}
+                            <th class="posts-th posts-th-owner">OWNERSHIP</th>
+                            {% endif %}
+                            <th class="posts-th posts-th-actions">ACTIONS</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="posts-table-body">
+
+{% if posts.paginator.count == 0 %}
+
+    <!-- CASE 1: No posts exist at all -->
+    {% if not query and not status_filter and not category_id and not featured %}
+    <tr>
+        <td colspan="8" style="text-align:center; padding:40px;">
+            <h3>No posts yet</h3>
+            <p>You haven’t created any posts yet.</p>
+
+            <a href="{% url 'add_post' %}" class="posts-add-btn" style="margin-top:12px; display:inline-flex;">
+                Add Your First Post
+            </a>
+        </td>
+    </tr>
+
+    <!-- CASE 2: Search/filter applied but no results -->
+    {% else %}
+    <tr>
+        <td colspan="8" style="text-align:center; padding:40px;">
+            <h3>No results found</h3>
+
+            <p>
+                No posts match
+                {% if query %}<strong>"{{ query }}"</strong>{% endif %}
+            </p>
+
+            <div style="margin-top:16px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                <!-- Clear search -->
+                <a href="{% url 'posts' %}" class="posts-page-btn">
+                    Clear Search
+                </a>
+
+                <!-- Add new post -->
+                <a href="{% url 'add_post' %}" class="posts-add-btn">
+                    Add New Post
+                </a>
+            </div>
+        </td>
+    </tr>
+    {% endif %}
+
+{% else %}
+
+                    {% for post in posts %}
+                        <tr class="posts-table-row">
+                            <td class="posts-td posts-td-index">
+                                <span class="posts-row-number">{{ forloop.counter }}</span>
+                            </td>
+                            <td class="posts-td posts-td-title">
+                                <div class="posts-title-cell">
+                                    <svg class="posts-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke-width="2"/>
+                                    </svg>
+                                    <span class="posts-title-text">{{ post.title }}</span>
+                                </div>
+                            </td>
+                            <td class="posts-td posts-td-category">
+                                <span class="posts-category-badge">{{ post.category }}</span>
+                            </td>
+                            <td class="posts-td posts-td-author">
+                                <span class="posts-author-text">{{ post.author }}</span>
+                            </td>
+                            <td class="posts-td posts-td-status">
+                                {% if post.status == "Published" %}
+                                <span class="posts-status-badge posts-status-published">
+                                    <svg viewBox="0 0 8 8" fill="currentColor">
+                                        <circle cx="4" cy="4" r="4"/>
+                                    </svg>
+                                    Published
+                                </span>
+                                {% else %}
+                                <span class="posts-status-badge posts-status-draft">
+                                    <svg viewBox="0 0 8 8" fill="currentColor">
+                                        <circle cx="4" cy="4" r="4"/>
+                                    </svg>
+                                    Draft
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="posts-td posts-td-featured">
+                                {% if post.is_featured %}
+                                <span class="posts-featured-badge posts-featured-yes">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                                    </svg>
+                                    Featured
+                                </span>
+                                {% else %}
+                                <span class="posts-featured-badge posts-featured-no">—</span>
+                                {% endif %}
+                            </td>
+                            {% if can_see_all %}
+                            <td class="posts-td posts-td-owner">
+                                {% if post.author == user %}
+                                <span class="posts-owner-badge posts-owner-yours">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke-width="2"/>
+                                    </svg>
+                                    Your Post
+                                </span>
+                                {% else %}
+                                <span class="posts-owner-badge posts-owner-admin">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" stroke-width="2"/>
+                                    </svg>
+                                    Admin View
+                                </span>
+                                {% endif %}
+                            </td>
+                            {% endif %}
+                            <td class="posts-td posts-td-actions">
+                                {% if post.author == user or can_see_all %}
+                                <div class="posts-action-btns">
+                                    <a href="{% url 'edit_post' post.id %}" class="posts-action-btn posts-action-edit" title="Edit Post">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke-width="2"/>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke-width="2"/>
+                                        </svg>
+                                    </a>
+                                    <a href="{% url 'delete_post' post.id %}" class="posts-action-btn posts-action-delete" title="Delete Post" onclick="return confirm('Are you sure you want to delete this post?');">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6" stroke-width="2"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                                {% else %}
+                                <span class="posts-no-action">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                   {% endif %} 
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if posts.paginator.num_pages > 1 %}
+            <div class="posts-pagination">
+                <div class="posts-pagination-info">
+                    Showing page {{ posts.number }} of {{ posts.paginator.num_pages }}
+                </div>
+                
+                <div class="posts-pagination-controls">
+                    {% if posts.has_previous %}
+                    <a href="?page=1&q={{ query }}&status={{ status_filter }}" class="posts-page-btn posts-page-first" title="First Page">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M11 19l-7-7 7-7M18 19l-7-7 7-7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+                    <a href="?page={{ posts.previous_page_number }}&q={{ query }}&status={{ status_filter }}" class="posts-page-btn posts-page-prev" title="Previous">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span class="posts-page-btn-text">Previous</span>
+                    </a>
+                    {% else %}
+                    <button class="posts-page-btn posts-page-first" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M11 19l-7-7 7-7M18 19l-7-7 7-7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <button class="posts-page-btn posts-page-prev" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span class="posts-page-btn-text">Previous</span>
+                    </button>
+                    {% endif %}
+
+                    <div class="posts-page-numbers">
+                        {% for page_num in posts.paginator.page_range %}
+                            {% if page_num == posts.number %}
+                            <span class="posts-page-num posts-page-active">{{ page_num }}</span>
+                            {% elif page_num >= posts.number|add:"-2" and page_num <= posts.number|add:"2" %}
+                            <a href="?page={{ page_num }}&q={{ query }}&status={{ status_filter }}" class="posts-page-num">{{ page_num }}</a>
+                            {% elif page_num == 1 or page_num == posts.paginator.num_pages %}
+                            <a href="?page={{ page_num }}&q={{ query }}&status={{ status_filter }}" class="posts-page-num">{{ page_num }}</a>
+                            {% elif page_num == posts.number|add:"-3" or page_num == posts.number|add:"3" %}
+                            <span class="posts-page-ellipsis">...</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    {% if posts.has_next %}
+                    <a href="?page={{ posts.next_page_number }}&q={{ query }}&status={{ status_filter }}" class="posts-page-btn posts-page-next" title="Next">
+                        <span class="posts-page-btn-text">Next</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+                    <a href="?page={{ posts.paginator.num_pages }}&q={{ query }}&status={{ status_filter }}" class="posts-page-btn posts-page-last" title="Last Page">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M13 5l7 7-7 7M6 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+                    {% else %}
+                    <button class="posts-page-btn posts-page-next" disabled>
+                        <span class="posts-page-btn-text">Next</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <button class="posts-page-btn posts-page-last" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M13 5l7 7-7 7M6 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
     </div>
-    <div class="pagination">
-    <!-- First page link -->
-    {% if posts.has_previous %}
-        <a href="?page=1&q={{ query }}&status={{ status_filter }}">First</a>
-    {% endif %}
-
-    <!-- Previous page link -->
-    {% if posts.has_previous %}
-        <a href="?page={{ posts.previous_page_number }}&q={{ query }}&status={{ status_filter }}">Previous</a>
-    {% endif %}
-
-    <!-- Current page info -->
-    <span>Page {{ posts.number }} of {{ posts.paginator.num_pages }}</span>
-
-    <!-- Next page link -->
-    {% if posts.has_next %}
-        <a href="?page={{ posts.next_page_number }}&q={{ query }}&status={{ status_filter }}">Next</a>
-    {% endif %}
-
-    <!-- Last page link -->
-    {% if posts.has_next %}
-        <a href="?page={{ posts.paginator.num_pages }}&q={{ query }}&status={{ status_filter }}">Last</a>
-    {% endif %}
 </div>
-</div>
+
+<style>
+/* Posts Page - Custom Styling */
+
+:root {
+    --posts-primary: #1a73e8;
+    --posts-primary-hover: #1557b0;
+    --posts-success: #1e8e3e;
+    --posts-danger: #d93025;
+    --posts-warning: #f9ab00;
+    --posts-info: #1a73e8;
+    --posts-bg: #ffffff;
+    --posts-bg-secondary: #f8f9fa;
+    --posts-border: #e0e0e0;
+    --posts-text: #202124;
+    --posts-text-secondary: #5f6368;
+    --posts-shadow: 0 1px 3px rgba(60, 64, 67, 0.15);
+    --posts-shadow-hover: 0 4px 12px rgba(60, 64, 67, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --posts-bg: #1f1f1f;
+        --posts-bg-secondary: #2d2d2d;
+        --posts-border: #3c4043;
+        --posts-text: #e8eaed;
+        --posts-text-secondary: #9aa0a6;
+    }
+}
+
+/* Main wrapper */
+.posts-page-wrapper {
+    margin-left: 280px;
+    margin-top: 64px;
+    padding: 24px;
+    background: var(--posts-bg-secondary);
+    min-height: calc(100vh - 64px);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.posts-page-wrapper.sidebar-collapsed {
+    margin-left: 0;
+}
+
+@media (max-width: 1024px) {
+    .posts-page-wrapper {
+        margin-left: 0 !important;
+    }
+}
+
+.posts-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    animation: postsSlideIn 0.4s ease;
+}
+
+/* Page Header */
+.posts-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.posts-header-left {
+    flex: 1;
+    min-width: 200px;
+}
+
+.posts-page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--posts-text);
+    margin: 0 0 4px 0;
+    letter-spacing: -0.5px;
+}
+
+.posts-page-subtitle {
+    font-size: 14px;
+    color: var(--posts-text-secondary);
+    margin: 0;
+}
+
+.posts-add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--posts-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(26, 115, 232, 0.2);
+}
+
+.posts-add-btn:hover {
+    background: var(--posts-primary-hover);
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+    transform: translateY(-1px);
+    color: white;
+}
+
+.posts-add-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Search Card */
+.posts-search-card {
+    background: var(--posts-bg);
+    border: 1px solid var(--posts-border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: var(--posts-shadow);
+}
+
+.posts-search-form {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.posts-search-input-wrapper {
+    flex: 1;
+    min-width: 250px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.posts-search-icon {
+    position: absolute;
+    left: 12px;
+    width: 18px;
+    height: 18px;
+    color: var(--posts-text-secondary);
+    pointer-events: none;
+}
+
+.posts-search-input {
+    width: 100%;
+    padding: 10px 12px 10px 40px;
+    border: 1px solid var(--posts-border);
+    border-radius: 8px;
+    font-size: 14px;
+    background: var(--posts-bg);
+    color: var(--posts-text);
+    transition: all 0.3s ease;
+}
+
+.posts-search-input:focus {
+    outline: none;
+    border-color: var(--posts-primary);
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+}
+
+.posts-filter-wrapper {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.posts-select {
+    padding: 10px 12px;
+    border: 1px solid var(--posts-border);
+    border-radius: 8px;
+    font-size: 14px;
+    background: var(--posts-bg);
+    color: var(--posts-text);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 150px;
+}
+
+.posts-select:focus {
+    outline: none;
+    border-color: var(--posts-primary);
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+}
+
+.posts-search-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--posts-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.posts-search-btn:hover {
+    background: var(--posts-primary-hover);
+    transform: translateY(-1px);
+}
+
+.posts-search-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Stats Grid */
+.posts-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.posts-stat-card {
+    background: var(--posts-bg);
+    border: 1px solid var(--posts-border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s ease;
+}
+
+.posts-stat-card:hover {
+    box-shadow: var(--posts-shadow-hover);
+    transform: translateY(-2px);
+}
+
+.posts-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.posts-stat-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
+}
+
+.posts-stat-total {
+    background: rgba(26, 115, 232, 0.1);
+    color: var(--posts-primary);
+}
+
+.posts-stat-active {
+    background: rgba(30, 142, 62, 0.1);
+    color: var(--posts-success);
+}
+
+.posts-stat-page {
+    background: rgba(249, 171, 0, 0.1);
+    color: var(--posts-warning);
+}
+
+.posts-stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--posts-text);
+    line-height: 1;
+}
+
+.posts-stat-label {
+    font-size: 13px;
+    color: var(--posts-text-secondary);
+    margin-top: 4px;
+}
+
+/* Table Card */
+.posts-table-card {
+    background: var(--posts-bg);
+    border: 1px solid var(--posts-border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--posts-shadow);
+}
+
+.posts-table-wrapper {
+    overflow-x: auto;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+}
+
+.posts-table-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.posts-table-wrapper::-webkit-scrollbar-track {
+    background: var(--posts-bg-secondary);
+}
+
+.posts-table-wrapper::-webkit-scrollbar-thumb {
+    background: var(--posts-border);
+    border-radius: 4px;
+}
+
+.posts-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--posts-text-secondary);
+}
+
+.posts-table-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 30px;
+    background: linear-gradient(to left, rgba(0,0,0,0.05), transparent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.posts-table-wrapper.has-scroll::after {
+    opacity: 1;
+}
+
+/* Table */
+.posts-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    min-width: 900px;
+}
+
+.posts-table-head {
+    background: var(--posts-bg-secondary);
+    border-bottom: 2px solid var(--posts-border);
+}
+
+.posts-th {
+    padding: 16px 20px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--posts-text-secondary);
+    white-space: nowrap;
+}
+
+.posts-th-actions {
+    text-align: center;
+}
+
+.posts-table-body {
+    background: var(--posts-bg);
+}
+
+.posts-table-row {
+    border-bottom: 1px solid var(--posts-border);
+    transition: background 0.2s ease;
+}
+
+.posts-table-row:last-child {
+    border-bottom: none;
+}
+
+.posts-table-row:hover {
+    background: var(--posts-bg-secondary);
+}
+
+.posts-td {
+    padding: 16px 20px;
+    vertical-align: middle;
+    color: var(--posts-text);
+}
+
+.posts-td-index {
+    width: 60px;
+}
+
+.posts-row-number {
+    font-weight: 600;
+    color: var(--posts-text-secondary);
+}
+
+/* Title Cell */
+.posts-title-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.posts-title-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--posts-primary);
+    flex-shrink: 0;
+}
+
+.posts-title-text {
+    font-weight: 600;
+    color: var(--posts-text);
+}
+
+/* Category Badge */
+.posts-category-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(26, 115, 232, 0.1);
+    color: var(--posts-primary);
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.posts-author-text {
+    color: var(--posts-text-secondary);
+}
+
+/* Status Badges */
+.posts-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.posts-status-badge svg {
+    width: 8px;
+    height: 8px;
+}
+
+.posts-status-published {
+    background: rgba(30, 142, 62, 0.1);
+    color: var(--posts-success);
+}
+
+.posts-status-draft {
+    background: rgba(249, 171, 0, 0.1);
+    color: var(--posts-warning);
+}
+
+/* Featured Badge */
+.posts-featured-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.posts-featured-yes {
+    background: linear-gradient(135deg, #f9ab00 0%, #ff6f00 100%);
+    color: white;
+}
+
+.posts-featured-yes svg {
+    width: 12px;
+    height: 12px;
+}
+
+.posts-featured-no {
+    color: var(--posts-text-secondary);
+}
+
+/* Owner Badge */
+.posts-owner-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.posts-owner-badge svg {
+    width: 12px;
+    height: 12px;
+}
+
+.posts-owner-yours {
+    background: rgba(26, 115, 232, 0.15);
+    color: var(--posts-primary);
+    border: 1px solid rgba(26, 115, 232, 0.3);
+}
+
+.posts-owner-admin {
+    background: rgba(249, 171, 0, 0.15);
+    color: #f57c00;
+    border: 1px solid rgba(249, 171, 0, 0.3);
+}
+
+/* Action Buttons */
+.posts-action-btns {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.posts-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.posts-action-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.posts-action-edit {
+    background: rgba(26, 115, 232, 0.1);
+    color: var(--posts-primary);
+}
+
+.posts-action-edit:hover {
+    background: var(--posts-primary);
+    color: white;
+    transform: scale(1.1);
+}
+
+.posts-action-delete {
+    background: rgba(217, 48, 37, 0.1);
+    color: var(--posts-danger);
+}
+
+.posts-action-delete:hover {
+    background: var(--posts-danger);
+    color: white;
+    transform: scale(1.1);
+}
+
+.posts-no-action {
+    color: var(--posts-text-secondary);
+}
+
+/* Pagination */
+.posts-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-top: 1px solid var(--posts-border);
+    background: var(--posts-bg-secondary);
+}
+
+.posts-pagination-info {
+    font-size: 13px;
+    color: var(--posts-text-secondary);
+    font-weight: 500;
+}
+
+.posts-pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.posts-page-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 1px solid var(--posts-border);
+    background: var(--posts-bg);
+    color: var(--posts-text);
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.posts-page-btn:hover:not(:disabled) {
+    background: var(--posts-primary);
+    border-color: var(--posts-primary);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.posts-page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.posts-page-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.posts-page-first,
+.posts-page-last {
+    padding: 8px;
+}
+
+.posts-page-numbers {
+    display: flex;
+    gap: 4px;
+    margin: 0 8px;
+}
+
+.posts-page-num {
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--posts-border);
+    background: var(--posts-bg);
+    color: var(--posts-text);
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.posts-page-num:hover {
+    background: var(--posts-bg-secondary);
+    border-color: var(--posts-primary);
+}
+
+.posts-page-num.posts-page-active {
+    background: var(--posts-primary);
+    border-color: var(--posts-primary);
+    color: white;
+    font-weight: 600;
+}
+
+.posts-page-ellipsis {
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--posts-text-secondary);
+}
+
+/* Animations */
+@keyframes postsSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .posts-page-wrapper {
+        padding: 16px;
+    }
+
+    .posts-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .posts-add-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .posts-page-title {
+        font-size: 24px;
+    }
+
+    .posts-search-form {
+        flex-direction: column;
+    }
+
+    .posts-filter-wrapper {
+        width: 100%;
+    }
+
+    .posts-select {
+        flex: 1;
+    }
+
+    .posts-search-btn {
+        flex: 1;
+    }
+
+    .posts-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .posts-table {
+        min-width: 900px;
+    }
+
+    .posts-pagination {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .posts-page-numbers {
+        order: -1;
+    }
+
+    .posts-page-btn-text {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .posts-table {
+        min-width: 800px;
+    }
+
+    .posts-page-num:not(.posts-page-active) {
+        display: none;
+    }
+
+    .posts-page-ellipsis {
+        display: none;
+    }
+}
+</style>
+
+<script>
+// Sync posts page with sidebar toggle state
+(function() {
+    'use strict';
+    
+    const postsWrapper = document.getElementById('postsPageWrapper');
+    const sidebar = document.getElementById('dashSidebar');
+    
+    if (!postsWrapper) return;
+    
+    function updateWrapperMargin() {
+        const isDesktop = window.innerWidth > 1024;
+        
+        if (!isDesktop) {
+            postsWrapper.classList.add('sidebar-collapsed');
+            return;
+        }
+        
+        if (sidebar) {
+            if (sidebar.classList.contains('dash-collapsed') || 
+                sidebar.classList.contains('dash-open') === false) {
+                postsWrapper.classList.add('sidebar-collapsed');
+            } else {
+                postsWrapper.classList.remove('sidebar-collapsed');
+            }
+        } else {
+            postsWrapper.classList.add('sidebar-collapsed');
+        }
+    }
+    
+    updateWrapperMargin();
+    
+    if (sidebar) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    updateWrapperMargin();
+                }
+            });
+        });
+        
+        observer.observe(sidebar, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+    
+    window.addEventListener('resize', updateWrapperMargin);
+    
+    const menuToggle = document.getElementById('dashMenuToggle');
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            setTimeout(updateWrapperMargin, 50);
+        });
+    }
+    
+    // Table scroll indicator
+    function checkTableScroll() {
+        const tableWrapper = document.querySelector('.posts-table-wrapper');
+        if (tableWrapper) {
+            const hasScroll = tableWrapper.scrollWidth > tableWrapper.clientWidth;
+            if (hasScroll) {
+                tableWrapper.classList.add('has-scroll');
+            } else {
+                tableWrapper.classList.remove('has-scroll');
+            }
+        }
+    }
+    
+    checkTableScroll();
+    window.addEventListener('resize', checkTableScroll);
+    
+    const tableWrapper = document.querySelector('.posts-table-wrapper');
+    if (tableWrapper) {
+        tableWrapper.addEventListener('scroll', function() {
+            const isAtEnd = this.scrollLeft + this.clientWidth >= this.scrollWidth - 10;
+            if (isAtEnd) {
+                this.classList.remove('has-scroll');
+            } else {
+                checkTableScroll();
+            }
+        });
+    }
+})();
+</script>
 
 {% endblock %}
-

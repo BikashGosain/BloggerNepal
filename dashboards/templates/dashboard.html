@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'dashboard_base.html' %}
 {% load static %}
 
 {% block extra_css %}
@@ -47,10 +47,6 @@
 {% block content %}
 <div class="app-layout">
 
-    {# FIXED SIDEBAR #}
-    {% include 'sidebar.html' %}
-
-    {# MAIN DASHBOARD CONTENT #}
     <main class="app-content">
         {% include 'analytics/dashboard_header.html' %}
     </main>
@@ -59,5 +55,4 @@
 {% endblock %}
 
 {% block extra_js %}
-{# No page-specific JS needed #}
 {% endblock %}

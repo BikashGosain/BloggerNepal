@@ -248,42 +248,58 @@ def delete_category(request, pk):
 
 
 
-# blog post crud
-
 def posts(request):
     user = request.user
-    query = request.GET.get('q', '')  # search keyword
-    status_filter = request.GET.get('status', '')  # filter by status
+
+    query = request.GET.get('q', '').strip()
+    status_filter = request.GET.get('status', '')
+    featured = request.GET.get('featured', '')
+    category_id = request.GET.get('category', '')
     page_number = request.GET.get('page', 1)
 
-    # Show all posts if admin/editor/manager, otherwise only own posts
+    # 🔐 Role-based access
     if user.is_superuser or user.groups.filter(name__in=['Editor', 'Manager']).exists():
-        posts = Blog.objects.all()
+        posts_qs = Blog.objects.select_related('author', 'category').all()
     else:
-        posts = Blog.objects.filter(author=user)
+        posts_qs = Blog.objects.select_related('author', 'category').filter(author=user)
 
-    # Filter by search keyword
+    # 🔍 Search: title, category, author
     if query:
-        posts = posts.filter(
+        posts_qs = posts_qs.filter(
             Q(title__icontains=query) |
-            Q(short_description__icontains=query) |
-            Q(blog_body__icontains=query)
+            Q(category__category_name__icontains=query) |
+            Q(author__username__icontains=query) |
+            Q(author__first_name__icontains=query) |
+            Q(author__last_name__icontains=query)
         )
 
-    # Filter by status if provided
-    if status_filter:
-        posts = posts.filter(status=status_filter)
+    # 🏷 Status filter (Draft / Published)
+    if status_filter in ['Draft', 'Published']:
+        posts_qs = posts_qs.filter(status=status_filter)
 
-    paginator = Paginator(posts, 20)
+    # ⭐ Featured filter
+    if featured == '1':
+        posts_qs = posts_qs.filter(is_featured=True)
+
+    # 📂 Category filter
+    if category_id:
+        posts_qs = posts_qs.filter(category_id=category_id)
+
+    # 📄 Pagination
+    paginator = Paginator(posts_qs.order_by('-created_at'), 5)
     page_obj = paginator.get_page(page_number)
 
     context = {
         'posts': page_obj,
         'query': query,
         'status_filter': status_filter,
+        'featured': featured,
+        'category_id': category_id,
+        'categories': Category.objects.all(),
     }
 
     return render(request, 'posts.html', context)
+
 
 
 def add_post(request):
@@ -383,7 +399,7 @@ def delete_post(request, pk):
 def users(request):
     page_number = request.GET.get('page', 1)
     users_list = User.objects.all().order_by('username')
-    paginator = Paginator(users_list, 20)
+    paginator = Paginator(users_list, 2)
     page_obj = paginator.get_page(page_number)
     context = {
         'users': page_obj,

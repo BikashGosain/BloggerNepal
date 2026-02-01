@@ -2,20 +2,21 @@ from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
-
-import threading
 from django.core.mail import EmailMessage
 from django.urls import reverse
-
-def send_email_async(email):
-    email.send(fail_silently=False)
 
 @login_required
 def contact_view(request):
     user = request.user
 
+    # Check if user has email
     if not user.email:
-        messages.info(request, '⚠️ Your account has no email. Add it <a href="{}">here</a>.'.format(reverse('edit_profile')))
+        messages.info(
+            request,
+            '⚠️ Your account has no email. Add it <a href="{}">here</a>.'.format(
+                reverse('edit_profile')
+            )
+        )
         return redirect('home')
 
     if request.method == "POST":
@@ -31,10 +32,13 @@ def contact_view(request):
             reply_to=[user.email],
         )
 
-        threading.Thread(target=send_email_async, args=(email,)).start()
-        messages.success(request, "Message sent successfully!")
+        # Send email synchronously with error handling
+        try:
+            email.send(fail_silently=False)
+            messages.success(request, "Message sent successfully!")
+        except Exception as e:
+            messages.error(request, "Message could not be sent. Check your internet connection.")
+
         return redirect(next_page)
 
     return render(request, "contact.html")
-
-

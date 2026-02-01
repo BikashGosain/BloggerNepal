@@ -1,84 +1,1011 @@
-{% extends 'base.html' %}
+{% extends 'dashboard_base.html' %}
 
 {% block content %}
 
-<div class="row">
-    <!-- Left sidebar -->
-    <!-- load the sidebar here -->
-    {% include 'sidebar.html' %}
-
-    <!-- Right side content -->
-    <div class="col-md-9">
+<!-- Main Content Area - Dynamically adjusts to sidebar -->
+<div class="users-page-wrapper" id="usersPageWrapper">
+    <div class="users-container">
         {% if perms.auth.view_user %}
-        <h2>All Users</h2>
+        
+        <!-- Page Header -->
+        <div class="users-page-header">
+            <div class="users-header-left">
+                <h1 class="users-page-title">Users Management</h1>
+                <p class="users-page-subtitle">Manage user accounts, permissions, and access control</p>
+            </div>
+            <div class="users-header-right">
+                <a href="{% url 'add_user' %}" class="users-add-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M12.5 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM20 8v6M23 11h-6" stroke-width="2"/>
+                    </svg>
+                    Add New User
+                </a>
+            </div>
+        </div>
 
+        <!-- Quick Stats -->
+        <div class="users-stats-grid">
+            <div class="users-stat-card">
+                <div class="users-stat-icon users-stat-total">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="users-stat-content">
+                    <div class="users-stat-value">{{ users.paginator.count }}</div>
+                    <div class="users-stat-label">Total Users</div>
+                </div>
+            </div>
+            
+            <div class="users-stat-card">
+                <div class="users-stat-icon users-stat-active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke-width="2"/>
+                        <path d="M22 4L12 14.01l-3-3" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="users-stat-content">
+                    <div class="users-stat-value">{{ users|length }}</div>
+                    <div class="users-stat-label">Active This Page</div>
+                </div>
+            </div>
+            
+            <div class="users-stat-card">
+                <div class="users-stat-icon users-stat-page">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke-width="2"/>
+                        <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="users-stat-content">
+                    <div class="users-stat-value">{{ users.number }}/{{ users.paginator.num_pages }}</div>
+                    <div class="users-stat-label">Current Page</div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Users Table Card -->
+        <div class="users-table-card">
+            <div class="users-table-wrapper">
+                <table class="users-table">
+                    <thead class="users-table-head">
+                        <tr>
+                            <th class="users-th users-th-index">#</th>
+                            <th class="users-th users-th-user">USER</th>
+                            <th class="users-th users-th-email">EMAIL</th>
+                            <th class="users-th users-th-status">STATUS</th>
+                            <th class="users-th users-th-roles">ROLES</th>
+                            <th class="users-th users-th-actions">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody class="users-table-body">
+                    {% for user in users %}
+                        <tr class="users-table-row">
+                            <td class="users-td users-td-index">
+                                <span class="users-row-number">{{ forloop.counter }}</span>
+                            </td>
+                            <td class="users-td users-td-user">
+                                <div class="users-user-cell">
+                                    <div class="users-user-avatar">{{ user.username|first|upper }}</div>
+                                    <div class="users-user-details">
+                                        <div class="users-user-name">{{ user.first_name }} {{ user.last_name }}</div>
+                                        <div class="users-user-username">@{{ user.username }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="users-td users-td-email">
+                                <span class="users-email-text">{{ user.email }}</span>
+                            </td>
+                            <td class="users-td users-td-status">
+                                {% if user.is_active %}
+                                <span class="users-status-badge users-status-active">
+                                    <svg viewBox="0 0 8 8" fill="currentColor">
+                                        <circle cx="4" cy="4" r="4"/>
+                                    </svg>
+                                    Active
+                                </span>
+                                {% else %}
+                                <span class="users-status-badge users-status-inactive">
+                                    <svg viewBox="0 0 8 8" fill="currentColor">
+                                        <circle cx="4" cy="4" r="4"/>
+                                    </svg>
+                                    Inactive
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="users-td users-td-roles">
+                                <div class="users-role-badges">
+                                    {% if user.is_superuser %}
+                                    <span class="users-role-badge users-role-superuser">
+                                        <svg viewBox="0 0 16 16" fill="currentColor">
+                                            <path d="M8 0L10.5 5.5L16 8L10.5 10.5L8 16L5.5 10.5L0 8L5.5 5.5L8 0Z"/>
+                                        </svg>
+                                        SuperUser
+                                    </span>
+                                    {% endif %}
+                                    {% if user.is_staff %}
+                                    <span class="users-role-badge users-role-staff">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" stroke-width="2"/>
+                                        </svg>
+                                        Staff
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="users-td users-td-actions">
+                                <div class="users-action-btns">
+                                    <a href="{% url 'edit_user' user.id %}" class="users-action-btn users-action-edit" title="Edit User">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke-width="2"/>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke-width="2"/>
+                                        </svg>
+                                    </a>
+                                    <a href="{% url 'delete_user' user.id %}" class="users-action-btn users-action-delete" title="Delete User" onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6" stroke-width="2"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
+            <!-- Pagination -->
+            {% if users.paginator.num_pages > 1 %}
+            <div class="users-pagination">
+                <div class="users-pagination-info">
+                    Showing page {{ users.number }} of {{ users.paginator.num_pages }}
+                </div>
+                
+                <div class="users-pagination-controls">
+                    {% if users.has_previous %}
+                    <a href="?page=1" class="users-page-btn users-page-first" title="First Page">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M11 19l-7-7 7-7M18 19l-7-7 7-7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+                    <a href="?page={{ users.previous_page_number }}" class="users-page-btn users-page-prev" title="Previous">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span class="users-page-btn-text">Previous</span>
+                    </a>
+                    {% else %}
+                    <button class="users-page-btn users-page-first" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M11 19l-7-7 7-7M18 19l-7-7 7-7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <button class="users-page-btn users-page-prev" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span class="users-page-btn-text">Previous</span>
+                    </button>
+                    {% endif %}
 
+                    <div class="users-page-numbers">
+                        {% for page_num in users.paginator.page_range %}
+                            {% if page_num == users.number %}
+                            <span class="users-page-num users-page-active">{{ page_num }}</span>
+                            {% elif page_num >= users.number|add:"-2" and page_num <= users.number|add:"2" %}
+                            <a href="?page={{ page_num }}" class="users-page-num">{{ page_num }}</a>
+                            {% elif page_num == 1 or page_num == users.paginator.num_pages %}
+                            <a href="?page={{ page_num }}" class="users-page-num">{{ page_num }}</a>
+                            {% elif page_num == users.number|add:"-3" or page_num == users.number|add:"3" %}
+                            <span class="users-page-ellipsis">...</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
 
+                    {% if users.has_next %}
+                    <a href="?page={{ users.next_page_number }}" class="users-page-btn users-page-next" title="Next">
+                        <span class="users-page-btn-text">Next</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+                    <a href="?page={{ users.paginator.num_pages }}" class="users-page-btn users-page-last" title="Last Page">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M13 5l7 7-7 7M6 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+                    {% else %}
+                    <button class="users-page-btn users-page-next" disabled>
+                        <span class="users-page-btn-text">Next</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <button class="users-page-btn users-page-last" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M13 5l7 7-7 7M6 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
 
-        <a href="{% url 'add_user' %}" class="btn btn-dark text-light float-right mb-2">Add New User</a>
-        <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Full Name</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Active</th>
-                <th>Staff</th>
-                <th>SuperUser</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for user in users %}
-              <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ user.first_name }} {{ user.last_name }}</td>
-                <td>{{ user.username }}</td>
-                <td>{{ user.email }}</td>
-                <td>{% if user.is_active %}<i class="fa fa-check text-success"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</td>
-                <td>{% if user.is_staff %}<i class="fa fa-check text-success"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</td>
-                <td>{% if user.is_superuser %}<i class="fa fa-check text-success"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</td>
-                <td>
-                    <a href="{% url 'edit_user' user.id %}"><i class="fa fa-edit text-success"></i></a>
-                    &nbsp;
-                    <a href="{% url 'delete_user' user.id %}" onclick="return confirm('Delete this user?');"><i class="fa fa-trash text-danger"></i></a>
-                </td>
-              </tr>
-            {% endfor %}
-              
-            </tbody>
-          </table>
-          {% else %}
-            <h3>You do not have permission to view this page.</h3>
+        {% else %}
+        <!-- No Permission -->
+        <div class="users-no-permission">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" stroke-width="2"/>
+                <path d="M9 12l2 2 4-4" stroke-width="2"/>
+            </svg>
+            <h3>Access Denied</h3>
+            <p>You do not have permission to view this page.</p>
+        </div>
         {% endif %}
     </div>
-    <div class="pagination">
-    <!-- First page link -->
-    {% if users.has_previous %}
-        <a href="?page=1">First</a>
-    {% endif %}
-
-    <!-- Previous page link -->
-    {% if users.has_previous %}
-        <a href="?page={{ users.previous_page_number }}">Previous</a>
-    {% endif %}
-
-    <!-- Current page info -->
-    <span>Page {{ users.number }} of {{ users.paginator.num_pages }}</span>
-
-    <!-- Next page link -->
-    {% if users.has_next %}
-        <a href="?page={{ users.next_page_number }}">Next</a>
-    {% endif %}
-
-    <!-- Last page link -->
-    {% if users.has_next %}
-        <a href="?page={{ users.paginator.num_pages }}">Last</a>
-    {% endif %}
 </div>
-</div>
+
+<style>
+/* Users Page - Dynamic Sidebar-Aware Styling */
+
+:root {
+    --users-primary: #1a73e8;
+    --users-primary-hover: #1557b0;
+    --users-success: #1e8e3e;
+    --users-danger: #d93025;
+    --users-warning: #f9ab00;
+    --users-bg: #ffffff;
+    --users-bg-secondary: #f8f9fa;
+    --users-border: #e0e0e0;
+    --users-text: #202124;
+    --users-text-secondary: #5f6368;
+    --users-shadow: 0 1px 3px rgba(60, 64, 67, 0.15);
+    --users-shadow-hover: 0 4px 12px rgba(60, 64, 67, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --users-bg: #1f1f1f;
+        --users-bg-secondary: #2d2d2d;
+        --users-border: #3c4043;
+        --users-text: #e8eaed;
+        --users-text-secondary: #9aa0a6;
+    }
+}
+
+/* Main wrapper - Dynamically adjusts based on sidebar state */
+.users-page-wrapper {
+    margin-left: 280px; /* Default: sidebar open on desktop */
+    margin-top: 64px;
+    padding: 24px;
+    background: var(--users-bg-secondary);
+    min-height: calc(100vh - 64px);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* JavaScript will add this class when sidebar is closed */
+.users-page-wrapper.sidebar-collapsed {
+    margin-left: 0;
+}
+
+/* On mobile/tablet - sidebar is overlay, no margin needed */
+@media (max-width: 1024px) {
+    .users-page-wrapper {
+        margin-left: 0 !important;
+    }
+}
+
+.users-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    animation: usersSlideIn 0.4s ease;
+}
+
+/* Page Header */
+.users-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.users-header-left {
+    flex: 1;
+    min-width: 200px;
+}
+
+.users-page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--users-text);
+    margin: 0 0 4px 0;
+    letter-spacing: -0.5px;
+}
+
+.users-page-subtitle {
+    font-size: 14px;
+    color: var(--users-text-secondary);
+    margin: 0;
+}
+
+.users-header-right {
+    flex-shrink: 0;
+}
+
+.users-add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--users-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(26, 115, 232, 0.2);
+}
+
+.users-add-btn:hover {
+    background: var(--users-primary-hover);
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+    transform: translateY(-1px);
+    color: white;
+}
+
+.users-add-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Stats Grid */
+.users-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.users-stat-card {
+    background: var(--users-bg);
+    border: 1px solid var(--users-border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s ease;
+}
+
+.users-stat-card:hover {
+    box-shadow: var(--users-shadow-hover);
+    transform: translateY(-2px);
+}
+
+.users-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.users-stat-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
+}
+
+.users-stat-total {
+    background: rgba(26, 115, 232, 0.1);
+    color: var(--users-primary);
+}
+
+.users-stat-active {
+    background: rgba(30, 142, 62, 0.1);
+    color: var(--users-success);
+}
+
+.users-stat-page {
+    background: rgba(249, 171, 0, 0.1);
+    color: var(--users-warning);
+}
+
+.users-stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--users-text);
+    line-height: 1;
+}
+
+.users-stat-label {
+    font-size: 13px;
+    color: var(--users-text-secondary);
+    margin-top: 4px;
+}
+
+/* Table Card */
+.users-table-card {
+    background: var(--users-bg);
+    border: 1px solid var(--users-border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--users-shadow);
+}
+
+.users-table-wrapper {
+    overflow-x: auto;
+    position: relative;
+}
+
+/* Custom scrollbar styling for table */
+.users-table-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.users-table-wrapper::-webkit-scrollbar-track {
+    background: var(--users-bg-secondary);
+}
+
+.users-table-wrapper::-webkit-scrollbar-thumb {
+    background: var(--users-border);
+    border-radius: 4px;
+}
+
+.users-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--users-text-secondary);
+}
+
+/* Scroll shadow indicator */
+.users-table-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 30px;
+    background: linear-gradient(to left, rgba(0,0,0,0.05), transparent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.users-table-wrapper.has-scroll::after {
+    opacity: 1;
+}
+
+/* Table */
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.users-table-head {
+    background: var(--users-bg-secondary);
+    border-bottom: 2px solid var(--users-border);
+}
+
+.users-th {
+    padding: 16px 20px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--users-text-secondary);
+    white-space: nowrap;
+}
+
+.users-th-actions {
+    text-align: center;
+}
+
+.users-table-body {
+    background: var(--users-bg);
+}
+
+.users-table-row {
+    border-bottom: 1px solid var(--users-border);
+    transition: background 0.2s ease;
+}
+
+.users-table-row:last-child {
+    border-bottom: none;
+}
+
+.users-table-row:hover {
+    background: var(--users-bg-secondary);
+}
+
+.users-td {
+    padding: 16px 20px;
+    vertical-align: middle;
+    color: var(--users-text);
+}
+
+.users-td-index {
+    width: 60px;
+}
+
+.users-row-number {
+    font-weight: 600;
+    color: var(--users-text-secondary);
+}
+
+/* User Cell */
+.users-user-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.users-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a73e8, #667eea);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.users-user-details {
+    min-width: 0;
+}
+
+.users-user-name {
+    font-weight: 600;
+    color: var(--users-text);
+    margin-bottom: 2px;
+}
+
+.users-user-username {
+    font-size: 13px;
+    color: var(--users-text-secondary);
+}
+
+.users-email-text {
+    color: var(--users-text-secondary);
+}
+
+/* Status Badges */
+.users-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.users-status-badge svg {
+    width: 8px;
+    height: 8px;
+}
+
+.users-status-active {
+    background: rgba(30, 142, 62, 0.1);
+    color: var(--users-success);
+}
+
+.users-status-inactive {
+    background: rgba(95, 99, 104, 0.1);
+    color: var(--users-text-secondary);
+}
+
+/* Role Badges */
+.users-role-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.users-role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.users-role-badge svg {
+    width: 12px;
+    height: 12px;
+}
+
+.users-role-superuser {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.users-role-staff {
+    background: rgba(249, 171, 0, 0.15);
+    color: #f57c00;
+    border: 1px solid rgba(249, 171, 0, 0.3);
+}
+
+/* Action Buttons */
+.users-action-btns {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.users-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.users-action-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.users-action-edit {
+    background: rgba(26, 115, 232, 0.1);
+    color: var(--users-primary);
+}
+
+.users-action-edit:hover {
+    background: var(--users-primary);
+    color: white;
+    transform: scale(1.1);
+}
+
+.users-action-delete {
+    background: rgba(217, 48, 37, 0.1);
+    color: var(--users-danger);
+}
+
+.users-action-delete:hover {
+    background: var(--users-danger);
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Pagination */
+.users-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-top: 1px solid var(--users-border);
+    background: var(--users-bg-secondary);
+}
+
+.users-pagination-info {
+    font-size: 13px;
+    color: var(--users-text-secondary);
+    font-weight: 500;
+}
+
+.users-pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.users-page-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 1px solid var(--users-border);
+    background: var(--users-bg);
+    color: var(--users-text);
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.users-page-btn:hover:not(:disabled) {
+    background: var(--users-primary);
+    border-color: var(--users-primary);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.users-page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.users-page-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.users-page-first,
+.users-page-last {
+    padding: 8px;
+}
+
+.users-page-numbers {
+    display: flex;
+    gap: 4px;
+    margin: 0 8px;
+}
+
+.users-page-num {
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--users-border);
+    background: var(--users-bg);
+    color: var(--users-text);
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.users-page-num:hover {
+    background: var(--users-bg-secondary);
+    border-color: var(--users-primary);
+}
+
+.users-page-num.users-page-active {
+    background: var(--users-primary);
+    border-color: var(--users-primary);
+    color: white;
+    font-weight: 600;
+}
+
+.users-page-ellipsis {
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--users-text-secondary);
+}
+
+/* No Permission */
+.users-no-permission {
+    text-align: center;
+    padding: 80px 20px;
+    background: var(--users-bg);
+    border: 1px solid var(--users-border);
+    border-radius: 12px;
+}
+
+.users-no-permission svg {
+    width: 64px;
+    height: 64px;
+    color: var(--users-text-secondary);
+    margin-bottom: 20px;
+    stroke-width: 1.5;
+}
+
+.users-no-permission h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--users-text);
+    margin-bottom: 8px;
+}
+
+.users-no-permission p {
+    font-size: 14px;
+    color: var(--users-text-secondary);
+}
+
+/* Animations */
+@keyframes usersSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .users-page-wrapper {
+        padding: 16px;
+    }
+
+    .users-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .users-add-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .users-page-title {
+        font-size: 24px;
+    }
+
+    .users-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Make table scrollable on smaller screens */
+    .users-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    }
+
+    .users-table {
+        min-width: 800px; /* Minimum width to trigger horizontal scroll */
+    }
+
+    .users-th,
+    .users-td {
+        padding: 12px 16px;
+    }
+
+    .users-user-cell {
+        gap: 10px;
+    }
+
+    .users-user-avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 13px;
+    }
+
+    .users-pagination {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .users-page-numbers {
+        order: -1;
+    }
+
+    .users-page-btn-text {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    /* Even smaller screens - reduce minimum table width slightly */
+    .users-table {
+        min-width: 700px;
+    }
+
+    .users-page-num:not(.users-page-active) {
+        display: none;
+    }
+
+    .users-page-ellipsis {
+        display: none;
+    }
+}
+</style>
+
+<script>
+// Sync user page with sidebar toggle state
+(function() {
+    'use strict';
+    
+    const usersWrapper = document.getElementById('usersPageWrapper');
+    const sidebar = document.getElementById('dashSidebar');
+    
+    if (!usersWrapper) return;
+    
+    // Function to update wrapper based on sidebar state
+    function updateWrapperMargin() {
+        // Check if screen is desktop
+        const isDesktop = window.innerWidth > 1024;
+        
+        if (!isDesktop) {
+            // Mobile: always no margin
+            usersWrapper.classList.add('sidebar-collapsed');
+            return;
+        }
+        
+        // Desktop: check if sidebar exists and its state
+        if (sidebar) {
+            if (sidebar.classList.contains('dash-collapsed') || 
+                sidebar.classList.contains('dash-open') === false) {
+                usersWrapper.classList.add('sidebar-collapsed');
+            } else {
+                usersWrapper.classList.remove('sidebar-collapsed');
+            }
+        } else {
+            // No sidebar found, remove margin
+            usersWrapper.classList.add('sidebar-collapsed');
+        }
+    }
+    
+    // Initial check
+    updateWrapperMargin();
+    
+    // Watch for sidebar class changes using MutationObserver
+    if (sidebar) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    updateWrapperMargin();
+                }
+            });
+        });
+        
+        observer.observe(sidebar, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+    
+    // Watch for window resize
+    window.addEventListener('resize', updateWrapperMargin);
+    
+    // Also listen for sidebar toggle button click (backup method)
+    const menuToggle = document.getElementById('dashMenuToggle');
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            setTimeout(updateWrapperMargin, 50); // Small delay to let classes update
+        });
+    }
+    
+    // Table scroll indicator
+    function checkTableScroll() {
+        const tableWrapper = document.querySelector('.users-table-wrapper');
+        if (tableWrapper) {
+            const hasScroll = tableWrapper.scrollWidth > tableWrapper.clientWidth;
+            if (hasScroll) {
+                tableWrapper.classList.add('has-scroll');
+            } else {
+                tableWrapper.classList.remove('has-scroll');
+            }
+        }
+    }
+    
+    // Check on load and resize
+    checkTableScroll();
+    window.addEventListener('resize', checkTableScroll);
+    
+    // Remove scroll indicator when user scrolls to the end
+    const tableWrapper = document.querySelector('.users-table-wrapper');
+    if (tableWrapper) {
+        tableWrapper.addEventListener('scroll', function() {
+            const isAtEnd = this.scrollLeft + this.clientWidth >= this.scrollWidth - 10;
+            if (isAtEnd) {
+                this.classList.remove('has-scroll');
+            } else {
+                checkTableScroll();
+            }
+        });
+    }
+})();
+</script>
 
 {% endblock %}
