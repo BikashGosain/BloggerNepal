@@ -1,30 +1,454 @@
-{% extends 'base.html' %}
-
-
-{% block content %}
+{% extends 'dashboard_base.html' %}
 {% load crispy_forms_tags %}
 
-<div class="row">
-    <!-- Left sidebar -->
-    <!-- load the sidebar here -->
-    {% include 'sidebar.html' %}
+{% block content %}
 
-    <!-- Right side content -->
-    <div class="col-md-9">
-        {% if perms.auth.add_user %}
-        <h2>Edit User</h2>
+<!-- Main Content Area - Dynamically adjusts to sidebar -->
+<div class="form-page-wrapper" id="formPageWrapper">
+    <div class="form-container">
+        
+        {% if perms.auth.change_user %}
+        
+        <!-- Page Header with Breadcrumb -->
+        <div class="form-page-header">
+            <div class="form-breadcrumb">
+                <a href="{% url 'users' %}" class="form-breadcrumb-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke-width="2"/>
+                    </svg>
+                    Users
+                </a>
+                <svg class="form-breadcrumb-separator" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span class="form-breadcrumb-current">Edit User</span>
+            </div>
+            
+            <h1 class="form-page-title">Edit User</h1>
+            <p class="form-page-subtitle">Update user account information and permissions</p>
+        </div>
 
-        <form action="{% url 'edit_user' user.pk %}" method="POST">
-            {% csrf_token %}
-            {{ form | crispy }}
-            <button type="submit" class="btn btn-warning">Submit</button>
-            <a href="{% url 'users' %}" class="btn btn-secondary">Cancel</a>
-        </form>
-        <br>
+        <!-- Form Card -->
+        <div class="form-card">
+            <form action="{% url 'edit_user' user.pk %}" method="POST" class="form-content">
+                {% csrf_token %}
+                
+                <div class="form-fields">
+                    {{ form | crispy }}
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="form-btn form-btn-primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke-width="2"/>
+                            <path d="M22 4L12 14.01l-3-3" stroke-width="2"/>
+                        </svg>
+                        Update User
+                    </button>
+                    <a href="{% url 'users' %}" class="form-btn form-btn-secondary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M19 12H5M12 19l-7-7 7-7" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        {% else %}
+        
+        <!-- No Permission -->
+        <div class="form-no-permission">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" stroke-width="2"/>
+                <path d="M12 9v4M12 17h.01" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <h3>Access Denied</h3>
+            <p>You do not have permission to edit users.</p>
+            <a href="{% url 'users' %}" class="form-btn form-btn-secondary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M19 12H5M12 19l-7-7 7-7" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Back to Users
+            </a>
+        </div>
+        
+        {% endif %}
     </div>
-    {% else %}
-        <h3>You do not have permission to edit user.</h3>
-    {% endif %}
 </div>
+
+<style>
+/* Form Page Styling */
+:root {
+    --form-primary: #1a73e8;
+    --form-primary-hover: #1557b0;
+    --form-danger: #d93025;
+    --form-bg: #ffffff;
+    --form-bg-secondary: #f8f9fa;
+    --form-border: #e0e0e0;
+    --form-text: #202124;
+    --form-text-secondary: #5f6368;
+    --form-shadow: 0 1px 3px rgba(60, 64, 67, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --form-bg: #1f1f1f;
+        --form-bg-secondary: #2d2d2d;
+        --form-border: #3c4043;
+        --form-text: #e8eaed;
+        --form-text-secondary: #9aa0a6;
+    }
+}
+
+.form-page-wrapper {
+    margin-left: 280px;
+    margin-top: 64px;
+    padding: 24px;
+    background: var(--form-bg-secondary);
+    min-height: calc(100vh - 64px);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-page-wrapper.sidebar-collapsed {
+    margin-left: 0;
+}
+
+@media (max-width: 1024px) {
+    .form-page-wrapper {
+        margin-left: 0 !important;
+    }
+}
+
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    animation: formSlideIn 0.4s ease;
+}
+
+.form-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.form-breadcrumb-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--form-primary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.form-breadcrumb-link:hover {
+    color: var(--form-primary-hover);
+}
+
+.form-breadcrumb-link svg {
+    width: 16px;
+    height: 16px;
+}
+
+.form-breadcrumb-separator {
+    width: 16px;
+    height: 16px;
+    color: var(--form-text-secondary);
+}
+
+.form-breadcrumb-current {
+    color: var(--form-text-secondary);
+    font-size: 14px;
+}
+
+.form-page-header {
+    margin-bottom: 32px;
+}
+
+.form-page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--form-text);
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+}
+
+.form-page-subtitle {
+    font-size: 14px;
+    color: var(--form-text-secondary);
+    margin: 0;
+}
+
+.form-card {
+    background: var(--form-bg);
+    border: 1px solid var(--form-border);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: var(--form-shadow);
+}
+
+.form-content {
+    max-width: 600px;
+}
+
+.form-fields {
+    margin-bottom: 24px;
+}
+
+.form-fields .form-group {
+    margin-bottom: 24px;
+}
+
+.form-fields label {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--form-text);
+    margin-bottom: 8px;
+}
+
+.form-fields input[type="text"],
+.form-fields input[type="email"],
+.form-fields input[type="password"],
+.form-fields input[type="number"],
+.form-fields input[type="url"],
+.form-fields input[type="date"],
+.form-fields input[type="time"],
+.form-fields textarea,
+.form-fields select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--form-border);
+    border-radius: 8px;
+    font-size: 14px;
+    background: var(--form-bg);
+    color: var(--form-text);
+    transition: all 0.3s ease;
+}
+
+.form-fields input:focus,
+.form-fields textarea:focus,
+.form-fields select:focus {
+    outline: none;
+    border-color: var(--form-primary);
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+}
+
+.form-fields textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form-fields .helptext {
+    display: block;
+    font-size: 12px;
+    color: var(--form-text-secondary);
+    margin-top: 6px;
+}
+
+.form-fields .invalid-feedback,
+.form-fields .error {
+    display: block;
+    font-size: 12px;
+    color: var(--form-danger);
+    margin-top: 6px;
+}
+
+.form-fields input.is-invalid,
+.form-fields textarea.is-invalid,
+.form-fields select.is-invalid {
+    border-color: var(--form-danger);
+}
+
+.form-fields input[type="checkbox"],
+.form-fields input[type="radio"] {
+    width: auto;
+    margin-right: 8px;
+}
+
+.form-fields .form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.form-fields .form-check-label {
+    font-weight: 400;
+    margin-bottom: 0;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    padding-top: 24px;
+    border-top: 1px solid var(--form-border);
+}
+
+.form-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.form-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.form-btn-primary {
+    background: var(--form-primary);
+    color: white;
+    box-shadow: 0 1px 3px rgba(26, 115, 232, 0.3);
+}
+
+.form-btn-primary:hover {
+    background: var(--form-primary-hover);
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.4);
+    transform: translateY(-1px);
+    color: white;
+}
+
+.form-btn-secondary {
+    background: var(--form-bg-secondary);
+    color: var(--form-text);
+    border: 1px solid var(--form-border);
+}
+
+.form-btn-secondary:hover {
+    background: var(--form-border);
+    color: var(--form-text);
+}
+
+.form-no-permission {
+    text-align: center;
+    padding: 80px 20px;
+    background: var(--form-bg);
+    border: 1px solid var(--form-border);
+    border-radius: 12px;
+}
+
+.form-no-permission svg {
+    width: 64px;
+    height: 64px;
+    color: var(--form-text-secondary);
+    margin-bottom: 20px;
+    stroke-width: 1.5;
+}
+
+.form-no-permission h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--form-text);
+    margin-bottom: 8px;
+}
+
+.form-no-permission p {
+    font-size: 14px;
+    color: var(--form-text-secondary);
+    margin-bottom: 24px;
+}
+
+@keyframes formSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .form-page-wrapper {
+        padding: 16px;
+    }
+
+    .form-card {
+        padding: 24px 16px;
+    }
+
+    .form-page-title {
+        font-size: 24px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+(function() {
+    'use strict';
+    
+    const formWrapper = document.getElementById('formPageWrapper');
+    const sidebar = document.getElementById('dashSidebar');
+    
+    if (!formWrapper) return;
+    
+    function updateWrapperMargin() {
+        const isDesktop = window.innerWidth > 1024;
+        
+        if (!isDesktop) {
+            formWrapper.classList.add('sidebar-collapsed');
+            return;
+        }
+        
+        if (sidebar) {
+            if (sidebar.classList.contains('dash-collapsed') || 
+                sidebar.classList.contains('dash-open') === false) {
+                formWrapper.classList.add('sidebar-collapsed');
+            } else {
+                formWrapper.classList.remove('sidebar-collapsed');
+            }
+        } else {
+            formWrapper.classList.add('sidebar-collapsed');
+        }
+    }
+    
+    updateWrapperMargin();
+    
+    if (sidebar) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    updateWrapperMargin();
+                }
+            });
+        });
+        
+        observer.observe(sidebar, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+    
+    window.addEventListener('resize', updateWrapperMargin);
+    
+    const menuToggle = document.getElementById('dashMenuToggle');
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            setTimeout(updateWrapperMargin, 50);
+        });
+    }
+})();
+</script>
 
 {% endblock %}

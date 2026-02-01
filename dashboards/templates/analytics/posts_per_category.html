@@ -1,506 +1,632 @@
-{% extends 'base.html' %}
+{% extends 'dashboard_base.html' %}
 {% load static %}
 
-{% block extra_css %}
-<style>
-    /* Posts Per Category Unique Styles */
-    .posts-category-container {
-        padding: 1.5rem 0;
-    }
-
-    .posts-category-row {
-        display: flex;
-        flex-wrap: wrap;
-        margin: 0 -15px;
-    }
-
-    .posts-category-sidebar {
-        flex: 0 0 25%;
-        max-width: 25%;
-        padding: 0 15px;
-    }
-
-    .posts-category-content {
-        flex: 0 0 75%;
-        max-width: 75%;
-        padding: 0 15px;
-    }
-
-    .posts-category-chart-card {
-        background-color: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 0.5rem;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        margin-top: 1.5rem;
-    }
-
-    .posts-category-chart-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1rem 1.5rem;
-        font-weight: 600;
-        font-size: 1.1rem;
-        text-align: center;
-        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .posts-category-fullscreen-btn {
-        background-color: rgba(255, 255, 255, 0.2);
-        border: 2px solid rgba(255, 255, 255, 0.5);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 0.375rem;
-        cursor: pointer;
-        font-size: 0.9rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        margin-left: auto;
-    }
-
-    .posts-category-fullscreen-btn:hover {
-        background-color: rgba(255, 255, 255, 0.3);
-        border-color: rgba(255, 255, 255, 0.8);
-        transform: scale(1.05);
-    }
-
-    .posts-category-chart-body {
-        padding: 2rem 1.5rem;
-        overflow-x: auto;
-        overflow-y: hidden;
-    }
-
-    .posts-category-chart-wrapper {
-        height: 400px;
-        position: relative;
-        width: 100%;
-        min-width: 600px;
-    }
-
-    /* Dynamic width based on number of categories */
-    .posts-category-chart-wrapper.posts-category-few {
-        min-width: 600px;
-    }
-
-    .posts-category-chart-wrapper.posts-category-medium {
-        min-width: 900px;
-    }
-
-    .posts-category-chart-wrapper.posts-category-many {
-        min-width: 1200px;
-    }
-
-    .posts-category-chart-wrapper.posts-category-very-many {
-        min-width: 1600px;
-    }
-
-    .posts-category-chart-canvas {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100% !important;
-        height: 100% !important;
-    }
-
-    /* Fullscreen Modal */
-    .posts-category-fullscreen-modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: rgba(0, 0, 0, 0.95);
-        z-index: 10000;
-        overflow: auto;
-    }
-
-    .posts-category-fullscreen-modal.posts-category-modal-active {
-        display: block;
-    }
-
-    .posts-category-fullscreen-content {
-        width: 95%;
-        max-width: 1600px;
-        margin: 2rem auto;
-        background-color: white;
-        border-radius: 0.5rem;
-        overflow: hidden;
-    }
-
-    .posts-category-fullscreen-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1.5rem 2rem;
-        font-weight: 600;
-        font-size: 1.3rem;
-        text-align: center;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .posts-category-close-btn {
-        background-color: rgba(255, 255, 255, 0.2);
-        border: 2px solid rgba(255, 255, 255, 0.5);
-        color: white;
-        padding: 0.5rem 1.25rem;
-        border-radius: 0.375rem;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .posts-category-close-btn:hover {
-        background-color: rgba(255, 255, 255, 0.3);
-        border-color: rgba(255, 255, 255, 0.8);
-        transform: scale(1.05);
-    }
-
-    .posts-category-fullscreen-body {
-        padding: 3rem 2rem;
-        overflow-x: auto;
-    }
-
-    .posts-category-fullscreen-chart-wrapper {
-        height: 650px;
-        position: relative;
-        width: 100%;
-        min-width: 800px;
-    }
-
-    .posts-category-fullscreen-chart-wrapper.posts-category-few {
-        min-width: 800px;
-    }
-
-    .posts-category-fullscreen-chart-wrapper.posts-category-medium {
-        min-width: 1200px;
-    }
-
-    .posts-category-fullscreen-chart-wrapper.posts-category-many {
-        min-width: 1800px;
-    }
-
-    .posts-category-fullscreen-chart-wrapper.posts-category-very-many {
-        min-width: 2400px;
-    }
-
-    .posts-category-fullscreen-canvas {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100% !important;
-        height: 100% !important;
-    }
-
-    /* Scrollbar Styling */
-    .posts-category-chart-body::-webkit-scrollbar,
-    .posts-category-fullscreen-body::-webkit-scrollbar {
-        height: 12px;
-    }
-
-    .posts-category-chart-body::-webkit-scrollbar-track,
-    .posts-category-fullscreen-body::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 6px;
-        margin: 0 10px;
-    }
-
-    .posts-category-chart-body::-webkit-scrollbar-thumb,
-    .posts-category-fullscreen-body::-webkit-scrollbar-thumb {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 6px;
-    }
-
-    .posts-category-chart-body::-webkit-scrollbar-thumb:hover,
-    .posts-category-fullscreen-body::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-    }
-
-    /* Responsive Layout */
-    @media (max-width: 992px) {
-        .posts-category-sidebar {
-            flex: 0 0 30%;
-            max-width: 30%;
-        }
-
-        .posts-category-content {
-            flex: 0 0 70%;
-            max-width: 70%;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .posts-category-sidebar {
-            flex: 0 0 100%;
-            max-width: 100%;
-            margin-bottom: 1.5rem;
-        }
-
-        .posts-category-content {
-            flex: 0 0 100%;
-            max-width: 100%;
-        }
-
-        .posts-category-chart-card {
-            margin-top: 1.25rem;
-        }
-
-        .posts-category-chart-header {
-            padding: 0.875rem 1.25rem;
-            font-size: 1rem;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .posts-category-fullscreen-btn {
-            margin-left: 0;
-            width: 100%;
-        }
-
-        .posts-category-chart-body {
-            padding: 1.5rem 1rem;
-        }
-
-        .posts-category-chart-wrapper {
-            height: 350px;
-        }
-
-        .posts-category-fullscreen-content {
-            width: 98%;
-            margin: 1rem auto;
-        }
-
-        .posts-category-fullscreen-header {
-            padding: 1rem 1.25rem;
-            font-size: 1.1rem;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .posts-category-close-btn {
-            width: 100%;
-        }
-
-        .posts-category-fullscreen-body {
-            padding: 2rem 1.25rem;
-        }
-
-        .posts-category-fullscreen-chart-wrapper {
-            height: 500px;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .posts-category-container {
-            padding: 1rem 0;
-        }
-
-        .posts-category-row {
-            margin: 0 -10px;
-        }
-
-        .posts-category-sidebar,
-        .posts-category-content {
-            padding: 0 10px;
-        }
-
-        .posts-category-sidebar {
-            margin-bottom: 1rem;
-        }
-
-        .posts-category-chart-card {
-            margin-top: 1rem;
-        }
-
-        .posts-category-chart-header {
-            padding: 0.75rem 1rem;
-            font-size: 0.95rem;
-        }
-
-        .posts-category-fullscreen-btn {
-            padding: 0.4rem 0.75rem;
-            font-size: 0.85rem;
-        }
-
-        .posts-category-chart-body {
-            padding: 1.25rem 0.875rem;
-        }
-
-        .posts-category-chart-wrapper {
-            height: 320px;
-            min-width: 500px;
-        }
-
-        .posts-category-fullscreen-header {
-            padding: 0.875rem 1rem;
-            font-size: 1rem;
-        }
-
-        .posts-category-fullscreen-body {
-            padding: 1.5rem 1rem;
-        }
-
-        .posts-category-fullscreen-chart-wrapper {
-            height: 450px;
-        }
-    }
-
-    @media (max-width: 420px) {
-        .posts-category-container {
-            padding: 0.75rem 0;
-        }
-
-        .posts-category-row {
-            margin: 0 -8px;
-        }
-
-        .posts-category-sidebar,
-        .posts-category-content {
-            padding: 0 8px;
-        }
-
-        .posts-category-chart-header {
-            padding: 0.625rem 0.875rem;
-            font-size: 0.9rem;
-        }
-
-        .posts-category-chart-body {
-            padding: 1rem 0.75rem;
-        }
-
-        .posts-category-chart-wrapper {
-            height: 300px;
-            min-width: 450px;
-        }
-
-        .posts-category-fullscreen-chart-wrapper {
-            height: 400px;
-        }
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="posts-category-container">
-    <div class="posts-category-row">
-        <div class="posts-category-sidebar">
-            {% include 'sidebar.html' %}
+
+<!-- Main Content Area - Dynamically adjusts to sidebar -->
+<div class="analytics-cat-wrapper" id="analyticsCatWrapper">
+    <div class="analytics-cat-container">
+        
+        <!-- Page Header with Breadcrumb -->
+        <div class="analytics-cat-header">
+            <div class="analytics-cat-breadcrumb">
+                <a href="{% url 'dashboard' %}" class="analytics-cat-breadcrumb-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" stroke-width="2"/>
+                        <path d="M9 22V12h6v10" stroke-width="2"/>
+                    </svg>
+                    Dashboard
+                </a>
+                <svg class="analytics-cat-breadcrumb-separator" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span class="analytics-cat-breadcrumb-current">Posts Per Category</span>
+            </div>
+            
+            <h1 class="analytics-cat-page-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="analytics-cat-title-icon">
+                    <path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" stroke-width="2"/>
+                </svg>
+                Posts Per Category
+            </h1>
+            <p class="analytics-cat-page-subtitle">View post distribution across different categories</p>
         </div>
-        <div class="posts-category-content">
-            {% include 'analytics/dashboard_header.html' %}
 
-            {% if can_see_all %}
-            <div class="posts-category-chart-card">
-                <div class="posts-category-chart-header">
-                    <span>All Posts per Category</span>
-                    <button class="posts-category-fullscreen-btn" onclick="openFullscreen('allCategoryFullscreen')">
-                        📊 View Fullscreen
-                    </button>
-                </div>
-                <div class="posts-category-chart-body">
-                    <div class="posts-category-chart-wrapper" id="allCategoryWrapper">
-                        <canvas id="allCategoryChart" class="posts-category-chart-canvas"></canvas>
-                    </div>
-                </div>
+        <!-- Dashboard Header Include -->
+        {% include 'analytics/dashboard_header.html' %}
+
+        <!-- All Posts Chart (if user can see all) -->
+        {% if can_see_all %}
+        <div class="analytics-cat-chart-card">
+            <div class="analytics-cat-chart-header">
+                <h2 class="analytics-cat-chart-title">All Posts per Category</h2>
+                <button class="analytics-cat-fullscreen-btn" onclick="openCatFullscreen('allCategoryFullscreen')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke-width="2"/>
+                    </svg>
+                    Fullscreen
+                </button>
             </div>
-
-            <!-- Fullscreen Modal for All Posts -->
-            <div class="posts-category-fullscreen-modal" id="allCategoryFullscreen">
-                <div class="posts-category-fullscreen-content">
-                    <div class="posts-category-fullscreen-header">
-                        <span>All Posts per Category - Fullscreen View</span>
-                        <button class="posts-category-close-btn" onclick="closeFullscreen('allCategoryFullscreen')">
-                            ✕ Close
-                        </button>
-                    </div>
-                    <div class="posts-category-fullscreen-body">
-                        <div class="posts-category-fullscreen-chart-wrapper" id="allCategoryFullscreenWrapper">
-                            <canvas id="allCategoryFullscreenChart" class="posts-category-fullscreen-canvas"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
-            <div class="posts-category-chart-card">
-                <div class="posts-category-chart-header">
-                    <span>My Posts per Category</span>
-                    <button class="posts-category-fullscreen-btn" onclick="openFullscreen('myCategoryFullscreen')">
-                        📊 View Fullscreen
-                    </button>
-                </div>
-                <div class="posts-category-chart-body">
-                    <div class="posts-category-chart-wrapper" id="myCategoryWrapper">
-                        <canvas id="myCategoryChart" class="posts-category-chart-canvas"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Fullscreen Modal for My Posts -->
-            <div class="posts-category-fullscreen-modal" id="myCategoryFullscreen">
-                <div class="posts-category-fullscreen-content">
-                    <div class="posts-category-fullscreen-header">
-                        <span>My Posts per Category - Fullscreen View</span>
-                        <button class="posts-category-close-btn" onclick="closeFullscreen('myCategoryFullscreen')">
-                            ✕ Close
-                        </button>
-                    </div>
-                    <div class="posts-category-fullscreen-body">
-                        <div class="posts-category-fullscreen-chart-wrapper" id="myCategoryFullscreenWrapper">
-                            <canvas id="myCategoryFullscreenChart" class="posts-category-fullscreen-canvas"></canvas>
-                        </div>
-                    </div>
+            <div class="analytics-cat-chart-body">
+                <div class="analytics-cat-chart-wrapper" id="allCategoryWrapper">
+                    <canvas id="allCategoryChart" class="analytics-cat-chart-canvas"></canvas>
                 </div>
             </div>
         </div>
+
+        <!-- Fullscreen Modal for All Posts -->
+        <div class="analytics-cat-fullscreen-modal" id="allCategoryFullscreen">
+            <div class="analytics-cat-fullscreen-content">
+                <div class="analytics-cat-fullscreen-header">
+                    <h2>All Posts per Category - Fullscreen View</h2>
+                    <button class="analytics-cat-close-btn" onclick="closeCatFullscreen('allCategoryFullscreen')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Close
+                    </button>
+                </div>
+                <div class="analytics-cat-fullscreen-body">
+                    <div class="analytics-cat-fullscreen-chart-wrapper" id="allCategoryFullscreenWrapper">
+                        <canvas id="allCategoryFullscreenChart" class="analytics-cat-fullscreen-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- My Posts Chart -->
+        <div class="analytics-cat-chart-card">
+            <div class="analytics-cat-chart-header">
+                <h2 class="analytics-cat-chart-title">My Posts per Category</h2>
+                <button class="analytics-cat-fullscreen-btn" onclick="openCatFullscreen('myCategoryFullscreen')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke-width="2"/>
+                    </svg>
+                    Fullscreen
+                </button>
+            </div>
+            <div class="analytics-cat-chart-body">
+                <div class="analytics-cat-chart-wrapper" id="myCategoryWrapper">
+                    <canvas id="myCategoryChart" class="analytics-cat-chart-canvas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fullscreen Modal for My Posts -->
+        <div class="analytics-cat-fullscreen-modal" id="myCategoryFullscreen">
+            <div class="analytics-cat-fullscreen-content">
+                <div class="analytics-cat-fullscreen-header">
+                    <h2>My Posts per Category - Fullscreen View</h2>
+                    <button class="analytics-cat-close-btn" onclick="closeCatFullscreen('myCategoryFullscreen')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Close
+                    </button>
+                </div>
+                <div class="analytics-cat-fullscreen-body">
+                    <div class="analytics-cat-fullscreen-chart-wrapper" id="myCategoryFullscreenWrapper">
+                        <canvas id="myCategoryFullscreenChart" class="analytics-cat-fullscreen-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<style>
+/* Analytics Category Page Styling - Unique namespace */
+
+:root {
+    --acat-primary: #1a73e8;
+    --acat-primary-hover: #1557b0;
+    --acat-secondary: #5f6368;
+    --acat-gradient-start: #667eea;
+    --acat-gradient-end: #764ba2;
+    --acat-bg: #ffffff;
+    --acat-bg-secondary: #f8f9fa;
+    --acat-border: #e0e0e0;
+    --acat-text: #202124;
+    --acat-text-secondary: #5f6368;
+    --acat-shadow: 0 1px 3px rgba(60, 64, 67, 0.15);
+    --acat-shadow-lg: 0 4px 6px -1px rgba(60, 64, 67, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --acat-bg: #1f1f1f;
+        --acat-bg-secondary: #2d2d2d;
+        --acat-border: #3c4043;
+        --acat-text: #e8eaed;
+        --acat-text-secondary: #9aa0a6;
+    }
+}
+
+.analytics-cat-wrapper {
+    margin-left: 280px;
+    margin-top: 64px;
+    padding: 24px;
+    background: var(--acat-bg-secondary);
+    min-height: calc(100vh - 64px);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.analytics-cat-wrapper.sidebar-collapsed {
+    margin-left: 0;
+}
+
+@media (max-width: 1024px) {
+    .analytics-cat-wrapper {
+        margin-left: 0 !important;
+    }
+}
+
+.analytics-cat-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    animation: analyticsCatSlideIn 0.4s ease;
+}
+
+.analytics-cat-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.analytics-cat-breadcrumb-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--acat-primary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.analytics-cat-breadcrumb-link:hover {
+    color: var(--acat-primary-hover);
+}
+
+.analytics-cat-breadcrumb-link svg {
+    width: 16px;
+    height: 16px;
+}
+
+.analytics-cat-breadcrumb-separator {
+    width: 16px;
+    height: 16px;
+    color: var(--acat-text-secondary);
+}
+
+.analytics-cat-breadcrumb-current {
+    color: var(--acat-text-secondary);
+    font-size: 14px;
+}
+
+.analytics-cat-header {
+    margin-bottom: 32px;
+}
+
+.analytics-cat-page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--acat-text);
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.analytics-cat-title-icon {
+    width: 36px;
+    height: 36px;
+    color: var(--acat-primary);
+}
+
+.analytics-cat-page-subtitle {
+    font-size: 14px;
+    color: var(--acat-text-secondary);
+    margin: 0;
+}
+
+/* Chart Card */
+.analytics-cat-chart-card {
+    background: var(--acat-bg);
+    border: 1px solid var(--acat-border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--acat-shadow);
+    margin-top: 24px;
+}
+
+.analytics-cat-chart-header {
+    background: linear-gradient(135deg, var(--acat-gradient-start) 0%, var(--acat-gradient-end) 100%);
+    color: white;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.analytics-cat-chart-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.analytics-cat-fullscreen-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.analytics-cat-fullscreen-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.8);
+    transform: scale(1.05);
+}
+
+.analytics-cat-fullscreen-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.analytics-cat-chart-body {
+    padding: 32px 24px;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.analytics-cat-chart-wrapper {
+    height: 400px;
+    position: relative;
+    width: 100%;
+    min-width: 600px;
+}
+
+.analytics-cat-chart-wrapper.acat-few {
+    min-width: 600px;
+}
+
+.analytics-cat-chart-wrapper.acat-medium {
+    min-width: 900px;
+}
+
+.analytics-cat-chart-wrapper.acat-many {
+    min-width: 1200px;
+}
+
+.analytics-cat-chart-wrapper.acat-very-many {
+    min-width: 1600px;
+}
+
+.analytics-cat-chart-canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Fullscreen Modal */
+.analytics-cat-fullscreen-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.95);
+    z-index: 10000;
+    overflow: auto;
+}
+
+.analytics-cat-fullscreen-modal.acat-modal-active {
+    display: block;
+}
+
+.analytics-cat-fullscreen-content {
+    width: 95%;
+    max-width: 1600px;
+    margin: 2rem auto;
+    background-color: var(--acat-bg);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.analytics-cat-fullscreen-header {
+    background: linear-gradient(135deg, var(--acat-gradient-start) 0%, var(--acat-gradient-end) 100%);
+    color: white;
+    padding: 24px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.analytics-cat-fullscreen-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.analytics-cat-close-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.analytics-cat-close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.8);
+    transform: scale(1.05);
+}
+
+.analytics-cat-close-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.analytics-cat-fullscreen-body {
+    padding: 48px 32px;
+    overflow-x: auto;
+}
+
+.analytics-cat-fullscreen-chart-wrapper {
+    height: 650px;
+    position: relative;
+    width: 100%;
+    min-width: 800px;
+}
+
+.analytics-cat-fullscreen-chart-wrapper.acat-few {
+    min-width: 800px;
+}
+
+.analytics-cat-fullscreen-chart-wrapper.acat-medium {
+    min-width: 1200px;
+}
+
+.analytics-cat-fullscreen-chart-wrapper.acat-many {
+    min-width: 1800px;
+}
+
+.analytics-cat-fullscreen-chart-wrapper.acat-very-many {
+    min-width: 2400px;
+}
+
+.analytics-cat-fullscreen-canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Scrollbar Styling */
+.analytics-cat-chart-body::-webkit-scrollbar,
+.analytics-cat-fullscreen-body::-webkit-scrollbar {
+    height: 12px;
+}
+
+.analytics-cat-chart-body::-webkit-scrollbar-track,
+.analytics-cat-fullscreen-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 6px;
+    margin: 0 10px;
+}
+
+.analytics-cat-chart-body::-webkit-scrollbar-thumb,
+.analytics-cat-fullscreen-body::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--acat-gradient-start) 0%, var(--acat-gradient-end) 100%);
+    border-radius: 6px;
+}
+
+.analytics-cat-chart-body::-webkit-scrollbar-thumb:hover,
+.analytics-cat-fullscreen-body::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--acat-gradient-end) 0%, var(--acat-gradient-start) 100%);
+}
+
+@keyframes analyticsCatSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .analytics-cat-wrapper {
+        padding: 16px;
+    }
+
+    .analytics-cat-page-title {
+        font-size: 24px;
+    }
+
+    .analytics-cat-chart-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .analytics-cat-fullscreen-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .analytics-cat-chart-body {
+        padding: 24px 16px;
+    }
+
+    .analytics-cat-chart-wrapper {
+        height: 350px;
+        min-width: 500px;
+    }
+
+    .analytics-cat-fullscreen-content {
+        width: 98%;
+        margin: 1rem auto;
+    }
+
+    .analytics-cat-fullscreen-header {
+        padding: 16px 20px;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .analytics-cat-fullscreen-header h2 {
+        font-size: 18px;
+    }
+
+    .analytics-cat-close-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .analytics-cat-fullscreen-body {
+        padding: 32px 20px;
+    }
+
+    .analytics-cat-fullscreen-chart-wrapper {
+        height: 500px;
+    }
+}
+
+@media (max-width: 576px) {
+    .analytics-cat-wrapper {
+        padding: 12px;
+    }
+
+    .analytics-cat-chart-body {
+        padding: 20px 12px;
+    }
+
+    .analytics-cat-chart-wrapper {
+        height: 320px;
+    }
+}
+</style>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // Fullscreen Modal Functions
-    function openFullscreen(modalId) {
-        document.getElementById(modalId).classList.add('posts-category-modal-active');
-        document.body.style.overflow = 'hidden';
+(function() {
+    'use strict';
+    
+    const analyticsCatWrapper = document.getElementById('analyticsCatWrapper');
+    const sidebar = document.getElementById('dashSidebar');
+    
+    if (!analyticsCatWrapper) return;
+    
+    function updateWrapperMargin() {
+        const isDesktop = window.innerWidth > 1024;
+        
+        if (!isDesktop) {
+            analyticsCatWrapper.classList.add('sidebar-collapsed');
+            return;
+        }
+        
+        if (sidebar) {
+            if (sidebar.classList.contains('dash-collapsed') || 
+                sidebar.classList.contains('dash-open') === false) {
+                analyticsCatWrapper.classList.add('sidebar-collapsed');
+            } else {
+                analyticsCatWrapper.classList.remove('sidebar-collapsed');
+            }
+        } else {
+            analyticsCatWrapper.classList.add('sidebar-collapsed');
+        }
+    }
+    
+    updateWrapperMargin();
+    
+    if (sidebar) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    updateWrapperMargin();
+                }
+            });
+        });
+        
+        observer.observe(sidebar, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+    
+    window.addEventListener('resize', updateWrapperMargin);
+    
+    const menuToggle = document.getElementById('dashMenuToggle');
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            setTimeout(updateWrapperMargin, 50);
+        });
     }
 
-    function closeFullscreen(modalId) {
-        document.getElementById(modalId).classList.remove('posts-category-modal-active');
+    // Fullscreen Modal Functions
+    window.openCatFullscreen = function(modalId) {
+        document.getElementById(modalId).classList.add('acat-modal-active');
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.closeCatFullscreen = function(modalId) {
+        document.getElementById(modalId).classList.remove('acat-modal-active');
         document.body.style.overflow = 'auto';
-    }
+    };
 
     // Close modal on ESC key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            document.querySelectorAll('.posts-category-fullscreen-modal').forEach(modal => {
-                modal.classList.remove('posts-category-modal-active');
+            document.querySelectorAll('.analytics-cat-fullscreen-modal').forEach(modal => {
+                modal.classList.remove('acat-modal-active');
             });
             document.body.style.overflow = 'auto';
         }
     });
 
-    // Dynamic width adjustment based on categories count
+    // Dynamic width adjustment
     function adjustChartWidth(wrapperId, categoryCount) {
         const wrapper = document.getElementById(wrapperId);
-        wrapper.classList.remove('posts-category-few', 'posts-category-medium', 'posts-category-many', 'posts-category-very-many');
+        if (!wrapper) return;
+        
+        wrapper.classList.remove('acat-few', 'acat-medium', 'acat-many', 'acat-very-many');
         
         if (categoryCount <= 5) {
-            wrapper.classList.add('posts-category-few');
+            wrapper.classList.add('acat-few');
         } else if (categoryCount <= 8) {
-            wrapper.classList.add('posts-category-medium');
+            wrapper.classList.add('acat-medium');
         } else if (categoryCount <= 12) {
-            wrapper.classList.add('posts-category-many');
+            wrapper.classList.add('acat-many');
         } else {
-            wrapper.classList.add('posts-category-very-many');
+            wrapper.classList.add('acat-very-many');
         }
     }
 
@@ -657,5 +783,7 @@
         },
         options: chartConfig
     });
+})();
 </script>
+
 {% endblock %}

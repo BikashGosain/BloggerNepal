@@ -80,7 +80,7 @@
                         Notifications
                     </a>
                     <div class="dash-dropdown-divider"></div>
-                    <a href="{% url 'home' %}" class="dash-dropdown-item dash-logout" onclick="return confirm('Are you sure you want to logout?');">
+                    <a href="{% url 'home' %}" class="dash-dropdown-item dash-logout" onclick="return confirm('Are you sure you want to logout from dashboard and go to home page?');">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke-width="2"/>
                         </svg>
@@ -218,6 +218,14 @@
                     <div class="dash-sidebar-status">Online</div>
                 </div>
             </div>
+                    <div class="dash-sidebar-user"></div>
+            <a href="{% url 'home' %}" class="dash-dropdown-item dash-logout" onclick="return confirm('Are you sure you want to logout from dashboard and go to home page?');">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke-width="2"/>
+                        </svg>
+                        Logout
+                    </a>
+                    </div>
         </div>
     </aside>
 

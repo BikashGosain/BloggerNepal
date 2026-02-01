@@ -1,58 +1,450 @@
 {% extends 'dashboard_base.html' %}
 {% load static %}
 
-{% block extra_css %}
-<style>
-/* =========================================
-   DASHBOARD LAYOUT (SIDEBAR-AWARE)
-   ========================================= */
+{% block content %}
 
-/* Root layout */
-.app-layout {
-    min-height: 100vh;
-    background: #f8f9fa;
+<!-- Main Content Area - Dynamically adjusts to sidebar -->
+<div class="dashboard-page-wrapper" id="dashboardPageWrapper">
+    <div class="dashboard-container">
+        
+        <!-- Page Header -->
+        <div class="dashboard-page-header">
+            <div class="dashboard-breadcrumb">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" stroke-width="2"/>
+                    <path d="M9 22V12h6v10" stroke-width="2"/>
+                </svg>
+                <span class="dashboard-breadcrumb-current">Dashboard</span>
+            </div>
+            
+            <h1 class="dashboard-page-title">Dashboard</h1>
+            <p class="dashboard-page-subtitle">Welcome back! Here's what's happening with your blog today.</p>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            {% include 'analytics/dashboard_header.html' %}
+        </div>
+    </div>
+</div>
+
+<style>
+/* Dashboard Page Styling - Unique namespace to avoid conflicts */
+
+:root {
+    --db-primary: #1a73e8;
+    --db-primary-hover: #1557b0;
+    --db-secondary: #5f6368;
+    --db-success: #1e8e3e;
+    --db-danger: #d93025;
+    --db-warning: #f9ab00;
+    --db-info: #1976d2;
+    --db-bg: #ffffff;
+    --db-bg-secondary: #f8f9fa;
+    --db-border: #e0e0e0;
+    --db-text: #202124;
+    --db-text-secondary: #5f6368;
+    --db-shadow: 0 1px 3px rgba(60, 64, 67, 0.15);
+    --db-shadow-lg: 0 4px 6px -1px rgba(60, 64, 67, 0.1), 0 2px 4px -1px rgba(60, 64, 67, 0.06);
 }
 
-/* Main content area */
-.app-content {
-    margin-left: 0;
+@media (prefers-color-scheme: dark) {
+    :root {
+        --db-bg: #1f1f1f;
+        --db-bg-secondary: #2d2d2d;
+        --db-border: #3c4043;
+        --db-text: #e8eaed;
+        --db-text-secondary: #9aa0a6;
+    }
+}
+
+.dashboard-page-wrapper {
+    margin-left: 280px;
+    margin-top: 64px;
     padding: 24px;
+    background: var(--db-bg-secondary);
+    min-height: calc(100vh - 64px);
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Push content when sidebar is open (desktop only) */
-@media (min-width: 1198px) {
-    .gmail-sidebar-wrapper.is-open ~ .app-content {
-        margin-left: var(--sidebar-width);
+.dashboard-page-wrapper.sidebar-collapsed {
+    margin-left: 0;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-page-wrapper {
+        margin-left: 0 !important;
     }
 }
 
-/* Mobile & tablet: sidebar overlays, content stays fixed */
-@media (max-width: 1197px) {
-    .app-content {
-        margin-left: 0 !important;
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    animation: dashboardSlideIn 0.4s ease;
+}
+
+.dashboard-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.dashboard-breadcrumb svg {
+    width: 20px;
+    height: 20px;
+    color: var(--db-primary);
+}
+
+.dashboard-breadcrumb-current {
+    color: var(--db-text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.dashboard-page-header {
+    margin-bottom: 32px;
+}
+
+.dashboard-page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--db-text);
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+}
+
+.dashboard-page-subtitle {
+    font-size: 14px;
+    color: var(--db-text-secondary);
+    margin: 0;
+}
+
+.dashboard-content {
+    /* Content wrapper for dashboard widgets */
+}
+
+/* Animation */
+@keyframes dashboardSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-page-wrapper {
         padding: 16px;
     }
-}
 
-/* Extra small devices */
-@media (max-width: 576px) {
-    .app-content {
-        padding: 12px;
+    .dashboard-page-title {
+        font-size: 24px;
+    }
+
+    .dashboard-page-subtitle {
+        font-size: 13px;
     }
 }
+
+@media (max-width: 576px) {
+    .dashboard-page-wrapper {
+        padding: 12px;
+    }
+
+    .dashboard-page-title {
+        font-size: 20px;
+    }
+}
+
+/* Additional utility styles for dashboard cards/widgets */
+.db-card {
+    background: var(--db-bg);
+    border: 1px solid var(--db-border);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: var(--db-shadow);
+    margin-bottom: 24px;
+}
+
+.db-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--db-border);
+}
+
+.db-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--db-text);
+    margin: 0;
+}
+
+.db-card-body {
+    color: var(--db-text);
+}
+
+.db-grid {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.db-stat-card {
+    background: var(--db-bg);
+    border: 1px solid var(--db-border);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: var(--db-shadow);
+    transition: all 0.3s ease;
+}
+
+.db-stat-card:hover {
+    box-shadow: var(--db-shadow-lg);
+    transform: translateY(-2px);
+}
+
+.db-stat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.db-stat-label {
+    font-size: 14px;
+    color: var(--db-text-secondary);
+    font-weight: 500;
+}
+
+.db-stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.db-stat-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.db-stat-icon.primary {
+    background: rgba(26, 115, 232, 0.1);
+    color: var(--db-primary);
+}
+
+.db-stat-icon.success {
+    background: rgba(30, 142, 62, 0.1);
+    color: var(--db-success);
+}
+
+.db-stat-icon.warning {
+    background: rgba(249, 171, 0, 0.1);
+    color: var(--db-warning);
+}
+
+.db-stat-icon.danger {
+    background: rgba(217, 48, 37, 0.1);
+    color: var(--db-danger);
+}
+
+.db-stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--db-text);
+    margin-bottom: 8px;
+}
+
+.db-stat-change {
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.db-stat-change.positive {
+    color: var(--db-success);
+}
+
+.db-stat-change.negative {
+    color: var(--db-danger);
+}
+
+.db-stat-change svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Button styles for dashboard actions */
+.db-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.db-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.db-btn-primary {
+    background: var(--db-primary);
+    color: white;
+    box-shadow: 0 1px 3px rgba(26, 115, 232, 0.3);
+}
+
+.db-btn-primary:hover {
+    background: var(--db-primary-hover);
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.4);
+    transform: translateY(-1px);
+    color: white;
+}
+
+.db-btn-secondary {
+    background: var(--db-bg-secondary);
+    color: var(--db-text);
+    border: 1px solid var(--db-border);
+}
+
+.db-btn-secondary:hover {
+    background: var(--db-border);
+    color: var(--db-text);
+}
+
+/* Table styles for dashboard */
+.db-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.db-table thead {
+    background: var(--db-bg-secondary);
+}
+
+.db-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--db-text-secondary);
+    border-bottom: 1px solid var(--db-border);
+}
+
+.db-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--db-border);
+    color: var(--db-text);
+    font-size: 14px;
+}
+
+.db-table tbody tr:hover {
+    background: var(--db-bg-secondary);
+}
+
+/* Badge styles */
+.db-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.db-badge-primary {
+    background: rgba(26, 115, 232, 0.1);
+    color: var(--db-primary);
+}
+
+.db-badge-success {
+    background: rgba(30, 142, 62, 0.1);
+    color: var(--db-success);
+}
+
+.db-badge-warning {
+    background: rgba(249, 171, 0, 0.1);
+    color: var(--db-warning);
+}
+
+.db-badge-danger {
+    background: rgba(217, 48, 37, 0.1);
+    color: var(--db-danger);
+}
 </style>
-{% endblock %}
 
-{% block content %}
-<div class="app-layout">
+<script>
+(function() {
+    'use strict';
+    
+    const dashboardWrapper = document.getElementById('dashboardPageWrapper');
+    const sidebar = document.getElementById('dashSidebar');
+    
+    if (!dashboardWrapper) return;
+    
+    function updateWrapperMargin() {
+        const isDesktop = window.innerWidth > 1024;
+        
+        if (!isDesktop) {
+            dashboardWrapper.classList.add('sidebar-collapsed');
+            return;
+        }
+        
+        if (sidebar) {
+            if (sidebar.classList.contains('dash-collapsed') || 
+                sidebar.classList.contains('dash-open') === false) {
+                dashboardWrapper.classList.add('sidebar-collapsed');
+            } else {
+                dashboardWrapper.classList.remove('sidebar-collapsed');
+            }
+        } else {
+            dashboardWrapper.classList.add('sidebar-collapsed');
+        }
+    }
+    
+    updateWrapperMargin();
+    
+    if (sidebar) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    updateWrapperMargin();
+                }
+            });
+        });
+        
+        observer.observe(sidebar, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+    
+    window.addEventListener('resize', updateWrapperMargin);
+    
+    const menuToggle = document.getElementById('dashMenuToggle');
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            setTimeout(updateWrapperMargin, 50);
+        });
+    }
+})();
+</script>
 
-    <main class="app-content">
-        {% include 'analytics/dashboard_header.html' %}
-    </main>
-
-</div>
-{% endblock %}
-
-{% block extra_js %}
 {% endblock %}

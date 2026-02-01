@@ -1,506 +1,634 @@
-{% extends 'base.html' %}
+{% extends 'dashboard_base.html' %}
 {% load static %}
 
-{% block extra_css %}
+{% block content %}
+
+<!-- Main Content Area - Dynamically adjusts to sidebar -->
+<div class="analytics-month-wrapper" id="analyticsMonthWrapper">
+    <div class="analytics-month-container">
+        
+        <!-- Page Header with Breadcrumb -->
+        <div class="analytics-month-header">
+            <div class="analytics-month-breadcrumb">
+                <a href="{% url 'dashboard' %}" class="analytics-month-breadcrumb-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" stroke-width="2"/>
+                        <path d="M9 22V12h6v10" stroke-width="2"/>
+                    </svg>
+                    Dashboard
+                </a>
+                <svg class="analytics-month-breadcrumb-separator" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span class="analytics-month-breadcrumb-current">Posts Per Month</span>
+            </div>
+            
+            <h1 class="analytics-month-page-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="analytics-month-title-icon">
+                    <path d="M3 3v18h18" stroke-width="2"/>
+                    <path d="M18 17V9M13 17v-6M8 17v-3" stroke-width="2"/>
+                </svg>
+                Posts Per Month
+            </h1>
+            <p class="analytics-month-page-subtitle">Track post creation trends over time</p>
+        </div>
+
+        <!-- Dashboard Header Include -->
+        {% include 'analytics/dashboard_header.html' %}
+
+        <!-- All Posts Chart (if user can see all) -->
+        {% if can_see_all %}
+        <div class="analytics-month-chart-card">
+            <div class="analytics-month-chart-header">
+                <h2 class="analytics-month-chart-title">All Posts per Month</h2>
+                <button class="analytics-month-fullscreen-btn" onclick="openMonthFullscreen('allMonthFullscreen')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke-width="2"/>
+                    </svg>
+                    Fullscreen
+                </button>
+            </div>
+            <div class="analytics-month-chart-body">
+                <div class="analytics-month-chart-wrapper" id="allMonthWrapper">
+                    <canvas id="allMonthChart" class="analytics-month-chart-canvas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fullscreen Modal for All Posts -->
+        <div class="analytics-month-fullscreen-modal" id="allMonthFullscreen">
+            <div class="analytics-month-fullscreen-content">
+                <div class="analytics-month-fullscreen-header">
+                    <h2>All Posts per Month - Fullscreen View</h2>
+                    <button class="analytics-month-close-btn" onclick="closeMonthFullscreen('allMonthFullscreen')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Close
+                    </button>
+                </div>
+                <div class="analytics-month-fullscreen-body">
+                    <div class="analytics-month-fullscreen-chart-wrapper" id="allMonthFullscreenWrapper">
+                        <canvas id="allMonthFullscreenChart" class="analytics-month-fullscreen-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- My Posts Chart -->
+        <div class="analytics-month-chart-card">
+            <div class="analytics-month-chart-header">
+                <h2 class="analytics-month-chart-title">My Posts per Month</h2>
+                <button class="analytics-month-fullscreen-btn" onclick="openMonthFullscreen('myMonthFullscreen')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke-width="2"/>
+                    </svg>
+                    Fullscreen
+                </button>
+            </div>
+            <div class="analytics-month-chart-body">
+                <div class="analytics-month-chart-wrapper" id="myMonthWrapper">
+                    <canvas id="myMonthChart" class="analytics-month-chart-canvas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fullscreen Modal for My Posts -->
+        <div class="analytics-month-fullscreen-modal" id="myMonthFullscreen">
+            <div class="analytics-month-fullscreen-content">
+                <div class="analytics-month-fullscreen-header">
+                    <h2>My Posts per Month - Fullscreen View</h2>
+                    <button class="analytics-month-close-btn" onclick="closeMonthFullscreen('myMonthFullscreen')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Close
+                    </button>
+                </div>
+                <div class="analytics-month-fullscreen-body">
+                    <div class="analytics-month-fullscreen-chart-wrapper" id="myMonthFullscreenWrapper">
+                        <canvas id="myMonthFullscreenChart" class="analytics-month-fullscreen-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 <style>
-    /* Posts Per Month Unique Styles */
-    .posts-month-container {
-        padding: 1.5rem 0;
+/* Analytics Month Page Styling - Unique namespace */
+
+:root {
+    --amon-primary: #1a73e8;
+    --amon-primary-hover: #1557b0;
+    --amon-secondary: #5f6368;
+    --amon-gradient-start: #667eea;
+    --amon-gradient-end: #764ba2;
+    --amon-bg: #ffffff;
+    --amon-bg-secondary: #f8f9fa;
+    --amon-border: #e0e0e0;
+    --amon-text: #202124;
+    --amon-text-secondary: #5f6368;
+    --amon-shadow: 0 1px 3px rgba(60, 64, 67, 0.15);
+    --amon-shadow-lg: 0 4px 6px -1px rgba(60, 64, 67, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --amon-bg: #1f1f1f;
+        --amon-bg-secondary: #2d2d2d;
+        --amon-border: #3c4043;
+        --amon-text: #e8eaed;
+        --amon-text-secondary: #9aa0a6;
+    }
+}
+
+.analytics-month-wrapper {
+    margin-left: 280px;
+    margin-top: 64px;
+    padding: 24px;
+    background: var(--amon-bg-secondary);
+    min-height: calc(100vh - 64px);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.analytics-month-wrapper.sidebar-collapsed {
+    margin-left: 0;
+}
+
+@media (max-width: 1024px) {
+    .analytics-month-wrapper {
+        margin-left: 0 !important;
+    }
+}
+
+.analytics-month-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    animation: analyticsMonthSlideIn 0.4s ease;
+}
+
+.analytics-month-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.analytics-month-breadcrumb-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--amon-primary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.analytics-month-breadcrumb-link:hover {
+    color: var(--amon-primary-hover);
+}
+
+.analytics-month-breadcrumb-link svg {
+    width: 16px;
+    height: 16px;
+}
+
+.analytics-month-breadcrumb-separator {
+    width: 16px;
+    height: 16px;
+    color: var(--amon-text-secondary);
+}
+
+.analytics-month-breadcrumb-current {
+    color: var(--amon-text-secondary);
+    font-size: 14px;
+}
+
+.analytics-month-header {
+    margin-bottom: 32px;
+}
+
+.analytics-month-page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--amon-text);
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.analytics-month-title-icon {
+    width: 36px;
+    height: 36px;
+    color: var(--amon-primary);
+}
+
+.analytics-month-page-subtitle {
+    font-size: 14px;
+    color: var(--amon-text-secondary);
+    margin: 0;
+}
+
+/* Chart Card */
+.analytics-month-chart-card {
+    background: var(--amon-bg);
+    border: 1px solid var(--amon-border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--amon-shadow);
+    margin-top: 24px;
+}
+
+.analytics-month-chart-header {
+    background: linear-gradient(135deg, var(--amon-gradient-start) 0%, var(--amon-gradient-end) 100%);
+    color: white;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.analytics-month-chart-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.analytics-month-fullscreen-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.analytics-month-fullscreen-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.8);
+    transform: scale(1.05);
+}
+
+.analytics-month-fullscreen-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.analytics-month-chart-body {
+    padding: 32px 24px;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.analytics-month-chart-wrapper {
+    height: 400px;
+    position: relative;
+    width: 100%;
+    min-width: 800px;
+}
+
+.analytics-month-chart-wrapper.amon-few {
+    min-width: 600px;
+}
+
+.analytics-month-chart-wrapper.amon-medium {
+    min-width: 900px;
+}
+
+.analytics-month-chart-wrapper.amon-many {
+    min-width: 1200px;
+}
+
+.analytics-month-chart-wrapper.amon-all {
+    min-width: 1400px;
+}
+
+.analytics-month-chart-canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Fullscreen Modal */
+.analytics-month-fullscreen-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.95);
+    z-index: 10000;
+    overflow: auto;
+}
+
+.analytics-month-fullscreen-modal.amon-modal-active {
+    display: block;
+}
+
+.analytics-month-fullscreen-content {
+    width: 95%;
+    max-width: 1600px;
+    margin: 2rem auto;
+    background-color: var(--amon-bg);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.analytics-month-fullscreen-header {
+    background: linear-gradient(135deg, var(--amon-gradient-start) 0%, var(--amon-gradient-end) 100%);
+    color: white;
+    padding: 24px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.analytics-month-fullscreen-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.analytics-month-close-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.analytics-month-close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.8);
+    transform: scale(1.05);
+}
+
+.analytics-month-close-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.analytics-month-fullscreen-body {
+    padding: 48px 32px;
+    overflow-x: auto;
+}
+
+.analytics-month-fullscreen-chart-wrapper {
+    height: 650px;
+    position: relative;
+    width: 100%;
+    min-width: 1000px;
+}
+
+.analytics-month-fullscreen-chart-wrapper.amon-few {
+    min-width: 900px;
+}
+
+.analytics-month-fullscreen-chart-wrapper.amon-medium {
+    min-width: 1300px;
+}
+
+.analytics-month-fullscreen-chart-wrapper.amon-many {
+    min-width: 1800px;
+}
+
+.analytics-month-fullscreen-chart-wrapper.amon-all {
+    min-width: 2200px;
+}
+
+.analytics-month-fullscreen-canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Scrollbar Styling */
+.analytics-month-chart-body::-webkit-scrollbar,
+.analytics-month-fullscreen-body::-webkit-scrollbar {
+    height: 12px;
+}
+
+.analytics-month-chart-body::-webkit-scrollbar-track,
+.analytics-month-fullscreen-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 6px;
+    margin: 0 10px;
+}
+
+.analytics-month-chart-body::-webkit-scrollbar-thumb,
+.analytics-month-fullscreen-body::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--amon-gradient-start) 0%, var(--amon-gradient-end) 100%);
+    border-radius: 6px;
+}
+
+.analytics-month-chart-body::-webkit-scrollbar-thumb:hover,
+.analytics-month-fullscreen-body::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--amon-gradient-end) 0%, var(--amon-gradient-start) 100%);
+}
+
+@keyframes analyticsMonthSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .analytics-month-wrapper {
+        padding: 16px;
     }
 
-    .posts-month-row {
-        display: flex;
-        flex-wrap: wrap;
-        margin: 0 -15px;
+    .analytics-month-page-title {
+        font-size: 24px;
     }
 
-    .posts-month-sidebar {
-        flex: 0 0 25%;
-        max-width: 25%;
-        padding: 0 15px;
+    .analytics-month-chart-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
     }
 
-    .posts-month-content {
-        flex: 0 0 75%;
-        max-width: 75%;
-        padding: 0 15px;
-    }
-
-    .posts-month-chart-card {
-        background-color: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 0.5rem;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        margin-top: 1.5rem;
-    }
-
-    .posts-month-chart-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1rem 1.5rem;
-        font-weight: 600;
-        font-size: 1.1rem;
-        text-align: center;
-        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .posts-month-fullscreen-btn {
-        background-color: rgba(255, 255, 255, 0.2);
-        border: 2px solid rgba(255, 255, 255, 0.5);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 0.375rem;
-        cursor: pointer;
-        font-size: 0.9rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        margin-left: auto;
-    }
-
-    .posts-month-fullscreen-btn:hover {
-        background-color: rgba(255, 255, 255, 0.3);
-        border-color: rgba(255, 255, 255, 0.8);
-        transform: scale(1.05);
-    }
-
-    .posts-month-chart-body {
-        padding: 2rem 1.5rem;
-        overflow-x: auto;
-        overflow-y: hidden;
-    }
-
-    .posts-month-chart-wrapper {
-        height: 400px;
-        position: relative;
+    .analytics-month-fullscreen-btn {
         width: 100%;
-        min-width: 800px;
+        justify-content: center;
     }
 
-    /* Dynamic width based on number of months */
-    .posts-month-chart-wrapper.posts-month-few {
+    .analytics-month-chart-body {
+        padding: 24px 16px;
+    }
+
+    .analytics-month-chart-wrapper {
+        height: 350px;
         min-width: 600px;
     }
 
-    .posts-month-chart-wrapper.posts-month-medium {
-        min-width: 900px;
+    .analytics-month-fullscreen-content {
+        width: 98%;
+        margin: 1rem auto;
     }
 
-    .posts-month-chart-wrapper.posts-month-many {
-        min-width: 1200px;
+    .analytics-month-fullscreen-header {
+        padding: 16px 20px;
+        flex-direction: column;
+        gap: 12px;
     }
 
-    .posts-month-chart-wrapper.posts-month-all {
-        min-width: 1400px;
+    .analytics-month-fullscreen-header h2 {
+        font-size: 18px;
     }
 
-    .posts-month-chart-canvas {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100% !important;
-        height: 100% !important;
-    }
-
-    /* Fullscreen Modal */
-    .posts-month-fullscreen-modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: rgba(0, 0, 0, 0.95);
-        z-index: 10000;
-        overflow: auto;
-    }
-
-    .posts-month-fullscreen-modal.posts-month-modal-active {
-        display: block;
-    }
-
-    .posts-month-fullscreen-content {
-        width: 95%;
-        max-width: 1600px;
-        margin: 2rem auto;
-        background-color: white;
-        border-radius: 0.5rem;
-        overflow: hidden;
-    }
-
-    .posts-month-fullscreen-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1.5rem 2rem;
-        font-weight: 600;
-        font-size: 1.3rem;
-        text-align: center;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .posts-month-close-btn {
-        background-color: rgba(255, 255, 255, 0.2);
-        border: 2px solid rgba(255, 255, 255, 0.5);
-        color: white;
-        padding: 0.5rem 1.25rem;
-        border-radius: 0.375rem;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .posts-month-close-btn:hover {
-        background-color: rgba(255, 255, 255, 0.3);
-        border-color: rgba(255, 255, 255, 0.8);
-        transform: scale(1.05);
-    }
-
-    .posts-month-fullscreen-body {
-        padding: 3rem 2rem;
-        overflow-x: auto;
-    }
-
-    .posts-month-fullscreen-chart-wrapper {
-        height: 650px;
-        position: relative;
+    .analytics-month-close-btn {
         width: 100%;
-        min-width: 1000px;
+        justify-content: center;
     }
 
-    .posts-month-fullscreen-chart-wrapper.posts-month-few {
-        min-width: 900px;
+    .analytics-month-fullscreen-body {
+        padding: 32px 20px;
     }
 
-    .posts-month-fullscreen-chart-wrapper.posts-month-medium {
-        min-width: 1300px;
+    .analytics-month-fullscreen-chart-wrapper {
+        height: 500px;
+    }
+}
+
+@media (max-width: 576px) {
+    .analytics-month-wrapper {
+        padding: 12px;
     }
 
-    .posts-month-fullscreen-chart-wrapper.posts-month-many {
-        min-width: 1800px;
+    .analytics-month-chart-body {
+        padding: 20px 12px;
     }
 
-    .posts-month-fullscreen-chart-wrapper.posts-month-all {
-        min-width: 2200px;
+    .analytics-month-chart-wrapper {
+        height: 320px;
+        min-width: 550px;
     }
-
-    .posts-month-fullscreen-canvas {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100% !important;
-        height: 100% !important;
-    }
-
-    /* Scrollbar Styling */
-    .posts-month-chart-body::-webkit-scrollbar,
-    .posts-month-fullscreen-body::-webkit-scrollbar {
-        height: 12px;
-    }
-
-    .posts-month-chart-body::-webkit-scrollbar-track,
-    .posts-month-fullscreen-body::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 6px;
-        margin: 0 10px;
-    }
-
-    .posts-month-chart-body::-webkit-scrollbar-thumb,
-    .posts-month-fullscreen-body::-webkit-scrollbar-thumb {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 6px;
-    }
-
-    .posts-month-chart-body::-webkit-scrollbar-thumb:hover,
-    .posts-month-fullscreen-body::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-    }
-
-    /* Responsive Layout */
-    @media (max-width: 992px) {
-        .posts-month-sidebar {
-            flex: 0 0 30%;
-            max-width: 30%;
-        }
-
-        .posts-month-content {
-            flex: 0 0 70%;
-            max-width: 70%;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .posts-month-sidebar {
-            flex: 0 0 100%;
-            max-width: 100%;
-            margin-bottom: 1.5rem;
-        }
-
-        .posts-month-content {
-            flex: 0 0 100%;
-            max-width: 100%;
-        }
-
-        .posts-month-chart-card {
-            margin-top: 1.25rem;
-        }
-
-        .posts-month-chart-header {
-            padding: 0.875rem 1.25rem;
-            font-size: 1rem;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .posts-month-fullscreen-btn {
-            margin-left: 0;
-            width: 100%;
-        }
-
-        .posts-month-chart-body {
-            padding: 1.5rem 1rem;
-        }
-
-        .posts-month-chart-wrapper {
-            height: 350px;
-        }
-
-        .posts-month-fullscreen-content {
-            width: 98%;
-            margin: 1rem auto;
-        }
-
-        .posts-month-fullscreen-header {
-            padding: 1rem 1.25rem;
-            font-size: 1.1rem;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .posts-month-close-btn {
-            width: 100%;
-        }
-
-        .posts-month-fullscreen-body {
-            padding: 2rem 1.25rem;
-        }
-
-        .posts-month-fullscreen-chart-wrapper {
-            height: 500px;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .posts-month-container {
-            padding: 1rem 0;
-        }
-
-        .posts-month-row {
-            margin: 0 -10px;
-        }
-
-        .posts-month-sidebar,
-        .posts-month-content {
-            padding: 0 10px;
-        }
-
-        .posts-month-sidebar {
-            margin-bottom: 1rem;
-        }
-
-        .posts-month-chart-card {
-            margin-top: 1rem;
-        }
-
-        .posts-month-chart-header {
-            padding: 0.75rem 1rem;
-            font-size: 0.95rem;
-        }
-
-        .posts-month-fullscreen-btn {
-            padding: 0.4rem 0.75rem;
-            font-size: 0.85rem;
-        }
-
-        .posts-month-chart-body {
-            padding: 1.25rem 0.875rem;
-        }
-
-        .posts-month-chart-wrapper {
-            height: 320px;
-            min-width: 600px;
-        }
-
-        .posts-month-fullscreen-header {
-            padding: 0.875rem 1rem;
-            font-size: 1rem;
-        }
-
-        .posts-month-fullscreen-body {
-            padding: 1.5rem 1rem;
-        }
-
-        .posts-month-fullscreen-chart-wrapper {
-            height: 450px;
-        }
-    }
-
-    @media (max-width: 420px) {
-        .posts-month-container {
-            padding: 0.75rem 0;
-        }
-
-        .posts-month-row {
-            margin: 0 -8px;
-        }
-
-        .posts-month-sidebar,
-        .posts-month-content {
-            padding: 0 8px;
-        }
-
-        .posts-month-chart-header {
-            padding: 0.625rem 0.875rem;
-            font-size: 0.9rem;
-        }
-
-        .posts-month-chart-body {
-            padding: 1rem 0.75rem;
-        }
-
-        .posts-month-chart-wrapper {
-            height: 300px;
-            min-width: 550px;
-        }
-
-        .posts-month-fullscreen-chart-wrapper {
-            height: 400px;
-        }
-    }
+}
 </style>
-{% endblock %}
 
-{% block content %}
-<div class="posts-month-container">
-    <div class="posts-month-row">
-        <div class="posts-month-sidebar">
-            {% include 'sidebar.html' %}
-        </div>
-        <div class="posts-month-content">
-            {% include 'analytics/dashboard_header.html' %}
-
-            {% if can_see_all %}
-            <div class="posts-month-chart-card">
-                <div class="posts-month-chart-header">
-                    <span>All Posts per Month</span>
-                    <button class="posts-month-fullscreen-btn" onclick="openFullscreen('allMonthFullscreen')">
-                        📊 View Fullscreen
-                    </button>
-                </div>
-                <div class="posts-month-chart-body">
-                    <div class="posts-month-chart-wrapper" id="allMonthWrapper">
-                        <canvas id="allMonthChart" class="posts-month-chart-canvas"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Fullscreen Modal for All Posts -->
-            <div class="posts-month-fullscreen-modal" id="allMonthFullscreen">
-                <div class="posts-month-fullscreen-content">
-                    <div class="posts-month-fullscreen-header">
-                        <span>All Posts per Month - Fullscreen View</span>
-                        <button class="posts-month-close-btn" onclick="closeFullscreen('allMonthFullscreen')">
-                            ✕ Close
-                        </button>
-                    </div>
-                    <div class="posts-month-fullscreen-body">
-                        <div class="posts-month-fullscreen-chart-wrapper" id="allMonthFullscreenWrapper">
-                            <canvas id="allMonthFullscreenChart" class="posts-month-fullscreen-canvas"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
-            <div class="posts-month-chart-card">
-                <div class="posts-month-chart-header">
-                    <span>My Posts per Month</span>
-                    <button class="posts-month-fullscreen-btn" onclick="openFullscreen('myMonthFullscreen')">
-                        📊 View Fullscreen
-                    </button>
-                </div>
-                <div class="posts-month-chart-body">
-                    <div class="posts-month-chart-wrapper" id="myMonthWrapper">
-                        <canvas id="myMonthChart" class="posts-month-chart-canvas"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Fullscreen Modal for My Posts -->
-            <div class="posts-month-fullscreen-modal" id="myMonthFullscreen">
-                <div class="posts-month-fullscreen-content">
-                    <div class="posts-month-fullscreen-header">
-                        <span>My Posts per Month - Fullscreen View</span>
-                        <button class="posts-month-close-btn" onclick="closeFullscreen('myMonthFullscreen')">
-                            ✕ Close
-                        </button>
-                    </div>
-                    <div class="posts-month-fullscreen-body">
-                        <div class="posts-month-fullscreen-chart-wrapper" id="myMonthFullscreenWrapper">
-                            <canvas id="myMonthFullscreenChart" class="posts-month-fullscreen-canvas"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // Fullscreen Modal Functions
-    function openFullscreen(modalId) {
-        document.getElementById(modalId).classList.add('posts-month-modal-active');
-        document.body.style.overflow = 'hidden';
+(function() {
+    'use strict';
+    
+    const analyticsMonthWrapper = document.getElementById('analyticsMonthWrapper');
+    const sidebar = document.getElementById('dashSidebar');
+    
+    if (!analyticsMonthWrapper) return;
+    
+    function updateWrapperMargin() {
+        const isDesktop = window.innerWidth > 1024;
+        
+        if (!isDesktop) {
+            analyticsMonthWrapper.classList.add('sidebar-collapsed');
+            return;
+        }
+        
+        if (sidebar) {
+            if (sidebar.classList.contains('dash-collapsed') || 
+                sidebar.classList.contains('dash-open') === false) {
+                analyticsMonthWrapper.classList.add('sidebar-collapsed');
+            } else {
+                analyticsMonthWrapper.classList.remove('sidebar-collapsed');
+            }
+        } else {
+            analyticsMonthWrapper.classList.add('sidebar-collapsed');
+        }
+    }
+    
+    updateWrapperMargin();
+    
+    if (sidebar) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    updateWrapperMargin();
+                }
+            });
+        });
+        
+        observer.observe(sidebar, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+    
+    window.addEventListener('resize', updateWrapperMargin);
+    
+    const menuToggle = document.getElementById('dashMenuToggle');
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            setTimeout(updateWrapperMargin, 50);
+        });
     }
 
-    function closeFullscreen(modalId) {
-        document.getElementById(modalId).classList.remove('posts-month-modal-active');
+    // Fullscreen Modal Functions
+    window.openMonthFullscreen = function(modalId) {
+        document.getElementById(modalId).classList.add('amon-modal-active');
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.closeMonthFullscreen = function(modalId) {
+        document.getElementById(modalId).classList.remove('amon-modal-active');
         document.body.style.overflow = 'auto';
-    }
+    };
 
     // Close modal on ESC key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            document.querySelectorAll('.posts-month-fullscreen-modal').forEach(modal => {
-                modal.classList.remove('posts-month-modal-active');
+            document.querySelectorAll('.analytics-month-fullscreen-modal').forEach(modal => {
+                modal.classList.remove('amon-modal-active');
             });
             document.body.style.overflow = 'auto';
         }
     });
 
-    // Dynamic width adjustment based on months count
+    // Dynamic width adjustment
     function adjustChartWidth(wrapperId, monthCount) {
         const wrapper = document.getElementById(wrapperId);
-        wrapper.classList.remove('posts-month-few', 'posts-month-medium', 'posts-month-many', 'posts-month-all');
+        if (!wrapper) return;
+        
+        wrapper.classList.remove('amon-few', 'amon-medium', 'amon-many', 'amon-all');
         
         if (monthCount <= 6) {
-            wrapper.classList.add('posts-month-few');
+            wrapper.classList.add('amon-few');
         } else if (monthCount <= 9) {
-            wrapper.classList.add('posts-month-medium');
+            wrapper.classList.add('amon-medium');
         } else if (monthCount <= 12) {
-            wrapper.classList.add('posts-month-many');
+            wrapper.classList.add('amon-many');
         } else {
-            wrapper.classList.add('posts-month-all');
+            wrapper.classList.add('amon-all');
         }
     }
 
@@ -657,5 +785,7 @@
         },
         options: chartConfig
     });
+})();
 </script>
+
 {% endblock %}

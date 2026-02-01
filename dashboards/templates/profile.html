@@ -1,172 +1,743 @@
-{% extends 'base.html' %}
-
+{% extends 'dashboard_base.html' %}
 {% load static %}
 
-
-{% block extra_css %}
-<link href="{% static 'css/profile.css' %}" rel="stylesheet">
-<link href="{% static 'css/dashboardfollowers_list.css' %}" rel="stylesheet">
-{% endblock %}
-
 {% block content %}
-<div class="row mt-4">
-    <!-- Sidebar -->
-    <div class="col-md-3">
-        {% include 'sidebar.html' %}
-    </div>
 
-    <!-- Profile content -->
-    <div class="col-md-9">
-        <!-- Profile Card -->
-        <div class="card profile-info-card mb-4 shadow-sm">
-            <div class="card-header profile-header">
-                <i class="fas fa-user-circle"></i> My Profile
+<!-- Main Content Area - Dynamically adjusts to sidebar -->
+<div class="profile-page-wrapper" id="profilePageWrapper">
+    <div class="profile-container">
+        
+        <!-- Page Header with Breadcrumb -->
+        <div class="profile-page-header">
+            <div class="profile-breadcrumb">
+                <a href="{% url 'dashboard' %}" class="profile-breadcrumb-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" stroke-width="2"/>
+                        <path d="M9 22V12h6v10" stroke-width="2"/>
+                    </svg>
+                    Dashboard
+                </a>
+                <svg class="profile-breadcrumb-separator" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span class="profile-breadcrumb-current">My Profile</span>
             </div>
-            <div class="card-body">
-                <div class="row">
+            
+            <h1 class="profile-page-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="profile-title-icon">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke-width="2"/>
+                </svg>
+                My Profile
+            </h1>
+            <p class="profile-page-subtitle">Manage your account information and settings</p>
+        </div>
+
+        <!-- Profile Info Card -->
+        <div class="profile-info-card">
+            <div class="profile-card-header">
+                <h2 class="profile-card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke-width="2"/>
+                    </svg>
+                    Profile Information
+                </h2>
+                <a href="{% url 'edit_profile' %}" class="profile-edit-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke-width="2"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke-width="2"/>
+                    </svg>
+                    Edit Profile
+                </a>
+            </div>
+
+            <div class="profile-card-body">
+                <div class="profile-details-grid">
                     <!-- Left Column -->
-                    <div class="col-md-6">
-                        <div class="profile-detail">
-                            <i class="fas fa-user text-primary"></i>
-                            <div>
-                                <span class="detail-label">Full Name</span>
-                                <span class="detail-value">{{ user.first_name }} {{ user.last_name }}</span>
-                            </div>
+                    <div class="profile-detail-item">
+                        <div class="profile-detail-icon profile-icon-primary">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke-width="2"/>
+                            </svg>
                         </div>
-                        
-                        <div class="profile-detail">
-                            <i class="fas fa-at text-success"></i>
-                            <div>
-                                <span class="detail-label">Username</span>
-                                <span class="detail-value">{{ user.username }}</span>
-                            </div>
+                        <div class="profile-detail-content">
+                            <span class="profile-detail-label">Full Name</span>
+                            <span class="profile-detail-value">
+                                {% if user.first_name or user.last_name %}
+                                    {{ user.first_name }} {{ user.last_name }}
+                                {% else %}
+                                    <span class="profile-detail-empty">Not set</span>
+                                {% endif %}
+                            </span>
                         </div>
-                        
-                        <div class="profile-detail">
-                            <i class="fas fa-envelope text-danger"></i>
-                            <div>
-                                <span class="detail-label">Email</span>
-                                <span class="detail-value">{{ user.email }}</span>
-                            </div>
+                    </div>
+
+                    <div class="profile-detail-item">
+                        <div class="profile-detail-icon profile-icon-success">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="profile-detail-content">
+                            <span class="profile-detail-label">Username</span>
+                            <span class="profile-detail-value">{{ user.username }}</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-detail-item">
+                        <div class="profile-detail-icon profile-icon-danger">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke-width="2"/>
+                                <path d="M22 6l-10 7L2 6" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="profile-detail-content">
+                            <span class="profile-detail-label">Email</span>
+                            <span class="profile-detail-value">{{ user.email }}</span>
                         </div>
                     </div>
 
                     <!-- Right Column -->
-                    <div class="col-md-6">
-                        <div class="profile-detail">
-                            <i class="fas fa-user-tag text-warning"></i>
-                            <div>
-                                <span class="detail-label">Role / Group</span>
-                                <span class="detail-value">
-                                    {% if user.is_superuser %}
-                                    <span class="badge bg-danger">Admin</span>
-                                    {% if user.groups.all %}, {% endif %}
-                                    {% endif %}
-                                    {% for group in user.groups.all %}
-                                    <span class="badge bg-info">{{ group.name }}</span>{% if not forloop.last %}, {% endif %}
-                                    {% empty %}
+                    <div class="profile-detail-item">
+                        <div class="profile-detail-icon profile-icon-warning">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="profile-detail-content">
+                            <span class="profile-detail-label">Role / Group</span>
+                            <span class="profile-detail-value">
+                                {% if user.is_superuser %}
+                                    <span class="profile-badge profile-badge-danger">Admin</span>
+                                {% endif %}
+                                {% for group in user.groups.all %}
+                                    <span class="profile-badge profile-badge-info">{{ group.name }}</span>
+                                {% empty %}
                                     {% if not user.is_superuser %}
-                                    <span class="badge bg-secondary">None</span>
+                                        <span class="profile-badge profile-badge-secondary">None</span>
                                     {% endif %}
-                                    {% endfor %}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="profile-detail">
-                            <i class="fas fa-users text-info"></i>
-                            <div>
-                                <span class="detail-label">Social Stats</span>
-                                <span class="detail-value">
-                                    <a href="{% url 'profile' %}?tab=followers" class="social-link">
-                                        <i class="fas fa-user-friends"></i> {{ my_followers_count }} Followers
-                                    </a>
-                                    <span class="mx-2">|</span>
-                                    <a href="{% url 'profile' %}?tab=following" class="social-link ">
-                                        <i class="fas fa-user-check"></i> {{ my_following_count }} Following
-                                    </a>
-                                   
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="profile-detail">
-                            <i class="fas fa-user-plus text-secondary"></i>
-                            <div>
-                                <span class="detail-label">Account Created By</span>
-                                <span class="detail-value">
-                                    {% if user.profile.created_by %}
-                                    {{ user.profile.created_by.username }}
-                                    {% else %}
-                                    Self
-                                    {% endif %}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="profile-detail">
-                            <i class="fas fa-blog text-primary"></i>
-                            <div>
-                                <span class="detail-label">Posts Uploaded</span>
-                                <span class="detail-value">
-                                    <span class="badge bg-primary">{{ user.blog_set.count }}</span>
-                                </span>
-                            </div>
+                                {% endfor %}
+                            </span>
                         </div>
                     </div>
-                </div>
 
-                <!-- Edit Profile Button -->
-                <div class="mt-4 text-center">
-                    <a href="{% url 'edit_profile' %}" class="btn btn-edit-profile">
-                        <i class="fas fa-user-edit"></i> Edit Profile
-                    </a>
+                    <div class="profile-detail-item">
+                        <div class="profile-detail-icon profile-icon-info">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="profile-detail-content">
+                            <span class="profile-detail-label">Social Stats</span>
+                            <span class="profile-detail-value">
+                                <a href="{% url 'profile' %}?tab=followers" class="profile-social-link">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke-width="2"/>
+                                    </svg>
+                                    {{ my_followers_count }} Followers
+                                </a>
+                                <span class="profile-social-divider">•</span>
+                                <a href="{% url 'profile' %}?tab=following" class="profile-social-link">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M12.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM19 8v6M22 11h-6" stroke-width="2"/>
+                                    </svg>
+                                    {{ my_following_count }} Following
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="profile-detail-item">
+                        <div class="profile-detail-icon profile-icon-secondary">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM20 8v6M23 11h-6" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="profile-detail-content">
+                            <span class="profile-detail-label">Account Created By</span>
+                            <span class="profile-detail-value">
+                                {% if user.profile.created_by %}
+                                    {{ user.profile.created_by.username }}
+                                {% else %}
+                                    Self
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="profile-detail-item">
+                        <div class="profile-detail-icon profile-icon-primary">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke-width="2"/>
+                                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="profile-detail-content">
+                            <span class="profile-detail-label">Posts Uploaded</span>
+                            <span class="profile-detail-value">
+                                <span class="profile-badge profile-badge-primary">{{ user.blog_set.count }}</span>
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- My Posts Section -->
-        <div class="posts-section">
-            <ul class="nav nav-tabs profile-tabs">
-    <li class="nav-item">
-        <a class="nav-link {% if tab == 'posts' %}active{% endif %}"
-           href="{% url 'profile' %}?tab=posts">
-            My Posts
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link {% if tab == 'followers' %}active{% endif %}"
-           href="{% url 'profile' %}?tab=followers">
-            Followers
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link {% if tab == 'following' %}active{% endif %}"
-           href="{% url 'profile' %}?tab=following">
-            Following
-        </a>
-    </li>
-</ul>
+        <!-- Tabs Section -->
+        <div class="profile-tabs-section">
+            <div class="profile-tabs">
+                <a href="{% url 'profile' %}?tab=posts" 
+                   class="profile-tab {% if tab == 'posts' or not tab %}profile-tab-active{% endif %}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke-width="2"/>
+                        <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke-width="2"/>
+                    </svg>
+                    My Posts
+                </a>
+                <a href="{% url 'profile' %}?tab=followers" 
+                   class="profile-tab {% if tab == 'followers' %}profile-tab-active{% endif %}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke-width="2"/>
+                    </svg>
+                    Followers
+                </a>
+                <a href="{% url 'profile' %}?tab=following" 
+                   class="profile-tab {% if tab == 'following' %}profile-tab-active{% endif %}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M12.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM19 8v6M22 11h-6" stroke-width="2"/>
+                    </svg>
+                    Following
+                </a>
+            </div>
 
-
-            <div class="profile-tab-content mt-4">
-    {% if tab == 'followers' %}
-        {% include 'followers_list.html' %}
-    {% elif tab == 'following' %}
-        {% include 'following_list.html' %}
-    {% else %}
-        {% include 'My_Posts.html' %}
-    {% endif %}
-</div>
-
+            <div class="profile-tab-content">
+                {% if tab == 'followers' %}
+                    {% include 'followers_list.html' %}
+                {% elif tab == 'following' %}
+                    {% include 'following_list.html' %}
+                {% else %}
+                    {% include 'My_Posts.html' %}
+                {% endif %}
+            </div>
         </div>
+
     </div>
 </div>
 
+<style>
+/* Profile Page Styling - Unique namespace */
 
-{% endblock %}
+:root {
+    --prof-primary: #1a73e8;
+    --prof-primary-hover: #1557b0;
+    --prof-secondary: #5f6368;
+    --prof-success: #1e8e3e;
+    --prof-danger: #d93025;
+    --prof-warning: #f9ab00;
+    --prof-info: #1976d2;
+    --prof-bg: #ffffff;
+    --prof-bg-secondary: #f8f9fa;
+    --prof-border: #e0e0e0;
+    --prof-text: #202124;
+    --prof-text-secondary: #5f6368;
+    --prof-shadow: 0 1px 3px rgba(60, 64, 67, 0.15);
+    --prof-shadow-lg: 0 4px 6px -1px rgba(60, 64, 67, 0.1);
+}
 
-{% block extra_js %}
-<script src="{% static 'js/profile.js' %}"></script>
-<script src="{% static 'js/dashboardfollowers_list.js' %}"></script>
+@media (prefers-color-scheme: dark) {
+    :root {
+        --prof-bg: #1f1f1f;
+        --prof-bg-secondary: #2d2d2d;
+        --prof-border: #3c4043;
+        --prof-text: #e8eaed;
+        --prof-text-secondary: #9aa0a6;
+    }
+}
+
+.profile-page-wrapper {
+    margin-left: 280px;
+    margin-top: 64px;
+    padding: 24px;
+    background: var(--prof-bg-secondary);
+    min-height: calc(100vh - 64px);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-page-wrapper.sidebar-collapsed {
+    margin-left: 0;
+}
+
+@media (max-width: 1024px) {
+    .profile-page-wrapper {
+        margin-left: 0 !important;
+    }
+}
+
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    animation: profileSlideIn 0.4s ease;
+}
+
+.profile-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.profile-breadcrumb-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--prof-primary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.profile-breadcrumb-link:hover {
+    color: var(--prof-primary-hover);
+}
+
+.profile-breadcrumb-link svg {
+    width: 16px;
+    height: 16px;
+}
+
+.profile-breadcrumb-separator {
+    width: 16px;
+    height: 16px;
+    color: var(--prof-text-secondary);
+}
+
+.profile-breadcrumb-current {
+    color: var(--prof-text-secondary);
+    font-size: 14px;
+}
+
+.profile-page-header {
+    margin-bottom: 32px;
+}
+
+.profile-page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--prof-text);
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-title-icon {
+    width: 36px;
+    height: 36px;
+    color: var(--prof-primary);
+}
+
+.profile-page-subtitle {
+    font-size: 14px;
+    color: var(--prof-text-secondary);
+    margin: 0;
+}
+
+/* Profile Info Card */
+.profile-info-card {
+    background: var(--prof-bg);
+    border: 1px solid var(--prof-border);
+    border-radius: 12px;
+    box-shadow: var(--prof-shadow);
+    margin-bottom: 24px;
+}
+
+.profile-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px;
+    border-bottom: 1px solid var(--prof-border);
+}
+
+.profile-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--prof-text);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-card-title svg {
+    width: 20px;
+    height: 20px;
+    color: var(--prof-primary);
+}
+
+.profile-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--prof-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.profile-edit-btn:hover {
+    background: var(--prof-primary-hover);
+    box-shadow: var(--prof-shadow-lg);
+    transform: translateY(-1px);
+    color: white;
+}
+
+.profile-edit-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.profile-card-body {
+    padding: 24px;
+}
+
+.profile-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+.profile-detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+    background: var(--prof-bg-secondary);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.profile-detail-item:hover {
+    background: var(--prof-border);
+    transform: translateY(-2px);
+}
+
+.profile-detail-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.profile-detail-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.profile-icon-primary {
+    background: rgba(26, 115, 232, 0.1);
+    color: var(--prof-primary);
+}
+
+.profile-icon-success {
+    background: rgba(30, 142, 62, 0.1);
+    color: var(--prof-success);
+}
+
+.profile-icon-danger {
+    background: rgba(217, 48, 37, 0.1);
+    color: var(--prof-danger);
+}
+
+.profile-icon-warning {
+    background: rgba(249, 171, 0, 0.1);
+    color: var(--prof-warning);
+}
+
+.profile-icon-info {
+    background: rgba(25, 118, 210, 0.1);
+    color: var(--prof-info);
+}
+
+.profile-icon-secondary {
+    background: rgba(95, 99, 104, 0.1);
+    color: var(--prof-secondary);
+}
+
+.profile-detail-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.profile-detail-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--prof-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.profile-detail-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--prof-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.profile-detail-empty {
+    color: var(--prof-text-secondary);
+    font-style: italic;
+}
+
+.profile-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.profile-badge-primary {
+    background: rgba(26, 115, 232, 0.1);
+    color: var(--prof-primary);
+}
+
+.profile-badge-success {
+    background: rgba(30, 142, 62, 0.1);
+    color: var(--prof-success);
+}
+
+.profile-badge-danger {
+    background: rgba(217, 48, 37, 0.1);
+    color: var(--prof-danger);
+}
+
+.profile-badge-info {
+    background: rgba(25, 118, 210, 0.1);
+    color: var(--prof-info);
+}
+
+.profile-badge-secondary {
+    background: rgba(95, 99, 104, 0.1);
+    color: var(--prof-secondary);
+}
+
+.profile-social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--prof-primary);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.profile-social-link:hover {
+    color: var(--prof-primary-hover);
+}
+
+.profile-social-link svg {
+    width: 16px;
+    height: 16px;
+}
+
+.profile-social-divider {
+    color: var(--prof-text-secondary);
+    margin: 0 4px;
+}
+
+/* Tabs Section */
+.profile-tabs-section {
+    background: var(--prof-bg);
+    border: 1px solid var(--prof-border);
+    border-radius: 12px;
+    box-shadow: var(--prof-shadow);
+    overflow: hidden;
+}
+
+.profile-tabs {
+    display: flex;
+    background: var(--prof-bg-secondary);
+    border-bottom: 1px solid var(--prof-border);
+    overflow-x: auto;
+}
+
+.profile-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 24px;
+    color: var(--prof-text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.profile-tab svg {
+    width: 18px;
+    height: 18px;
+}
+
+.profile-tab:hover {
+    color: var(--prof-text);
+    background: var(--prof-bg);
+}
+
+.profile-tab-active {
+    color: var(--prof-primary);
+    border-bottom-color: var(--prof-primary);
+    background: var(--prof-bg);
+}
+
+.profile-tab-content {
+    padding: 24px;
+}
+
+@keyframes profileSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-page-wrapper {
+        padding: 16px;
+    }
+
+    .profile-page-title {
+        font-size: 24px;
+    }
+
+    .profile-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .profile-edit-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .profile-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-tabs {
+        justify-content: flex-start;
+    }
+
+    .profile-tab {
+        flex: 1;
+        justify-content: center;
+        padding: 14px 16px;
+    }
+
+    .profile-tab-content {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 576px) {
+    .profile-page-wrapper {
+        padding: 12px;
+    }
+
+    .profile-card-body {
+        padding: 16px;
+    }
+
+    .profile-detail-item {
+        padding: 16px;
+    }
+
+    .profile-tab {
+        font-size: 13px;
+        padding: 12px;
+    }
+}
+</style>
+
+<script>
+(function() {
+    'use strict';
+    
+    const profileWrapper = document.getElementById('profilePageWrapper');
+    const sidebar = document.getElementById('dashSidebar');
+    
+    if (!profileWrapper) return;
+    
+    function updateWrapperMargin() {
+        const isDesktop = window.innerWidth > 1024;
+        
+        if (!isDesktop) {
+            profileWrapper.classList.add('sidebar-collapsed');
+            return;
+        }
+        
+        if (sidebar) {
+            if (sidebar.classList.contains('dash-collapsed') || 
+                sidebar.classList.contains('dash-open') === false) {
+                profileWrapper.classList.add('sidebar-collapsed');
+            } else {
+                profileWrapper.classList.remove('sidebar-collapsed');
+            }
+        } else {
+            profileWrapper.classList.add('sidebar-collapsed');
+        }
+    }
+    
+    updateWrapperMargin();
+    
+    if (sidebar) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    updateWrapperMargin();
+                }
+            });
+        });
+        
+        observer.observe(sidebar, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+    
+    window.addEventListener('resize', updateWrapperMargin);
+    
+    const menuToggle = document.getElementById('dashMenuToggle');
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            setTimeout(updateWrapperMargin, 50);
+        });
+    }
+})();
+</script>
+
 {% endblock %}

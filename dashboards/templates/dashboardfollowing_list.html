@@ -1,108 +1,640 @@
-
-{% extends 'base.html' %}
-
+{% extends 'dashboard_base.html' %}
 {% load static %}
 
-{% block extra_css %}
-<link href="{% static 'css/dashboardfollowers_list.css' %}" rel="stylesheet">
-{% endblock %}
-
 {% block content %}
-<div class="followers-page">
-    <div class="sidebar-column">
-        {% include 'sidebar.html' %}
-    </div>
 
-    <div class="followers-content">
-        <!-- Page Header -->
-        <div class="page-header">
-            <h2>
-                <i class="fas fa-user-friends"></i>
+<!-- Main Content Area - Dynamically adjusts to sidebar -->
+<div class="following-page-wrapper" id="followingPageWrapper">
+    <div class="following-container">
+        
+        <!-- Page Header with Breadcrumb -->
+        <div class="following-page-header">
+            <div class="following-breadcrumb">
+                <a href="{% url 'dashboard' %}" class="following-breadcrumb-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" stroke-width="2"/>
+                        <path d="M9 22V12h6v10" stroke-width="2"/>
+                    </svg>
+                    Dashboard
+                </a>
+                <svg class="following-breadcrumb-separator" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span class="following-breadcrumb-current">Following</span>
+            </div>
+            
+            <h1 class="following-page-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="following-title-icon">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M12.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM19 8v6M22 11h-6" stroke-width="2"/>
+                </svg>
                 {{ user_obj.username }}'s Following
-                <span class="followers-count">({{ my_following_count }})</span>
-            </h2>
+                <span class="following-count-badge">{{ my_following_count }}</span>
+            </h1>
+            <p class="following-page-subtitle">Manage accounts you're following</p>
         </div>
 
-        <!-- Search Form -->
-        <div class="search-container">
-            <form class="search-form" method="GET" action="">
-                <div class="search-wrapper">
-                    <i class="fas fa-search search-icon"></i>
+        <!-- Search Section -->
+        <div class="following-search-card">
+            <form class="following-search-form" method="GET" action="">
+                <div class="following-search-wrapper">
+                    <svg class="following-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="11" cy="11" r="8" stroke-width="2"/>
+                        <path d="M21 21l-4.35-4.35" stroke-width="2"/>
+                    </svg>
                     <input 
                         type="text" 
                         name="search" 
-                        id="follower-search" 
-                        class="search-input"
-                        placeholder="Search followers by username..."
+                        class="following-search-input"
+                        placeholder="Search following by username..."
                         value="{{ request.GET.search|default:'' }}"
                         autocomplete="off"
                     >
                     {% if request.GET.search %}
-                        <button type="button" class="clear-search" id="clearSearchBtn">
-    <i class="fas fa-times"></i>
-</button>
-
+                    <button type="button" class="following-clear-btn" id="clearSearchBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
                     {% endif %}
                 </div>
-                <button type="submit" class="search-button">
-                    <i class="fas fa-search"></i> Search
+                <button type="submit" class="following-search-submit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="11" cy="11" r="8" stroke-width="2"/>
+                        <path d="M21 21l-4.35-4.35" stroke-width="2"/>
+                    </svg>
+                    Search
                 </button>
             </form>
         </div>
 
-        <!-- following List -->
+        <!-- Following List -->
         {% if following %}
-            <div class="followers-list">
+        <div class="following-list-card">
+            <div class="following-list">
                 {% for item in following %}
-                    <div class="follower-item">
-                        <div class="follower-info">
-                            <div class="follower-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <a href="{% url 'profile' item.following.username %}" class="follower-username">
+                <div class="following-item">
+                    <div class="following-info">
+                        <div class="following-avatar">
+                            {{ item.following.username|first|upper }}
+                        </div>
+                        <div class="following-details">
+                            <a href="{% url 'profile' item.following.username %}" class="following-username">
                                 {{ item.following.username }}
                             </a>
+                            {% if item.following.get_full_name %}
+                            <span class="following-fullname">{{ item.following.get_full_name }}</span>
+                            {% endif %}
                         </div>
+                    </div>
 
-                        <!-- Follow / Unfollow button -->
-                        {% if request.user.is_authenticated and request.user != item.following %}
-                            <div class="follower-actions">
-                                {% if item.following.id in user_following_ids %}
-                                    <a href="{% url 'unfollow_user' item.following.id %}" class="action-btn unfollow-btn" onclick="return confirm('Are you sure you want to unfollow {{ item.follower.username }}?');">
-                                        <i class="fas fa-user-minus"></i> Unfollow
-                                    </a>
-                                {% else %}
-                                    <a href="{% url 'follow_user' item.following.id %}" class="action-btn follow-btn">
-                                        <i class="fas fa-user-plus"></i> Follow
-                                    </a>
-                                {% endif %}
-                            </div>
+                    {% if request.user.is_authenticated and request.user != item.following %}
+                    <div class="following-actions">
+                        {% if item.following.id in user_following_ids %}
+                        <a href="{% url 'unfollow_user' item.following.id %}" 
+                           class="following-btn following-btn-unfollow"
+                           onclick="return confirm('Are you sure you want to unfollow {{ item.following.username }}?');">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M12.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 11l-5-5M18 11l5-5" stroke-width="2"/>
+                            </svg>
+                            Unfollow
+                        </a>
+                        {% else %}
+                        <a href="{% url 'follow_user' item.following.id %}" 
+                           class="following-btn following-btn-follow">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M12.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM19 8v6M22 11h-6" stroke-width="2"/>
+                            </svg>
+                            Follow
+                        </a>
                         {% endif %}
                     </div>
+                    {% endif %}
+                </div>
                 {% endfor %}
             </div>
+        </div>
         {% else %}
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fas fa-user-slash"></i>
-                </div>
-                <h3>No followers found</h3>
-                {% if request.GET.search %}
-                    <p>No followers match "{{ request.GET.search }}"</p>
-                    <a href="{% url 'dashboardfollowing_list' user_obj.username %}" class="clear-filter-btn" >
-                        <i class="fas fa-redo"></i> Clear Search
-                    </a>
-
-                {% else %}
-                    <p>{{ user_obj.username }} doesn't have any followers yet.</p>
-                {% endif %}
-            </div>
+        <!-- Empty State -->
+        <div class="following-empty-state">
+            <svg class="following-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke-width="2"/>
+                <circle cx="8.5" cy="7" r="4" stroke-width="2"/>
+                <path d="M20 8v6M23 11h-6" stroke-width="2"/>
+                <path d="M17 17l5-5M17 12l5 5" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <h3 class="following-empty-title">Not Following Anyone</h3>
+            {% if request.GET.search %}
+            <p class="following-empty-text">No results match "{{ request.GET.search }}"</p>
+            <a href="{% url 'dashboardfollowing_list' user_obj.username %}" class="following-btn following-btn-secondary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M1 4v6h6M23 20v-6h-6" stroke-width="2"/>
+                    <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" stroke-width="2"/>
+                </svg>
+                Clear Search
+            </a>
+            {% else %}
+            <p class="following-empty-text">{{ user_obj.username }} isn't following anyone yet.</p>
+            {% endif %}
+        </div>
         {% endif %}
     </div>
 </div>
 
-{% endblock %}
+<style>
+/* Following Page Styling - Unique namespace */
 
-{% block extra_js %}
-<script src="{% static 'js/dashboardfollowers_list.js' %}"></script>
+:root {
+    --flw-primary: #1a73e8;
+    --flw-primary-hover: #1557b0;
+    --flw-secondary: #5f6368;
+    --flw-success: #1e8e3e;
+    --flw-danger: #d93025;
+    --flw-bg: #ffffff;
+    --flw-bg-secondary: #f8f9fa;
+    --flw-border: #e0e0e0;
+    --flw-text: #202124;
+    --flw-text-secondary: #5f6368;
+    --flw-shadow: 0 1px 3px rgba(60, 64, 67, 0.15);
+    --flw-shadow-lg: 0 4px 6px -1px rgba(60, 64, 67, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --flw-bg: #1f1f1f;
+        --flw-bg-secondary: #2d2d2d;
+        --flw-border: #3c4043;
+        --flw-text: #e8eaed;
+        --flw-text-secondary: #9aa0a6;
+    }
+}
+
+.following-page-wrapper {
+    margin-left: 280px;
+    margin-top: 64px;
+    padding: 24px;
+    background: var(--flw-bg-secondary);
+    min-height: calc(100vh - 64px);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.following-page-wrapper.sidebar-collapsed {
+    margin-left: 0;
+}
+
+@media (max-width: 1024px) {
+    .following-page-wrapper {
+        margin-left: 0 !important;
+    }
+}
+
+.following-container {
+    max-width: 900px;
+    margin: 0 auto;
+    animation: followingSlideIn 0.4s ease;
+}
+
+.following-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.following-breadcrumb-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--flw-primary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.following-breadcrumb-link:hover {
+    color: var(--flw-primary-hover);
+}
+
+.following-breadcrumb-link svg {
+    width: 16px;
+    height: 16px;
+}
+
+.following-breadcrumb-separator {
+    width: 16px;
+    height: 16px;
+    color: var(--flw-text-secondary);
+}
+
+.following-breadcrumb-current {
+    color: var(--flw-text-secondary);
+    font-size: 14px;
+}
+
+.following-page-header {
+    margin-bottom: 32px;
+}
+
+.following-page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--flw-text);
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.following-title-icon {
+    width: 32px;
+    height: 32px;
+    color: var(--flw-primary);
+}
+
+.following-count-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 16px;
+    background: rgba(26, 115, 232, 0.1);
+    color: var(--flw-primary);
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.following-page-subtitle {
+    font-size: 14px;
+    color: var(--flw-text-secondary);
+    margin: 0;
+}
+
+/* Search Card */
+.following-search-card {
+    background: var(--flw-bg);
+    border: 1px solid var(--flw-border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: var(--flw-shadow);
+}
+
+.following-search-form {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.following-search-wrapper {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--flw-bg-secondary);
+    border-radius: 8px;
+    padding: 0 12px;
+    transition: all 0.3s ease;
+}
+
+.following-search-wrapper:focus-within {
+    background: var(--flw-bg);
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+}
+
+.following-search-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--flw-text-secondary);
+    flex-shrink: 0;
+}
+
+.following-search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    padding: 12px;
+    font-size: 14px;
+    color: var(--flw-text);
+}
+
+.following-clear-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.following-clear-btn:hover {
+    background: var(--flw-border);
+}
+
+.following-clear-btn svg {
+    width: 16px;
+    height: 16px;
+    color: var(--flw-text-secondary);
+}
+
+.following-search-submit {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: var(--flw-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.following-search-submit:hover {
+    background: var(--flw-primary-hover);
+    box-shadow: var(--flw-shadow-lg);
+}
+
+.following-search-submit svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* List Card */
+.following-list-card {
+    background: var(--flw-bg);
+    border: 1px solid var(--flw-border);
+    border-radius: 12px;
+    padding: 8px;
+    box-shadow: var(--flw-shadow);
+}
+
+.following-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.following-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.following-item:hover {
+    background: var(--flw-bg-secondary);
+}
+
+.following-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.following-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, var(--flw-primary));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.following-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.following-username {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--flw-text);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.following-username:hover {
+    color: var(--flw-primary);
+}
+
+.following-fullname {
+    font-size: 12px;
+    color: var(--flw-text-secondary);
+}
+
+.following-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.following-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.following-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.following-btn-follow {
+    background: var(--flw-primary);
+    color: white;
+}
+
+.following-btn-follow:hover {
+    background: var(--flw-primary-hover);
+    box-shadow: var(--flw-shadow-lg);
+    color: white;
+}
+
+.following-btn-unfollow {
+    background: var(--flw-bg-secondary);
+    color: var(--flw-text);
+    border: 1px solid var(--flw-border);
+}
+
+.following-btn-unfollow:hover {
+    background: var(--flw-danger);
+    color: white;
+    border-color: var(--flw-danger);
+}
+
+.following-btn-secondary {
+    background: var(--flw-bg-secondary);
+    color: var(--flw-text);
+    border: 1px solid var(--flw-border);
+}
+
+.following-btn-secondary:hover {
+    background: var(--flw-border);
+    color: var(--flw-text);
+}
+
+/* Empty State */
+.following-empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: var(--flw-bg);
+    border: 1px solid var(--flw-border);
+    border-radius: 12px;
+}
+
+.following-empty-icon {
+    width: 64px;
+    height: 64px;
+    color: var(--flw-text-secondary);
+    margin: 0 auto 20px;
+}
+
+.following-empty-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--flw-text);
+    margin-bottom: 8px;
+}
+
+.following-empty-text {
+    font-size: 14px;
+    color: var(--flw-text-secondary);
+    margin-bottom: 24px;
+}
+
+@keyframes followingSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .following-page-wrapper {
+        padding: 16px;
+    }
+
+    .following-page-title {
+        font-size: 22px;
+    }
+
+    .following-search-form {
+        flex-direction: column;
+    }
+
+    .following-search-submit {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .following-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .following-actions {
+        width: 100%;
+    }
+
+    .following-btn {
+        flex: 1;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+(function() {
+    'use strict';
+    
+    const followingWrapper = document.getElementById('followingPageWrapper');
+    const sidebar = document.getElementById('dashSidebar');
+    const clearBtn = document.getElementById('clearSearchBtn');
+    
+    if (!followingWrapper) return;
+    
+    function updateWrapperMargin() {
+        const isDesktop = window.innerWidth > 1024;
+        
+        if (!isDesktop) {
+            followingWrapper.classList.add('sidebar-collapsed');
+            return;
+        }
+        
+        if (sidebar) {
+            if (sidebar.classList.contains('dash-collapsed') || 
+                sidebar.classList.contains('dash-open') === false) {
+                followingWrapper.classList.add('sidebar-collapsed');
+            } else {
+                followingWrapper.classList.remove('sidebar-collapsed');
+            }
+        } else {
+            followingWrapper.classList.add('sidebar-collapsed');
+        }
+    }
+    
+    updateWrapperMargin();
+    
+    if (sidebar) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    updateWrapperMargin();
+                }
+            });
+        });
+        
+        observer.observe(sidebar, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+    
+    window.addEventListener('resize', updateWrapperMargin);
+    
+    const menuToggle = document.getElementById('dashMenuToggle');
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            setTimeout(updateWrapperMargin, 50);
+        });
+    }
+    
+    // Clear search button
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+            window.location.href = window.location.pathname;
+        });
+    }
+})();
+</script>
+
 {% endblock %}

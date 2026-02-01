@@ -16,7 +16,7 @@ def get_categories(request):
         )
     ).order_by('category_name')
 
-    paginator = Paginator(categories_qs, 10)
+    paginator = Paginator(categories_qs, 1)
     page_obj = paginator.get_page(page_number)
 
     uncategorized_count = Blog.objects.filter(
