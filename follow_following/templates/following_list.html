@@ -75,31 +75,60 @@
             </div>
 
             <!-- Pagination -->
-            <div class="pagination-wrapper mt-4">
-                <ul class="pagination justify-content-center">
-                    {% if following.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?tab=following&page=1{% if search %}&search={{ search }}{% endif %}">First</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?tab=following&page={{ following.previous_page_number }}{% if search %}&search={{ search }}{% endif %}">Prev</a>
-                        </li>
-                    {% endif %}
+<!-- Pagination -->
+ <br><hr><br>
+<div class="pagination-wrapper">
+    <ul class="pagination">
+        <!-- First Page -->
+        <li class="{% if not following.has_previous %}disabled{% endif %}">
+            {% if following.has_previous %}
+                <a href="?tab=following&page=1{% if search %}&search={{ search }}{% endif %}">&laquo;</a>
+            {% else %}
+                <span>&laquo;</span>
+            {% endif %}
+        </li>
 
-                    <li class="page-item disabled">
-                        <span class="page-link">Page {{ following.number }} of {{ following.paginator.num_pages }}</span>
-                    </li>
+        <!-- Previous Page -->
+        <li class="{% if not following.has_previous %}disabled{% endif %}">
+            {% if following.has_previous %}
+                <a href="?tab=following&page={{ following.previous_page_number }}{% if search %}&search={{ search }}{% endif %}">&lt;</a>
+            {% else %}
+                <span>&lt;</span>
+            {% endif %}
+        </li>
 
-                    {% if following.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?tab=following&page={{ following.next_page_number }}{% if search %}&search={{ search }}{% endif %}">Next</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?tab=following&page={{ following.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}">Last</a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
+        <!-- Current + Nearby Pages -->
+        {% for i in following.paginator.page_range %}
+            {% if i >= following.number|add:'-2' and i <= following.number|add:'2' %}
+                {% if i == following.number %}
+                    <li class="active"><span>{{ i }}</span></li>
+                {% else %}
+                    <li><a href="?tab=following&page={{ i }}{% if search %}&search={{ search }}{% endif %}">{{ i }}</a></li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        <!-- Next Page -->
+        <li class="{% if not following.has_next %}disabled{% endif %}">
+            {% if following.has_next %}
+                <a href="?tab=following&page={{ following.next_page_number }}{% if search %}&search={{ search }}{% endif %}">&gt;</a>
+            {% else %}
+                <span>&gt;</span>
+            {% endif %}
+        </li>
+
+        <!-- Last Page -->
+        <li class="{% if not following.has_next %}disabled{% endif %}">
+            {% if following.has_next %}
+                <a href="?tab=following&page={{ following.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}">&raquo;</a>
+            {% else %}
+                <span>&raquo;</span>
+            {% endif %}
+        </li>
+    </ul>
+</div>
+
+
 
         {% else %}
             <!-- Empty state -->
@@ -120,3 +149,301 @@
         {% endif %}
     </div>
 </div>
+
+
+<style>
+/* Container */
+.followers-page {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+/* Page Header */
+.page-header h2 {
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.page-header .followers-count {
+    font-size: 1rem;
+    color: #777;
+}
+
+/* Search Form */
+.search-container {
+    margin-bottom: 25px;
+}
+
+.search-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.search-wrapper {
+    position: relative;
+    flex: 1 1 300px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 40px 10px 35px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0,123,255,0.3);
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+}
+
+.clear-search {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    font-size: 1rem;
+}
+
+.clear-search:hover {
+    color: #ff4d4f;
+}
+
+.search-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background 0.3s;
+}
+
+.search-button:hover {
+    background-color: #0056b3;
+}
+
+/* Followers List */
+.followers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.follower-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.follower-item:hover {
+    transform: translateY(-2px);
+}
+
+/* Follower Info */
+.follower-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.follower-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #777;
+}
+
+.follower-username {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.follower-username:hover {
+    text-decoration: underline;
+}
+
+/* Follower Actions */
+.follower-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.action-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+}
+
+.follow-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.follow-btn:hover {
+    background-color: #1e7e34;
+}
+
+.unfollow-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.unfollow-btn:hover {
+    background-color: #b02a37;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    list-style: none;
+    gap: 8px;
+    padding: 0;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.pagination li {
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.pagination a,
+.pagination span {
+    display: block;
+    width: 38px;
+    height: 38px;
+    line-height: 38px;
+    text-align: center;
+    text-decoration: none;
+    background-color: #f0f0f0;
+    color: #333;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.pagination a:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.pagination li.active span {
+    background-color: #007bff;
+    color: white;
+    font-weight: 600;
+}
+
+.pagination .disabled span {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.pagination li.disabled span {
+    opacity: 0.4;
+    cursor: default;
+    background-color: #e0e0e0;
+    color: #888;
+}
+
+.pagination li.active span {
+    background-color: #007bff;
+    color: white;
+    font-weight: 600;
+}
+
+.pagination a:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: #555;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.clear-filter-btn {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 8px 16px;
+    background-color: #ffc107;
+    color: #333;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.clear-filter-btn:hover {
+    background-color: #e0a800;
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .follower-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .follower-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .search-form {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+
+
+</style>
