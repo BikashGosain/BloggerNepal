@@ -6,15 +6,7 @@
 <!-- DESKTOP HEADER -->
 <header class="desktop-header">
     <div class="logo">
-        {% if user.is_authenticated and request.resolver_match.url_name in 'dashboard,profile,posts,categories,users,dashboardnotification,dashboardfollowers_list,dashboardfollowing_list,posts_per_category,posts_per_month' %}
-        <!-- Dashboard Hamburger Icon -->
-        <button class="header-sidebar-toggle" aria-label="Toggle Sidebar">
-            <span class="header-hamburger-line"></span>
-            <span class="header-hamburger-line"></span>
-            <span class="header-hamburger-line"></span>
-        </button>
-        {% endif %}
-        <a href="/">BlogNova</a>
+        <a href="{% url 'home' %}">BlogNova</a>
     </div>
 
     <div class="search">

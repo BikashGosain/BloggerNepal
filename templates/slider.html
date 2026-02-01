@@ -8,10 +8,15 @@
         {% for post in featured_posts|slice:":5" %}
         <div class="slide {% if forloop.first %}active{% endif %}">
             <div class="slide-image">
-                <a href="{% url 'blogs' post.slug %}">
-                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
-                </a>
-            </div>
+    <a href="{% url 'blogs' post.slug %}">
+        {% if post.featured_image %}
+            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+        {% else %}
+            <img src="{% static 'images/default-blog.png' %}" alt="No image">
+        {% endif %}
+    </a>
+</div>
+
             <div class="slide-content">
                 <div class="slide-category">
                     {{ post.category.category_name }}
