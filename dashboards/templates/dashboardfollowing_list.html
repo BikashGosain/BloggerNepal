@@ -113,6 +113,8 @@
                 {% endfor %}
             </div>
         </div>
+        {% include "includes/pagination.html" with page_obj=following tab="following" search=search %}
+
         {% else %}
         <!-- Empty State -->
         <div class="following-empty-state">

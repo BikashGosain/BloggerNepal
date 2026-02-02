@@ -113,6 +113,11 @@
                 {% endfor %}
             </div>
         </div>
+
+        <!-- Pagination -->
+{% include "includes/pagination.html" with page_obj=followers tab="followers" search=search %}
+
+
         {% else %}
         <!-- Empty State -->
         <div class="followers-empty-state">
@@ -525,6 +530,7 @@
     color: var(--fol-text-secondary);
     margin-bottom: 24px;
 }
+
 
 @keyframes followersSlideIn {
     from {

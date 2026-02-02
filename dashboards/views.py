@@ -475,7 +475,7 @@ def profile(request):
     posts_qs = Blog.objects.filter(author=user).order_by('-created_at')
     posts = None
     if tab == 'posts':
-        posts = Paginator(posts_qs, 4).get_page(page_number)
+        posts = Paginator(posts_qs, 2).get_page(page_number)
 
     # 🔹 FOLLOWERS (paginated + searchable)
     followers_qs = Follow.objects.filter(
@@ -489,7 +489,7 @@ def profile(request):
 
     followers = None
     if tab == 'followers':
-        followers = Paginator(followers_qs, 10).get_page(page_number)
+        followers = Paginator(followers_qs, 2).get_page(page_number)
 
     # 🔹 FOLLOWING (paginated + searchable)
     following_qs = Follow.objects.filter(
@@ -503,7 +503,7 @@ def profile(request):
 
     following = None
     if tab == 'following':
-        following = Paginator(following_qs, 10).get_page(page_number)
+        following = Paginator(following_qs, 2).get_page(page_number)
 
     # 🔹 Counts (ALWAYS global, NEVER filtered)
     my_followers_count = Follow.objects.filter(following=user).count()
