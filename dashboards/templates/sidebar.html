@@ -1039,16 +1039,50 @@
     window.addEventListener('resize', handleResize);
 
     // Initialize proper state on load
-    window.addEventListener('load', function() {
-        const isDesktop = window.innerWidth > 1024;
-        if (isDesktop) {
-            // On desktop, sidebar is visible by default
-            dashMenuToggle.classList.add('dash-active');
+    // Initialize sidebar state on page load
+// Initialize sidebar state on page load
+window.addEventListener('load', function() {
+    const isDesktop = window.innerWidth > 1024;
+
+    if (isDesktop) {
+        // Desktop: respect the initial collapsed state from HTML
+        if (!dashSidebar.classList.contains('dash-collapsed')) {
+            dashMenuToggle.classList.add('dash-active'); // sidebar visible
         } else {
-            // On mobile, sidebar is hidden by default
-            dashMenuToggle.classList.remove('dash-active');
+            dashMenuToggle.classList.remove('dash-active'); // sidebar collapsed
         }
-    });
+        // Ensure mobile classes are off
+        dashSidebar.classList.remove('dash-open');
+        dashOverlay.classList.remove('dash-active');
+    } else {
+        // Mobile: start hidden
+        dashSidebar.classList.remove('dash-open');
+        dashSidebar.classList.remove('dash-collapsed');
+        dashOverlay.classList.remove('dash-active');
+        dashMenuToggle.classList.remove('dash-active');
+    }
+});
+
+// Click outside to close sidebar (desktop only)
+document.addEventListener('click', function(e) {
+    const isDesktop = window.innerWidth > 1024;
+
+    if (
+        isDesktop &&
+        !dashSidebar.contains(e.target) &&
+        !dashMenuToggle.contains(e.target)
+    ) {
+        dashSidebar.classList.add('dash-collapsed');
+        dashMenuToggle.classList.remove('dash-active');
+        wasCollapsed = true;
+    }
+});
+
+// Prevent sidebar click from bubbling
+dashSidebar.addEventListener('click', function(e) {
+    e.stopPropagation();
+});
+
 
     // Create Post Button Click
     const createBtn = document.querySelector('.dash-create-btn');
