@@ -212,6 +212,28 @@
                     {% for cate in categories %}
                     <li><a href="{% url 'posts_by_category' cate.id %}">{{ cate.category_name }}</a></li>
                     {% endfor %}
+                    {% include "includes/pagination.html" with page_obj=categories tab="categories" search=category_search %}
+                    <!-- Uncategorized -->
+            {% if uncategorized_count > 0 %}
+                <a href="{% url 'posts_by_category' 0 %}" class="rcat-card rcat-uncategorized">
+                    <div class="rcat-card-icon">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <div class="rcat-card-content">
+                        <h3 class="rcat-card-name">Uncategorized</h3>
+                        <div class="rcat-card-meta">
+                            <span class="rcat-blog-count">
+                                <i class="fas fa-file-alt"></i>
+                                {{ uncategorized_count }} blog{{ uncategorized_count|pluralize }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="rcat-card-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+            {% endif %}
+
                 </ul>
             </div>
 

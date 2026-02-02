@@ -60,9 +60,11 @@ def blogs(request, slug):
                 notification.read = True
                 notification.save(update_fields=['read'])
 
-    # Increment view count
-    single_blog.views += 1
-    single_blog.save(update_fields=['views'])
+    # # Increment view count: views count when page reload also
+    # single_blog.views += 1
+    # single_blog.save(update_fields=['views'])
+    # Increment view count (only once per session)
+    single_blog.increment_view(request)
 
     # Check if current user is following author
     is_following = False

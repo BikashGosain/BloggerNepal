@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.urls import reverse
 
-from inymce.django.template.defaultfilters import slugify
+from django.template.defaultfilters import slugify
 
 
 # Create your models here.
@@ -67,8 +67,18 @@ class Blog(models.Model):
 
     def __str__(self):
         return self.title
+    
     def get_absolute_url(self):
         return reverse('blogs', kwargs={'slug': self.slug})
+    
+    def increment_view(self, request):
+        """Increment view count only once per session"""
+        session_key = f'viewed_blog_{self.pk}'
+        
+        if not request.session.get(session_key, False):
+            self.views += 1
+            self.save(update_fields=['views'])
+            request.session[session_key] = True
     
     def save(self, *args, **kwargs):
         if self.title:
