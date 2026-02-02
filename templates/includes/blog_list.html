@@ -120,10 +120,15 @@ Requires:
             <i class="fas fa-redo"></i> Clear Search
         </a>
     {% else %}
-        <p class="rbl-empty-text">No posts available yet. Start writing!</p>
-        <a href="{% url 'add_post' %}" class="rbl-empty-btn">
-            <i class="fas fa-plus"></i> Create Your First Post
-        </a>
+        <p class="rbl-empty-text">No posts available yet.</p>
+
+        {# Show "Create Your First Post" only if this is the user's own posts page #}
+        {% if user == request.user %}
+            <p class="rbl-empty-text">Start writing!</p>
+            <a href="{% url 'add_post' %}" class="rbl-empty-btn">
+                <i class="fas fa-plus"></i> Create Your First Post
+            </a>
+        {% endif %}
     {% endif %}
 </div>
 {% endif %}

@@ -1,0 +1,68 @@
+{% load static %}
+<link href="{% static 'css/footer.css' %}" rel="stylesheet">
+
+<footer class="blognova-footer">
+    <div class="blognova-footer-container">
+
+        <!-- About Section -->
+        <div class="blognova-footer-section about">
+            <h3 class="blognova-footer-logo">BlogNova</h3>
+            <p>
+                Exploring ideas, sharing stories, and inspiring minds. 
+                Your go-to platform for insightful blogs, content recommendations, and analytics.
+            </p>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="blognova-footer-section links">
+            <h4>Quick Links</h4>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/analytics">Analytics</a></li>
+                <li><a href="/latestpost">Recommendations</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+        </div>
+
+        <!-- Contact / Support -->
+        <div class="blognova-footer-section contact">
+            <h4>Contact Us</h4>
+            <p>Email: <a href="mailto:support@blognova.com">...@email.com</a></p>
+            <p>Phone: +977-...</p>
+            <p>Address: ..., Nepal</p>
+        </div>
+
+        <!-- Newsletter -->
+        <div class="blognova-footer-section newsletter">
+            <h4>Subscribe</h4>
+            <p>Get latest posts and recommendations directly in your inbox.</p>
+            <form method="POST" action="/subscribe/">
+                {% csrf_token %}
+                <input type="email" name="email" placeholder="Your email" required>
+                <button type="submit">Subscribe</button>
+            </form>
+        </div>
+
+        <!-- Social Media -->
+        <div class="blognova-footer-section social">
+            <h4>Follow Us</h4>
+            <div class="blognova-footer-social">
+                {% if social_links %}
+                    {% for social_link in social_links %}
+                    <a href="{{ social_link.link }}" target="_blank" rel="noopener noreferrer" title="{{ social_link.platform }}">
+                        <span>{{ social_link.platform }}</span>
+                    </a>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="blognova-footer-bottom">
+        <p>© {% now "Y" %} BlogNova. All rights reserved.</p>
+        <p>Built with ❤️ by <strong>Bikash Gosain</strong> & <strong>Sameer Kc</strong></p>
+    </div>
+</footer>

@@ -1,0 +1,137 @@
+/* Base Footer Styling */
+.blognova-footer {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--footer-bg, #1c1c1c); /* dark by default */
+    color: var(--footer-text, #f0f0f0);
+    padding: 50px 20px 20px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.blognova-footer-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* Footer Sections */
+.blognova-footer-section {
+    flex: 1 1 200px;
+    margin: 15px;
+}
+
+.blognova-footer-logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.blognova-footer-section h4 {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.blognova-footer-section p,
+.blognova-footer-section li {
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.blognova-footer-section a {
+    color: inherit;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.blognova-footer-section a:hover {
+    color: var(--footer-link-hover, #f97316);
+}
+
+/* Lists */
+.blognova-footer-links {
+    list-style: none;
+    padding: 0;
+}
+
+.blognova-footer-links li {
+    margin-bottom: 8px;
+}
+
+/* Newsletter Form */
+.blognova-footer-section.newsletter form {
+    display: flex;
+    flex-direction: column;
+}
+
+.blognova-footer-section.newsletter input[type="email"] {
+    padding: 8px 10px;
+    border-radius: 5px;
+    border: none;
+    margin-bottom: 10px;
+    outline: none;
+}
+
+.blognova-footer-section.newsletter button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--footer-btn-bg, #f97316);
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.blognova-footer-section.newsletter button:hover {
+    background-color: var(--footer-btn-hover, #ff8c42);
+}
+
+/* Social Links */
+.blognova-footer-social a {
+    display: inline-block;
+    margin-right: 10px;
+    padding: 6px 8px;
+    border-radius: 5px;
+    background-color: rgba(255,255,255,0.05);
+    transition: 0.3s;
+}
+
+.blognova-footer-social a:hover {
+    background-color: rgba(255,255,255,0.15);
+}
+
+/* Bottom Bar */
+.blognova-footer-bottom {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 0.85rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 15px;
+}
+
+/* Dark/Light Theme Toggle Support */
+[data-theme="light"] .blognova-footer {
+    background-color: #f9f9f9;
+    color: #1c1c1c;
+}
+
+[data-theme="light"] .blognova-footer a {
+    color: #1c1c1c;
+}
+
+[data-theme="light"] .blognova-footer a:hover {
+    color: #f97316;
+}
+
+@media (max-width: 768px) {
+    .blognova-footer-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .blognova-footer-section {
+        margin: 15px 0;
+    }
+}
