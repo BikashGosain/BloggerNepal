@@ -1,0 +1,78 @@
+<div class="pub-posts-wrapper">
+    <div class="pub-posts-header">
+        <h3 class="pub-posts-title">
+            <i class="fas fa-blog"></i>
+            Posts by {{ user_obj.username }}
+        </h3>
+        {% if posts.paginator.count > 0 %}
+            <span class="pub-posts-badge">{{ posts.paginator.count }} post{{ posts.paginator.count|pluralize }}</span>
+        {% endif %}
+    </div>
+
+    {% include "includes/blog_list.html" with page_obj=posts tab="posts" search=search user=user_obj %}
+</div>
+
+<style>
+.pub-posts-wrapper {
+    animation: pubFadeIn 0.5s ease;
+}
+
+.pub-posts-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.pub-posts-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pub-posts-title i {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.pub-posts-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+@keyframes pubFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .pub-posts-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .pub-posts-title {
+        font-size: 20px;
+    }
+}
+</style>

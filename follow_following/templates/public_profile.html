@@ -1,88 +1,564 @@
 {% extends 'base.html' %}
 {% load static %}
 
-
-{% block extra_css %}
-<link href="{% static 'css/public_profile.css' %}" rel="stylesheet">
-{% endblock %}
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <!-- User info -->
-        <div class="col-md-4">
-            <div class="card profile-card mb-4 shadow">
-                <div class="card-body text-center">
-                    <!-- Profile Avatar -->
-                    <div class="profile-avatar mb-3">
-                        <div class="avatar-circle">
-                            <span class="avatar-initials">{{ user_obj.first_name.0|upper }}{{ user_obj.last_name.0|upper }}</span>
-                        </div>
-                    </div>
-                    
-                    <h3 class="profile-username mb-1">{{ user_obj.username }}</h3>
-                    <p class="text-muted mb-3">{{ user_obj.first_name }} {{ user_obj.last_name }}</p>
-                    
-                    <div class="profile-info mb-3">
-                        <p class="mb-2"><i class="fas fa-envelope text-primary"></i> {{ user_obj.email }}</p>
-                    </div>
 
-                    <!-- Followers / Following counts -->
-                    <div class="stats-container d-flex justify-content-around mb-3">
-                        <a href="{% url 'public_followers_list' user_obj.username %}" class="stat-item text-decoration-none">
-                            <div class="stat-number">{{ user_obj.followers.count }}</div>
-                            <div class="stat-label">Followers</div>
-                        </a>
-                        <div class="stat-divider"></div>
-                        <a href="{% url 'public_following_list' user_obj.username %}" class="stat-item text-decoration-none">
-                            <div class="stat-number">{{ user_obj.following.count }}</div>
-                            <div class="stat-label">Following</div>
-                        </a>
-                        <div class="stat-divider"></div>
-                        <div class="stat-item">
-                            <div class="stat-number">{{posts.paginator.count }}</div>
-                            <div class="stat-label">Posts</div>
-                        </div>
+<div class="pub-profile-wrapper">
+    <div class="pub-profile-container">
+        
+        <!-- Profile Header Card -->
+        <div class="pub-profile-header">
+            <div class="pub-header-content">
+                <div class="pub-avatar-section">
+                    <div class="pub-avatar-circle">
+                        <span class="pub-avatar-initials">
+                            {{ user_obj.first_name.0|upper|default:"U" }}{{ user_obj.last_name.0|upper|default:"" }}
+                        </span>
                     </div>
-
-                    <!-- Follow / Unfollow button -->
-                    {% if request.user.is_authenticated and request.user != user_obj %}
-                        {% if is_following %}
-                            <a href="{% url 'unfollow_user' user_obj.id %}" class="btn btn-unfollow btn-block">
-                                <i class="fas fa-user-minus"></i> Unfollow
-                            </a>
+                </div>
+                
+                <div class="pub-user-info">
+                    <h1 class="pub-username">{{ user_obj.username }}</h1>
+                    <p class="pub-fullname">
+                        {% if user_obj.first_name or user_obj.last_name %}
+                            {{ user_obj.first_name }} {{ user_obj.last_name }}
                         {% else %}
-                            <a href="{% url 'follow_user' user_obj.id %}" class="btn btn-follow btn-block">
-                                <i class="fas fa-user-plus"></i> Follow
-                            </a>
+                            <span class="pub-text-muted">Name not set</span>
                         {% endif %}
-                    {% endif %}
+                    </p>
+                    <p class="pub-email">
+                        <i class="fas fa-envelope"></i>
+                        {{ user_obj.email }}
+                    </p>
                 </div>
             </div>
-        </div>
 
-        <!-- User posts -->
-        <div class="col-md-8">
-            <div class="posts-header mb-4">
-                <h4 class="section-title">
-                    <i class="fas fa-blog"></i> Posts by {{ user_obj.username }}
-                    <span class="badge bg-primary ms-2">{{ posts.paginator.count }}</span>
-                </h4>
+            <!-- Stats Section -->
+            <div class="pub-stats-grid">
+                <a href="?tab=followers" class="pub-stat-card">
+                    <div class="pub-stat-icon pub-icon-primary">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="pub-stat-content">
+                        <div class="pub-stat-number">{{ user_obj.followers.count }}</div>
+                        <div class="pub-stat-label">Followers</div>
+                    </div>
+                </a>
+
+                <a href="?tab=following" class="pub-stat-card">
+                    <div class="pub-stat-icon pub-icon-success">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="pub-stat-content">
+                        <div class="pub-stat-number">{{ user_obj.following.count }}</div>
+                        <div class="pub-stat-label">Following</div>
+                    </div>
+                </a>
+
+                <a href="?tab=posts" class="pub-stat-card">
+                    <div class="pub-stat-icon pub-icon-info">
+                        <i class="fas fa-blog"></i>
+                    </div>
+                    <div class="pub-stat-content">
+                        <div class="pub-stat-number">{{ posts_count|default:0 }}</div>
+                        <div class="pub-stat-label">Posts</div>
+                    </div>
+                </a>
             </div>
 
-
-
-{% include "includes/blog_list.html" with page_obj=posts tab="posts" search=search user=user %}
-
+            <!-- Follow/Unfollow Button -->
+            {% if request.user.is_authenticated and request.user != user_obj %}
+                <div class="pub-action-section">
+                    {% if is_following %}
+                        <a href="{% url 'unfollow_user' user_obj.id %}" class="pub-btn pub-btn-unfollow">
+                            <i class="fas fa-user-minus"></i> Unfollow
+                        </a>
+                    {% else %}
+                        <a href="{% url 'follow_user' user_obj.id %}" class="pub-btn pub-btn-follow">
+                            <i class="fas fa-user-plus"></i> Follow
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
         </div>
-        
+
+        <!-- Tabs Section -->
+        <div class="pub-tabs-section">
+            <div class="pub-tabs">
+                <a href="?tab=posts" class="pub-tab {% if tab == 'posts' or not tab %}pub-tab-active{% endif %}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke-width="2"/>
+                        <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke-width="2"/>
+                    </svg>
+                    Posts
+                </a>
+                <a href="?tab=followers" class="pub-tab {% if tab == 'followers' %}pub-tab-active{% endif %}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke-width="2"/>
+                    </svg>
+                    Followers
+                </a>
+                <a href="?tab=following" class="pub-tab {% if tab == 'following' %}pub-tab-active{% endif %}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M12.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM19 8v6M22 11h-6" stroke-width="2"/>
+                    </svg>
+                    Following
+                </a>
+            </div>
+
+            <div class="pub-tab-content">
+                {% if tab == 'followers' %}
+                    {% include 'public_followers_list.html' %}
+                {% elif tab == 'following' %}
+                    {% include 'public_following_list.html' %}
+                {% else %}
+                    {% include 'public_posts.html' %}
+                {% endif %}
+            </div>
+        </div>
+
     </div>
 </div>
 
+<style>
+/* ========================================
+   PUBLIC PROFILE STYLES (pub = Public Profile)
+   ======================================== */
 
-{% endblock %}
+.pub-profile-wrapper {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 40px 20px;
+}
 
-{% block extra_js %}
-<script src="{% static 'js/public_profile.js' %}"></script>
+.pub-profile-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Profile Header Card */
+.pub-profile-header {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 40px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    animation: pubSlideIn 0.5s ease;
+}
+
+.pub-header-content {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+/* Avatar */
+.pub-avatar-section {
+    flex-shrink: 0;
+}
+
+.pub-avatar-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    position: relative;
+}
+
+.pub-avatar-circle::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    opacity: 0.3;
+    z-index: -1;
+    animation: pubPulse 2s infinite;
+}
+
+.pub-avatar-initials {
+    font-size: 52px;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+}
+
+/* User Info */
+.pub-user-info {
+    flex: 1;
+}
+
+.pub-username {
+    font-size: 36px;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+}
+
+.pub-fullname {
+    font-size: 18px;
+    color: #64748b;
+    margin: 0 0 12px 0;
+    font-weight: 500;
+}
+
+.pub-text-muted {
+    font-style: italic;
+    color: #94a3b8;
+}
+
+.pub-email {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    color: #475569;
+    margin: 0;
+}
+
+.pub-email i {
+    color: #3b82f6;
+    font-size: 18px;
+}
+
+/* Stats Grid */
+.pub-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.pub-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 24px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 16px;
+    border: 2px solid #e2e8f0;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.pub-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: #3b82f6;
+}
+
+.pub-stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.pub-stat-icon i {
+    font-size: 26px;
+}
+
+.pub-icon-primary {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #3b82f6;
+}
+
+.pub-icon-success {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    color: #22c55e;
+}
+
+.pub-icon-info {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #f59e0b;
+}
+
+.pub-stat-content {
+    flex: 1;
+}
+
+.pub-stat-number {
+    font-size: 32px;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.pub-stat-label {
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Action Section */
+.pub-action-section {
+    display: flex;
+    justify-content: center;
+}
+
+.pub-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.pub-btn-follow {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);
+}
+
+.pub-btn-follow:hover {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
+    color: white;
+}
+
+.pub-btn-unfollow {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+}
+
+.pub-btn-unfollow:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+    color: white;
+}
+
+/* Tabs Section */
+.pub-tabs-section {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    animation: pubSlideIn 0.6s ease;
+}
+
+.pub-tabs {
+    display: flex;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 2px solid #e2e8f0;
+    overflow-x: auto;
+}
+
+.pub-tab {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 32px;
+    color: #64748b;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    position: relative;
+}
+
+.pub-tab svg {
+    width: 20px;
+    height: 20px;
+}
+
+.pub-tab::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.pub-tab:hover {
+    color: #1e293b;
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.pub-tab-active {
+    color: #3b82f6;
+    background: #ffffff;
+}
+
+.pub-tab-active::before {
+    transform: scaleX(1);
+}
+
+.pub-tab-content {
+    padding: 40px;
+}
+
+/* Animations */
+@keyframes pubSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pubPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.3;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.5;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .pub-stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .pub-profile-wrapper {
+        padding: 20px 16px;
+    }
+
+    .pub-profile-header {
+        padding: 30px 24px;
+    }
+
+    .pub-header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+
+    .pub-avatar-circle {
+        width: 120px;
+        height: 120px;
+    }
+
+    .pub-avatar-initials {
+        font-size: 44px;
+    }
+
+    .pub-username {
+        font-size: 28px;
+    }
+
+    .pub-fullname {
+        font-size: 16px;
+    }
+
+    .pub-email {
+        justify-content: center;
+    }
+
+    .pub-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .pub-tabs {
+        justify-content: flex-start;
+    }
+
+    .pub-tab {
+        flex: 1;
+        justify-content: center;
+        padding: 16px 20px;
+        font-size: 15px;
+    }
+
+    .pub-tab-content {
+        padding: 24px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .pub-profile-header {
+        padding: 24px 16px;
+    }
+
+    .pub-avatar-circle {
+        width: 100px;
+        height: 100px;
+    }
+
+    .pub-avatar-initials {
+        font-size: 36px;
+    }
+
+    .pub-username {
+        font-size: 24px;
+    }
+
+    .pub-stat-card {
+        padding: 20px;
+    }
+
+    .pub-stat-icon {
+        width: 50px;
+        height: 50px;
+    }
+
+    .pub-stat-icon i {
+        font-size: 22px;
+    }
+
+    .pub-stat-number {
+        font-size: 28px;
+    }
+
+    .pub-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .pub-tab {
+        font-size: 14px;
+        padding: 14px 16px;
+    }
+
+    .pub-tab svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .pub-tab-content {
+        padding: 20px 16px;
+    }
+}
+</style>
+
 {% endblock %}

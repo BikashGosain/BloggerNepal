@@ -1,115 +1,372 @@
-{% extends 'base.html' %}
-
-{% load static %}
-
-{% block extra_css %}
-<link href="{% static 'css/dashboardfollowers_list.css' %}" rel="stylesheet">
-{% endblock %}
-
-{% block content %}
-{% if follow_error %}
-    <div class="alert alert-warning">
-        {{ follow_error }}
-    </div>
-{% endif %}
-
-<div class="followers-page">
-
-    <div class="followers-content">
-        <!-- Page Header -->
-        <div class="page-header">
-            <h2>
-                <i class="fas fa-user-friends"></i>
-                {{ user_obj.username }}'s Followers
-                <span class="followers-count">({{ followers.count }})</span>
-            </h2>
-        </div>
-
-        <!-- Search Form -->
-        <div class="search-container">
-            <form class="search-form" method="GET" action="">
-                <div class="search-wrapper">
-                    <i class="fas fa-search search-icon"></i>
-                    <input 
-                        type="text" 
-                        name="search" 
-                        id="follower-search" 
-                        class="search-input"
-                        placeholder="Search followers by username..."
-                        value="{{ request.GET.search|default:'' }}"
-                        autocomplete="off"
-                    >
-                    {% if request.GET.search %}
-                        <button type="button" class="clear-search" id="clearSearchBtn">
-    <i class="fas fa-times"></i>
-</button>
-
-                    {% endif %}
-                </div>
-                <button type="submit" class="search-button">
-                    <i class="fas fa-search"></i> Search
-                </button>
-            </form>
-        </div>
-
-        <!-- Followers List -->
-        {% if followers %}
-            <div class="followers-list">
-                {% for item in followers %}
-                    <div class="follower-item">
-                        <div class="follower-info">
-                            <div class="follower-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <a href="{% url 'profile' item.follower.username %}" class="follower-username">
-                                {{ item.follower.username }}
-                            </a>
-                        </div> 
-
-                        <!-- Follow / Unfollow button -->
-                        {% if request.user.is_authenticated and request.user != item.follower %}
-                            <div class="follower-actions">
-                                {% if item.follower.id in user_following_ids %}
-                                    <a href="{% url 'unfollow_user' item.follower.id %}" class="action-btn unfollow-btn" onclick="return confirm('Are you sure you want to unfollow {{ item.follower.username }}?');"
->
-                                        <i class="fas fa-user-minus"></i> Unfollow
-                                    </a>
-                                {% else %}
-                                    <a href="{% url 'follow_user' item.follower.id %}" class="action-btn follow-btn">
-                                        <i class="fas fa-user-plus"></i> Follow
-                                    </a>
-                                {% endif %}
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            </div>
-            {% include "includes/pagination.html" with page_obj=followers search=search %}
-
-        {% else %}
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fas fa-user-slash"></i>
-                </div>
-                <h3>No followers found</h3>
-                {% if request.GET.search %}
-                    <p>No followers match "{{ search_query }}"</p>
-                    <a href="{% url 'public_followers_list' user_obj.username %}" class="clear-filter-btn" >
-                        <i class="fas fa-redo"></i> Clear Search
-                    </a>
-
-                {% else %}
-                    <p>{{ user_obj.username }} doesn't have any followers yet.</p>
-                {% endif %}
-            </div>
+<div class="pub-followers-wrapper">
+    <div class="pub-followers-header">
+        <h3 class="pub-followers-title">
+            <i class="fas fa-users"></i>
+            {{ user_obj.username }}'s Followers
+        </h3>
+        {% if followers.paginator.count > 0 %}
+            <span class="pub-followers-badge">{{ followers.paginator.count }} follower{{ followers.paginator.count|pluralize }}</span>
         {% endif %}
     </div>
+
+    <!-- Search Form -->
+    <form class="pub-search-form" method="GET">
+        <input type="hidden" name="tab" value="followers">
+        <div class="pub-search-container">
+            <i class="fas fa-search pub-search-icon"></i>
+            <input 
+                type="text" 
+                name="search" 
+                class="pub-search-input"
+                placeholder="Search followers..."
+                value="{{ request.GET.search|default:'' }}"
+            >
+            {% if request.GET.search %}
+                <button type="button" class="pub-clear-search" onclick="window.location='?tab=followers'">
+                    <i class="fas fa-times"></i>
+                </button>
+            {% endif %}
+            <button type="submit" class="pub-search-btn">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </form>
+
+    <!-- Followers List -->
+    {% if followers and followers.paginator.count %}
+        <div class="pub-followers-list">
+            {% for item in followers %}
+                <div class="pub-follower-card">
+                    <div class="pub-follower-info">
+                        <div class="pub-follower-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <a href="{% url 'profile' item.follower.username %}" class="pub-follower-name">
+                            {{ item.follower.username }}
+                        </a>
+                    </div>
+
+                    {% if request.user.is_authenticated and request.user != item.follower %}
+                        <div class="pub-follower-actions">
+                            {% if item.follower.id in user_following_ids %}
+                                <a href="{% url 'unfollow_user' item.follower.id %}" class="pub-action-btn pub-unfollow-btn">
+                                    <i class="fas fa-user-minus"></i> Unfollow
+                                </a>
+                            {% else %}
+                                <a href="{% url 'follow_user' item.follower.id %}" class="pub-action-btn pub-follow-btn">
+                                    <i class="fas fa-user-plus"></i> Follow
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        {% include "includes/pagination.html" with page_obj=followers tab="followers" search=search %}
+    {% else %}
+        <div class="pub-empty-state">
+            <div class="pub-empty-icon">
+                <i class="fas fa-user-slash"></i>
+            </div>
+            <h4>No Followers Found</h4>
+            {% if request.GET.search %}
+                <p>No followers match "{{ request.GET.search }}"</p>
+                <a href="?tab=followers" class="pub-empty-btn">
+                    <i class="fas fa-redo"></i> Clear Search
+                </a>
+            {% else %}
+                <p>{{ user_obj.username }} doesn't have any followers yet.</p>
+            {% endif %}
+        </div>
+    {% endif %}
 </div>
 
-{% endblock %}
+<style>
+.pub-followers-wrapper {
+    animation: pubFadeIn 0.5s ease;
+}
 
-{% block extra_js %}
-<script src="{% static 'js/dashboardfollowers_list.js' %}"></script>
-{% endblock %}
+.pub-followers-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+}
 
+.pub-followers-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
+.pub-followers-title i {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.pub-followers-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Search Form */
+.pub-search-form {
+    margin-bottom: 30px;
+}
+
+.pub-search-container {
+    position: relative;
+    max-width: 600px;
+}
+
+.pub-search-icon {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    font-size: 18px;
+}
+
+.pub-search-input {
+    width: 100%;
+    padding: 14px 140px 14px 55px;
+    border: 2px solid #e2e8f0;
+    border-radius: 50px;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.pub-search-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.pub-clear-search {
+    position: absolute;
+    right: 120px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fee2e2;
+    color: #dc2626;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pub-clear-search:hover {
+    background: #dc2626;
+    color: white;
+}
+
+.pub-search-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pub-search-btn:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+/* Followers List */
+.pub-followers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.pub-follower-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+.pub-follower-card:hover {
+    transform: translateX(4px);
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.pub-follower-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.pub-follower-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3b82f6;
+    font-size: 20px;
+}
+
+.pub-follower-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.pub-follower-name:hover {
+    color: #3b82f6;
+}
+
+.pub-follower-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.pub-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.pub-follow-btn {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+}
+
+.pub-follow-btn:hover {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    transform: translateY(-2px);
+    color: white;
+}
+
+.pub-unfollow-btn {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+}
+
+.pub-unfollow-btn:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    transform: translateY(-2px);
+    color: white;
+}
+
+/* Empty State */
+.pub-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.pub-empty-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    font-size: 40px;
+}
+
+.pub-empty-state h4 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+
+.pub-empty-state p {
+    color: #64748b;
+    margin-bottom: 20px;
+}
+
+.pub-empty-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.pub-empty-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    color: white;
+}
+
+@keyframes pubFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .pub-followers-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .pub-follower-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .pub-follower-actions {
+        width: 100%;
+    }
+
+    .pub-action-btn {
+        flex: 1;
+        justify-content: center;
+    }
+}
+</style>
