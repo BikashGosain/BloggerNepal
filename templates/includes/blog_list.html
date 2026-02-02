@@ -3,89 +3,571 @@ Reusable blog listing + search + pagination
 Requires:
 - page_obj (paginated queryset, e.g., posts, followers)
 - tab (optional)
-- request.user (current user)
 - search (optional)
 - can_see_all (optional)
 {% endcomment %}
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 {% if page_obj and page_obj.object_list %}
-<div class="rb-blog-container">
+<div class="rbl-wrapper">
     <!-- Search form -->
-    <form method="GET" style="margin-bottom: 20px;">
+    <form method="GET" class="rbl-search-form">
         <input type="hidden" name="tab" value="{{ tab }}">
-        <input type="text" name="search" placeholder="Search..." value="{{ search }}">
-        <button type="submit">Search</button>
+        <div class="rbl-search-container">
+            <i class="fas fa-search rbl-search-icon"></i>
+            <input 
+                type="text" 
+                name="search" 
+                class="rbl-search-input" 
+                placeholder="Search posts..." 
+                value="{{ search }}"
+            >
+            <button type="submit" class="rbl-search-btn">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
     </form>
 
-    {% for blog in page_obj %}
-    <div class="rb-blog-item">
-        <a href="{{ blog.get_absolute_url }}">
-            {% if blog.featured_image %}
-                <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}">
-            {% else %}
-                <img src="https://via.placeholder.com/600x400?text=No+Image" alt="{{ blog.title }}">
-            {% endif %}
-        </a>
-
-        <a href="{{ blog.get_category_url }}" class="rb-blog-category">
-            {{ blog.get_category_name }}
-        </a>
-
-        <div class="rb-blog-content">
-            <a href="{{ blog.get_absolute_url }}" class="rb-blog-title">
-                {{ blog.title|capfirst }}
-            </a>
-
-            <p class="rb-blog-description">
-                {{ blog.short_description|truncatewords:30|capfirst }}
-            </p>
-
-            <div class="rb-blog-meta">
-                <a href="{% url 'profile' blog.author.username %}" class="follower-username">
-                    <i class="far fa-user"></i> {{ blog.author }}
+    <div class="rbl-grid">
+        {% for blog in page_obj %}
+        <article class="rbl-card">
+            <div class="rbl-image-wrapper">
+                <a href="{{ blog.get_absolute_url }}" class="rbl-image-link">
+                    {% if blog.featured_image %}
+                        <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}" class="rbl-image">
+                    {% else %}
+                        <div class="rbl-image-placeholder">
+                            <i class="fas fa-image"></i>
+                        </div>
+                    {% endif %}
+                    <div class="rbl-overlay"></div>
                 </a>
-                <span>{{ blog.created_at|timesince }} ago</span>
-                <span>{{ blog.views|default:0 }} views</span>
-                <span>{{ blog.total_likes }} likes</span>
-                <span>{{ blog.total_dislikes }} dislikes</span>
+                
+                <a href="{{ blog.get_category_url }}" class="rbl-category-badge">
+                    <i class="fas fa-tag"></i> {{ blog.get_category_name }}
+                </a>
             </div>
 
-            {% if blog.author == request.user or can_see_all %}
-                <a href="{% url 'edit_post' blog.id %}" class="rb-blog-readmore" onclick="event.stopPropagation();">
-                    <i class="fas fa-edit"></i> Edit
+            <div class="rbl-content">
+                <a href="{{ blog.get_absolute_url }}" class="rbl-title">
+                    {{ blog.title|capfirst }}
                 </a>
-                <a href="{% url 'delete_post' blog.id %}" class="rb-blog-readmore" onclick="event.stopPropagation();">
-                    <i class="fas fa-trash"></i> Delete
-                </a>
-            {% endif %}
 
-            <a href="{{ blog.get_absolute_url }}" class="rb-blog-readmore">Read More</a>
-        </div>
+                <p class="rbl-description">
+                    {{ blog.short_description|truncatewords:25|capfirst }}
+                </p>
+
+                <div class="rbl-meta">
+                    <a href="{% url 'profile' blog.author.username %}" class="rbl-author">
+                        <i class="far fa-user"></i>
+                        <span>{{ blog.author.username }}</span>
+                    </a>
+                    <span class="rbl-meta-divider">•</span>
+                    <span class="rbl-time">
+                        <i class="far fa-clock"></i>
+                        {{ blog.created_at|timesince }} ago
+                    </span>
+                </div>
+
+                <div class="rbl-stats">
+                    <span class="rbl-stat-item">
+                        <i class="far fa-eye"></i> {{ blog.views|default:0 }}
+                    </span>
+                    <span class="rbl-stat-item">
+                        <i class="far fa-thumbs-up"></i> {{ blog.total_likes }}
+                    </span>
+                    <span class="rbl-stat-item">
+                        <i class="far fa-thumbs-down"></i> {{ blog.total_dislikes }}
+                    </span>
+                </div>
+
+                <div class="rbl-actions">
+                    <a href="{{ blog.get_absolute_url }}" class="rbl-read-more">
+                        Read More <i class="fas fa-arrow-right"></i>
+                    </a>
+
+                    {% if blog.author == request.user or can_see_all %}
+                        <div class="rbl-admin-actions">
+                            <a href="{% url 'edit_post' blog.id %}" class="rbl-edit-btn" title="Edit" onclick="event.stopPropagation();">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'delete_post' blog.id %}" class="rbl-delete-btn" title="Delete" onclick="event.stopPropagation();">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </article>
+        {% endfor %}
     </div>
-    {% endfor %}
 </div>
 
 <!-- Pagination -->
 {% include "includes/pagination.html" with page_obj=page_obj tab=tab search=search %}
 
 {% else %}
-<div class="no-posts-container">
-    <div class="no-posts-icon">
+<div class="rbl-empty-state">
+    <div class="rbl-empty-icon">
         <i class="fas fa-inbox"></i>
     </div>
-    <h5>No Posts Yet</h5>
-    <p class="text-muted">You haven't created any posts yet. Start writing!</p>
-    <a href="{% url 'add_post' %}" class="btn btn-primary mt-3">
-        <i class="fas fa-plus"></i> Create Your First Post
-    </a>
-
+    <h3 class="rbl-empty-title">No Posts Found</h3>
+    
     {% if search %}
-            <p>No posts match "{{ search }}"</p>
-            <a href="?tab=posts" class="clear-filter-btn">
-                <i class="fas fa-redo"></i> Clear Search
-            </a>
-        {% else %}
-            <p>{{ user.username }} doesn't have any posts yet.</p>
-        {% endif %}
+        <p class="rbl-empty-text">No posts match "{{ search }}"</p>
+        <a href="?tab={{ tab }}" class="rbl-empty-btn">
+            <i class="fas fa-redo"></i> Clear Search
+        </a>
+    {% else %}
+        <p class="rbl-empty-text">No posts available yet. Start writing!</p>
+        <a href="{% url 'add_post' %}" class="rbl-empty-btn">
+            <i class="fas fa-plus"></i> Create Your First Post
+        </a>
+    {% endif %}
 </div>
 {% endif %}
+
+<style>
+/* ========================================
+   BLOG LIST STYLES (rbl = Reusable Blog List)
+   ======================================== */
+
+.rbl-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Search Form */
+.rbl-search-form {
+    margin-bottom: 40px;
+}
+
+.rbl-search-container {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.rbl-search-icon {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    font-size: 18px;
+    pointer-events: none;
+}
+
+.rbl-search-input {
+    width: 100%;
+    padding: 16px 120px 16px 55px;
+    font-size: 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 50px;
+    outline: none;
+    transition: all 0.3s ease;
+    background: #ffffff;
+}
+
+.rbl-search-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.rbl-search-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.rbl-search-btn:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    transform: translateY(-50%) scale(1.05);
+}
+
+/* Grid Layout */
+.rbl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+/* Card */
+.rbl-card {
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.rbl-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Image */
+.rbl-image-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 60%;
+    overflow: hidden;
+    background: #f1f5f9;
+}
+
+.rbl-image-link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.rbl-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.rbl-card:hover .rbl-image {
+    transform: scale(1.1);
+}
+
+.rbl-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 48px;
+}
+
+.rbl-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.rbl-card:hover .rbl-overlay {
+    opacity: 1;
+}
+
+/* Category Badge */
+.rbl-category-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    color: #1e293b;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rbl-category-badge:hover {
+    background: #3b82f6;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.rbl-category-badge i {
+    margin-right: 6px;
+}
+
+/* Content */
+.rbl-content {
+    padding: 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.rbl-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+    text-decoration: none;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+    transition: color 0.3s ease;
+}
+
+.rbl-title:hover {
+    color: #3b82f6;
+}
+
+.rbl-description {
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+    flex: 1;
+}
+
+/* Meta */
+.rbl-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.rbl-author {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #475569;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.rbl-author:hover {
+    color: #3b82f6;
+}
+
+.rbl-meta-divider {
+    color: #cbd5e1;
+}
+
+.rbl-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Stats */
+.rbl-stats {
+    display: flex;
+    gap: 16px;
+    padding: 12px 0;
+    border-top: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 16px;
+}
+
+.rbl-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.rbl-stat-item i {
+    color: #94a3b8;
+}
+
+/* Actions */
+.rbl-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.rbl-read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.rbl-read-more:hover {
+    gap: 12px;
+    color: #2563eb;
+}
+
+.rbl-admin-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.rbl-edit-btn,
+.rbl-delete-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.rbl-edit-btn {
+    background: #f0f9ff;
+    color: #0284c7;
+}
+
+.rbl-edit-btn:hover {
+    background: #0284c7;
+    color: white;
+}
+
+.rbl-delete-btn {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.rbl-delete-btn:hover {
+    background: #dc2626;
+    color: white;
+}
+
+/* Empty State */
+.rbl-empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.rbl-empty-icon {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 48px;
+}
+
+.rbl-empty-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 12px;
+}
+
+.rbl-empty-text {
+    font-size: 16px;
+    color: #64748b;
+    margin-bottom: 24px;
+}
+
+.rbl-empty-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.rbl-empty-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .rbl-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    .rbl-wrapper {
+        padding: 16px;
+    }
+    
+    .rbl-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .rbl-search-container {
+        max-width: 100%;
+    }
+    
+    .rbl-search-input {
+        padding: 14px 100px 14px 50px;
+        font-size: 15px;
+    }
+    
+    .rbl-search-btn {
+        padding: 10px 20px;
+    }
+    
+    .rbl-title {
+        font-size: 18px;
+    }
+    
+    .rbl-content {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .rbl-stats {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    
+    .rbl-meta {
+        font-size: 13px;
+    }
+    
+    .rbl-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .rbl-read-more {
+        justify-content: center;
+    }
+    
+    .rbl-admin-actions {
+        justify-content: center;
+    }
+}
+</style>

@@ -3,28 +3,491 @@
 {% load static %}
 
 {% block extra_css %}
-<link href="{% static 'css/category.css' %}" rel="stylesheet">
-<link href="{% static 'css/messages.css' %}" rel="stylesheet">
-{% endblock %}
+
+<style>
+/* ========================================
+   CATEGORY PAGE STYLES (rcat = Reusable Category)
+   ======================================== */
+
+.rcat-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* Header Section */
+.rcat-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.rcat-header-content {
+    margin-bottom: 30px;
+}
+
+.rcat-main-title {
+    font-size: 42px;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0 0 12px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.rcat-main-title i {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.rcat-subtitle {
+    font-size: 18px;
+    color: #64748b;
+    margin: 0;
+}
+
+/* Stats Cards */
+.rcat-stats {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.rcat-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 32px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.rcat-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.rcat-stat-card i {
+    font-size: 32px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.rcat-stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.rcat-stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.rcat-stat-label {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Search Form */
+.rcat-search-form {
+    margin-bottom: 40px;
+}
+
+.rcat-search-container {
+    position: relative;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.rcat-search-icon {
+    position: absolute;
+    left: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    font-size: 20px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.rcat-search-input {
+    width: 100%;
+    padding: 18px 160px 18px 60px;
+    font-size: 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 50px;
+    outline: none;
+    transition: all 0.3s ease;
+    background: #ffffff;
+}
+
+.rcat-search-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.rcat-search-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.rcat-search-btn:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    transform: translateY(-50%) scale(1.05);
+}
+
+.rcat-clear-btn {
+    position: absolute;
+    right: 120px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fee2e2;
+    color: #dc2626;
+    border-radius: 50%;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.rcat-clear-btn:hover {
+    background: #dc2626;
+    color: white;
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Categories Grid */
+.rcat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    margin-bottom: 50px;
+}
+
+/* Category Card */
+.rcat-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 24px;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.rcat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.rcat-card:hover::before {
+    transform: scaleY(1);
+}
+
+.rcat-card:hover {
+    border-color: #3b82f6;
+    transform: translateX(8px);
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+}
+
+/* Uncategorized Special Styling */
+.rcat-uncategorized {
+    border-color: #fbbf24;
+}
+
+.rcat-uncategorized::before {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+}
+
+.rcat-uncategorized:hover {
+    border-color: #fbbf24;
+    box-shadow: 0 8px 24px rgba(251, 191, 36, 0.15);
+}
+
+.rcat-uncategorized .rcat-card-icon {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+}
+
+.rcat-uncategorized .rcat-card-icon i {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Card Icon */
+.rcat-card-icon {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border-radius: 16px;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.rcat-card:hover .rcat-card-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.rcat-card-icon i {
+    font-size: 28px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Card Content */
+.rcat-card-content {
+    flex: 1;
+}
+
+.rcat-card-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+}
+
+.rcat-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.rcat-blog-count {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.rcat-blog-count i {
+    color: #94a3b8;
+}
+
+/* Card Arrow */
+.rcat-card-arrow {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.rcat-card:hover .rcat-card-arrow {
+    background: #3b82f6;
+    transform: translateX(4px);
+}
+
+.rcat-card-arrow i {
+    font-size: 18px;
+    color: #64748b;
+    transition: color 0.3s ease;
+}
+
+.rcat-card:hover .rcat-card-arrow i {
+    color: white;
+}
+
+/* Empty State */
+.rcat-empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.rcat-empty-icon {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 48px;
+}
+
+.rcat-empty-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 12px;
+}
+
+.rcat-empty-text {
+    font-size: 16px;
+    color: #64748b;
+    margin-bottom: 24px;
+}
+
+.rcat-empty-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.rcat-empty-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .rcat-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .rcat-wrapper {
+        padding: 30px 16px;
+    }
+    
+    .rcat-main-title {
+        font-size: 32px;
+        gap: 12px;
+    }
+    
+    .rcat-subtitle {
+        font-size: 16px;
+    }
+    
+    .rcat-stats {
+        gap: 16px;
+    }
+    
+    .rcat-stat-card {
+        padding: 16px 24px;
+    }
+    
+    .rcat-stat-card i {
+        font-size: 28px;
+    }
+    
+    .rcat-stat-number {
+        font-size: 24px;
+    }
+    
+    .rcat-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .rcat-search-input {
+        padding: 16px 140px 16px 55px;
+    }
+}
+
+@media (max-width: 480px) {
+    .rcat-main-title {
+        font-size: 28px;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .rcat-stats {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .rcat-stat-card {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .rcat-card {
+        padding: 20px;
+    }
+    
+    .rcat-card-icon {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .rcat-card-icon i {
+        font-size: 24px;
+    }
+    
+    .rcat-card-name {
+        font-size: 18px;
+    }
+    
+    .rcat-search-input {
+        padding: 14px 120px 14px 50px;
+        font-size: 15px;
+    }
+    
+    .rcat-search-btn {
+        padding: 12px 20px;
+    }
+    
+    .rcat-clear-btn {
+        right: 100px;
+    }
+}
+</style>{% endblock %}
 
 {% block content %}
-{% if message %}
-    <div id="global-django-messages">
-        
-        <div class="global-message {{ message.tags }}">
-            <span class="global-message-text">
-                <p style="color: #f2e3e3; background-color: #14d831;" >
-    {{ message|safe }}
-</p>
 
-            </span>
-            <button class="global-message-close" aria-label="Close">
-                &times;
-            </button>
-        </div>
-       
-    </div>
-{% endif %}
     
 <!-- <ul>
   {% for category in categories %}
@@ -43,26 +506,127 @@
 or (shorter)
 {{ blog.category.category_name|default:"Uncategorized" }}
  -->
+<div class="rcat-wrapper">
+    <!-- Header Section -->
+    <div class="rcat-header">
+        <div class="rcat-header-content">
+            <h1 class="rcat-main-title">
+                <i class="fas fa-tags"></i> Categories
+            </h1>
+            <p class="rcat-subtitle">Explore topics and discover content</p>
+        </div>
+        
+        <div class="rcat-stats">
+            <div class="rcat-stat-card">
+                <i class="fas fa-folder-open"></i>
+                <div class="rcat-stat-info">
+                    <span class="rcat-stat-number">{{ categories.paginator.count }}</span>
+                    <span class="rcat-stat-label">Total Categories</span>
+                </div>
+            </div>
+            <div class="rcat-stat-card">
+                <i class="fas fa-eye"></i>
+                <div class="rcat-stat-info">
+                    <span class="rcat-stat-number">{{ categories|length }}</span>
+                    <span class="rcat-stat-label">Showing on Page</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<h2 class="bn-category-title">Categories</h2>
- {% if categories %}
-<div class="bn-category-grid">
-    {% for cate in categories %}
-        <a href="{% url 'posts_by_category' cate.id %}" class="bn-category-card">
-            <span class="bn-category-name">{{ cate.category_name }} ({{ cate.blog_count }} blogs)</span>
-        </a>
-    {% endfor %}
-    {% if uncategorized_count > 0 %}
-        <a href="{% url 'posts_by_category' 0 %}" class="bn-category-card">
-            <span class="bn-category-name">Uncategorized ({{ uncategorized_count }} blogs)</span>
-        </a>
+    <!-- Search Form -->
+    <form method="GET" class="rcat-search-form">
+        <div class="rcat-search-container">
+            <i class="fas fa-search rcat-search-icon"></i>
+            <input 
+                type="text" 
+                name="search" 
+                class="rcat-search-input" 
+                placeholder="Search categories..." 
+                value="{{ category_search }}"
+            >
+            <button type="submit" class="rcat-search-btn">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            {% if category_search %}
+                <a href="{% url 'categories' %}" class="rcat-clear-btn" title="Clear search">
+                    <i class="fas fa-times"></i>
+                </a>
+            {% endif %}
+        </div>
+    </form>
+
+    {% if categories %}
+        <!-- Categories Grid -->
+        <div class="rcat-grid">
+            {% for cate in categories %}
+                <a href="{% url 'posts_by_category' cate.id %}" class="rcat-card">
+                    <div class="rcat-card-icon">
+                        <i class="fas fa-folder"></i>
+                    </div>
+                    <div class="rcat-card-content">
+                        <h3 class="rcat-card-name">{{ cate.category_name }}</h3>
+                        <div class="rcat-card-meta">
+                            <span class="rcat-blog-count">
+                                <i class="fas fa-file-alt"></i>
+                                {{ cate.blog_count }} blog{{ cate.blog_count|pluralize }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="rcat-card-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+            {% endfor %}
+
+            <!-- Uncategorized -->
+            {% if uncategorized_count > 0 %}
+                <a href="{% url 'posts_by_category' 0 %}" class="rcat-card rcat-uncategorized">
+                    <div class="rcat-card-icon">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <div class="rcat-card-content">
+                        <h3 class="rcat-card-name">Uncategorized</h3>
+                        <div class="rcat-card-meta">
+                            <span class="rcat-blog-count">
+                                <i class="fas fa-file-alt"></i>
+                                {{ uncategorized_count }} blog{{ uncategorized_count|pluralize }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="rcat-card-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Pagination -->
+        {% include "includes/pagination.html" with page_obj=categories tab="categories" search=category_search %}
+
+    {% else %}
+        <!-- Empty State -->
+        <div class="rcat-empty-state">
+            <div class="rcat-empty-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h3 class="rcat-empty-title">No Categories Found</h3>
+            {% if category_search %}
+                <p class="rcat-empty-text">No categories match "{{ category_search }}"</p>
+                <a href="{% url 'categories' %}" class="rcat-empty-btn">
+                    <i class="fas fa-redo"></i> Clear Search
+                </a>
+            {% else %}
+                <p class="rcat-empty-text">No categories available yet.</p>
+            {% endif %}
+        </div>
     {% endif %}
-
 </div>
-{% else %}
-    <p>Category not found.</p>
-{% endif %}
+
+
+
 {% endblock %}
+
 
 {% block extra_js %}
 {% endblock %}

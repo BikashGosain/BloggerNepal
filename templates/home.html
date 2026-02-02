@@ -14,7 +14,7 @@
   <!-- Featured Posts Section -->
   <section class="homepage-featured-section">
     <h3 class="homepage-section-title">Featured Posts</h3>
-    {% include 'featuredposts.html' %}
+    {% include "includes/blog_list.html" with page_obj=featured_posts tab="featured_posts" search=search %}
   </section>
 
   <!-- Main Content with Sidebar -->
@@ -23,7 +23,8 @@
       <!-- Recent Posts Column -->
       <div class="homepage-content-column">
         <h3 class="homepage-section-title">Recent Posts</h3>
-        {% include 'recentposts.html' %}
+{% include "includes/blog_list.html" with page_obj=latestpost tab="latestpost" search=search %}
+
       </div>
 
       <!-- Sidebar Column -->
@@ -98,6 +99,18 @@
                 {{ cate.category_name|slice:":20" }}
               </a>
             {% endfor %}
+            {% if uncategorized_count > 0 %}
+                <a href="{% url 'posts_by_category' 0 %}" class="rcat-card rcat-uncategorized">
+                    
+                        <hr><h4 class="homepage-widget-title">Uncategorized</h4>
+                       
+                            <span>
+                                <i class="fas fa-file-alt"></i>
+                                {{ uncategorized_count }} blog{{ uncategorized_count|pluralize }}
+                            </span>
+                        
+                </a>
+            {% endif %}
           </div>
         </div>
       </aside>

@@ -7,6 +7,8 @@ from django.contrib import messages
 
 
 def get_categories(request):
+    # 🔹 Get search query from URL
+    search_query = request.GET.get('search', '').strip()
     page_number = request.GET.get('page', 1)
 
     categories_qs = Category.objects.annotate(
@@ -16,7 +18,13 @@ def get_categories(request):
         )
     ).order_by('category_name')
 
-    paginator = Paginator(categories_qs, 1)
+    # 🔹 Apply search if query exists
+    if search_query:
+        categories_qs = categories_qs.filter(
+            category_name__icontains=search_query
+        )
+
+    paginator = Paginator(categories_qs, 3)
     page_obj = paginator.get_page(page_number)
 
     uncategorized_count = Blog.objects.filter(
@@ -26,7 +34,8 @@ def get_categories(request):
 
     return {
         'categories': page_obj,          # paginated categories with blog_count
-        'uncategorized_count': uncategorized_count
+        'uncategorized_count': uncategorized_count,
+        'category_search': search_query,
     }
 
 

@@ -874,7 +874,9 @@
     }
 
     .dash-logo-text {
-        display: none;
+        display: inline;
+        font-size: 14px;
+        font-weight: 600;
     }
 
     .dash-search-wrapper {
@@ -885,6 +887,14 @@
         display: none;
     }
 }
+@media (max-width: 400px) {
+    .dash-logo-text {
+        font-size: 12px;
+        letter-spacing: -0.2px;
+    }
+}
+
+
 
 /* Scrollbar Styling */
 .dash-sidebar::-webkit-scrollbar {

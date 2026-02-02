@@ -4,74 +4,10 @@
 
 
 {% block extra_css %}
-<link href="{% static 'css/randomblogs.css' %}" rel="stylesheet">
 {% endblock %}
+
 {% block content %}
-{% if popularpost and popularpost.object_list %}
-
-<div class="rb-blog-container">
-    {% for blog in popularpost %}
-    <div class="rb-blog-item">
-
-        <!-- Image clickable to blog detail page -->
-        <a href="{{ blog.get_absolute_url }}">
-            {% if blog.featured_image %}
-                <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}">
-            {% else %}
-                <img src="https://via.placeholder.com/600x400?text=No+Image" alt="{{ blog.title }}">
-            {% endif %}
-        </a>
-
-        <!-- Category clickable to category page -->
-        <a href="{{ blog.get_category_url }}" class="rb-blog-category">
-    {{ blog.get_category_name }}
-</a>
-
-
-        <div class="rb-blog-content">
-            <!-- Title clickable -->
-            <a href="{{ blog.get_absolute_url }}" class="rb-blog-title">
-                {{ blog.title|capfirst }}
-            </a>
-
-            <p class="rb-blog-description">
-                {{ blog.short_description|truncatewords:30|capfirst }}
-            </p>
-
-            <div class="rb-blog-meta">
-                <span>{{ blog.author }}</span>
-                <span>{{ blog.created_at|timesince }} ago</span>
-                <span>{{ blog.views|default:0 }} (views)</span>
-                <span>{{ blog.total_likes }} (likes)</span>
-                <span>{{ blog.total_dislikes }} (dislikes)</span>
-            </div>
-
-            <!-- Read more clickable -->
-            <a href="{{ blog.get_absolute_url }}" class="rb-blog-readmore">
-                Read More
-            </a>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-
-<div class="rb-pagination">
-    {% if popularpost.has_previous %}
-        <a href="?page=1">First</a>
-        <a href="?page={{ popularpost.previous_page_number }}">Previous</a>
-    {% endif %}
-
-    <span>Page {{ popularpost.number }} of {{ popularpost.paginator.num_pages }}</span>
-
-    {% if popularpost.has_next %}
-        <a href="?page={{ popularpost.next_page_number }}">Next</a>
-        <a href="?page={{ popularpost.paginator.num_pages }}">Last</a>
-    {% endif %}
-</div>
-
-{% else %}
-<p>No posts available.</p>
-{% endif %}
+{% include "includes/blog_list.html" with page_obj=popularpost tab="popularpost" search=search %}
 {% endblock %}
 
 {% block extra_js %}

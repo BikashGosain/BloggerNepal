@@ -2,76 +2,13 @@
 
 {% load static %}
 
+
 {% block extra_css %}
-<link href="{% static 'css/randomblogs.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
-{% if posts_by_category and posts_by_category.object_list %}
-
-<div class="rb-blog-container">
-    {% for blog in posts_by_category %}
-    <div class="rb-blog-item">
-
-        <!-- Image clickable to blog detail page -->
-        <a href="{{ blog.get_absolute_url }}">
-            {% if blog.featured_image %}
-                <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}">
-            {% else %}
-                <img src="https://via.placeholder.com/600x400?text=No+Image" alt="{{ blog.title }}">
-            {% endif %}
-        </a>
-
-        <a href="{{ blog.get_category_url }}" class="rb-blog-category">
-    {{ blog.get_category_name }}
-</a>
-
-        <div class="rb-blog-content">
-            <!-- Title clickable -->
-            <a href="{{ blog.get_absolute_url }}" class="rb-blog-title">
-                {{ blog.title|capfirst }}
-            </a>
-
-            <p class="rb-blog-description">
-                {{ blog.short_description|truncatewords:30|capfirst }}
-            </p>
-
-            <div class="rb-blog-meta">
-                <span>{{ blog.author }}</span>
-                <span>{{ blog.created_at|timesince }} ago</span>
-                <span>{{ blog.views|default:0 }} (views)</span>
-                <span>{{ blog.total_likes }} (likes)</span>
-                <span>{{ blog.total_dislikes }} (dislikes)</span>
-            </div>
-
-            <!-- Read more clickable -->
-            <a href="{{ blog.get_absolute_url }}" class="rb-blog-readmore">
-                Read More
-            </a>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-
-<div class="rb-pagination">
-    {% if posts_by_category.has_previous %}
-        <a href="?page=1">First</a>
-        <a href="?page={{ posts_by_category.previous_page_number }}">Previous</a>
-    {% endif %}
-
-    <span>Page {{ posts_by_category.number }} of {{ posts_by_category.paginator.num_pages }}</span>
-
-    {% if posts_by_category.has_next %}
-        <a href="?page={{ posts_by_category.next_page_number }}">Next</a>
-        <a href="?page={{ posts_by_category.paginator.num_pages }}">Last</a>
-    {% endif %}
-</div>
-
-{% else %}
-<p>No posts available.</p>
-{% endif %}
+{% include "includes/blog_list.html" with page_obj=posts_by_category tab="posts_by_category" search=search %}
 {% endblock %}
 
 {% block extra_js %}
-
 {% endblock %}

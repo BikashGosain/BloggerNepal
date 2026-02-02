@@ -3,12 +3,10 @@
 {% load static %}
 
 {% block extra_css %}
-<link href="{% static 'css/randomblogs.css' %}" rel="stylesheet">
-
 {% endblock %}
 
 {% block content %}
-{% include 'recentposts.html' %}
+{% include "includes/blog_list.html" with page_obj=latestpost tab="randomblogs" search=search %}
 {% endblock %}
 
 {% block extra_js %}
