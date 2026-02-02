@@ -137,17 +137,8 @@
                     {% endfor %}
                 </div>
                 <div class="pagination mt-3">
-    {% if posts.has_previous %}
-        <a href="?page=1" class="btn btn-sm btn-outline-primary">First</a>
-        <a href="?page={{ posts.previous_page_number }}" class="btn btn-sm btn-outline-primary">Prev</a>
-    {% endif %}
+    {% include "includes/pagination.html" with page_obj=posts search=search %}
 
-    <span>Page {{ posts.number }} of {{ posts.paginator.num_pages }} ({{ posts.paginator.count }} Posts)</span>
-
-    {% if posts.has_next %}
-        <a href="?page={{ posts.next_page_number }}" class="btn btn-sm btn-outline-primary">Next</a>
-        <a href="?page={{ posts.paginator.num_pages }}" class="btn btn-sm btn-outline-primary">Last</a>
-    {% endif %}
 </div>
 
             {% else %}

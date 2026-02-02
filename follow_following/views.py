@@ -6,6 +6,8 @@ from blogs.models import Blog
 from .models import Follow
 from django.core.paginator import Paginator
 
+from django.db.models import Q
+
 # FOLLOW USER
 @login_required
 def follow_user(request, user_id):
@@ -35,52 +37,22 @@ def unfollow_user(request, user_id):
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
-# FOLLOWERS LIST
+# FOLLOWERS LIST (private, logged-in user) of dashboard profile
 @login_required
 def followers_list(request, username):
-    user_obj = get_object_or_404(User, username=username)
-
-    followers = Follow.objects.filter(
-        following=user_obj
-    ).select_related('follower')
-
-    # IDs of users current logged-in user is following
-    user_following_ids = []
-    if request.user.is_authenticated:
-        user_following_ids = Follow.objects.filter(
-            follower=request.user
-        ).values_list('following_id', flat=True)
-
-    return render(request, 'followers_list.html', {
-        'user_obj': user_obj,
-        'followers': followers,
-        'user_following_ids': list(user_following_ids),
-    })
+    return render(request, 'followers_list.html')
 
 
-# FOLLOWING LIST
+# FOLLOWING LIST (private, logged-in user) of dashboard profile
 @login_required
 def following_list(request, username):
-    user_obj = get_object_or_404(User, username=username)
+    return render(request, 'following_list.html')
 
-    following = Follow.objects.filter(
-        follower=user_obj
-    ).select_related('following')
+# 1️⃣ My posts (private, logged-in user) of dashboard profile
+def mypost(request):
+    return render(request, 'My_Posts.html')
 
-    # IDs of users current logged-in user is following
-    user_following_ids = []
-    if request.user.is_authenticated:
-        user_following_ids = Follow.objects.filter(
-            follower=request.user
-        ).values_list('following_id', flat=True)
-
-    return render(request, 'following_list.html', {
-        'user_obj': user_obj,
-        'following': following,
-        'user_following_ids': list(user_following_ids),
-    })
-
-
+# 1️⃣ Public Profile View
 def profile(request, username):
     """
     Display public profile for any user
@@ -88,7 +60,7 @@ def profile(request, username):
     user_obj = get_object_or_404(User, username=username)
 
     posts = Blog.objects.filter(author=user_obj).order_by('-created_at')
-    paginator = Paginator(posts, 6)
+    paginator = Paginator(posts, 2)
     page_number = request.GET.get('page', 1)
     posts = paginator.get_page(page_number)
 
@@ -107,18 +79,40 @@ def profile(request, username):
     }
     return render(request, 'public_profile.html', context)
 
-def mypost(request):
-    user = request.user
-    posts = Blog.objects.filter(author=user)
 
-    context = {
-        'user': user,
-        'posts': posts,
-    }
-    return render(request, 'My_Posts.html', context)
-
+# 2️⃣ Public Followers List
 def public_followers_list(request, username):
-    return render(request, 'public_followers_list.html')
+    user_obj = get_object_or_404(User, username=username)
+    search_query = request.GET.get('search', '').strip()
 
+    followers_qs = Follow.objects.filter(following=user_obj).select_related('follower')
+
+    if search_query:
+        followers_qs = followers_qs.filter(follower__username__icontains=search_query)
+
+    followers = Paginator(followers_qs, 10).get_page(request.GET.get('page'))
+
+    return render(request, 'public_followers_list.html', {
+        'user_obj': user_obj,
+        'followers': followers,
+        'search': search_query,   # pass to template
+    })
+
+
+# 3️⃣ Public Following List
 def public_following_list(request, username):
-    return render(request, 'public_following_list.html')
+    user_obj = get_object_or_404(User, username=username)
+    search_query = request.GET.get('search', '').strip()
+
+    following_qs = Follow.objects.filter(follower=user_obj).select_related('following')
+
+    if search_query:
+        following_qs = following_qs.filter(following__username__icontains=search_query)
+
+    following = Paginator(following_qs, 10).get_page(request.GET.get('page'))
+
+    return render(request, 'public_following_list.html', {
+        'user_obj': user_obj,
+        'following': following,
+        'search': search_query,   # pass to template
+    })

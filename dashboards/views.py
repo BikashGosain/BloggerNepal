@@ -471,11 +471,20 @@ def profile(request):
             f'Please <a href="{reverse("edit_profile")}">add your email here</a>.'
         )
 
-    # 🔹 POSTS (paginated)
+    # 🔹 POSTS (paginated + searchable)
     posts_qs = Blog.objects.filter(author=user).order_by('-created_at')
-    posts = None
-    if tab == 'posts':
-        posts = Paginator(posts_qs, 2).get_page(page_number)
+
+    if tab == 'posts' and search:
+        posts_qs = posts_qs.filter(
+            Q(title__icontains=search) |
+            Q(short_description__icontains=search) |
+            Q(blog_body__icontains=search) |
+            Q(author__username__icontains=search) |
+            Q(category__category_name__icontains=search)
+        )
+
+    posts_qs = posts_qs.order_by('-created_at')
+    posts = Paginator(posts_qs, 2).get_page(page_number) if tab == 'posts' else None
 
     # 🔹 FOLLOWERS (paginated + searchable)
     followers_qs = Follow.objects.filter(
@@ -562,19 +571,25 @@ def edit_profile(request):
 def dashboardfollowers_list(request, username):
     user_obj = get_object_or_404(User, username=username)
 
-    followers = Follow.objects.filter(
+    followers_qs = Follow.objects.filter(
         following=user_obj
     ).select_related('follower')
 
     search_query = request.GET.get('search', '').strip()
     if search_query:
-        followers = followers.filter(
+        followers_qs  = followers_qs .filter(
             follower__username__icontains=search_query
         )
+
+         # 🔹 Pagination (10 followers per page)
+    paginator = Paginator(followers_qs, 2)
+    page_number = request.GET.get('page', 1)
+    followers = paginator.get_page(page_number)
 
     return render(request, 'dashboardfollowers_list.html', {
         'user_obj': user_obj,
         'followers': followers,
+        'search': search_query,
     })
 
 
@@ -582,17 +597,23 @@ def dashboardfollowers_list(request, username):
 def dashboardfollowing_list(request, username):
     user_obj = get_object_or_404(User, username=username)
 
-    following = Follow.objects.filter(
+    following_qs = Follow.objects.filter(
         follower=user_obj
     ).select_related('following')
 
     search_query = request.GET.get('search', '').strip()
     if search_query:
-        following = following.filter(
+        following_qs = following_qs.filter(
             following__username__icontains=search_query
         )
+
+        # 🔹 Pagination (10 per page)
+    paginator = Paginator(following_qs, 2)
+    page_number = request.GET.get('page', 1)
+    following = paginator.get_page(page_number)
 
     return render(request, 'dashboardfollowing_list.html', {
         'user_obj': user_obj,
         'following': following,
+        'search': search_query,
     })

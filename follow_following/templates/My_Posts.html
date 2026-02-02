@@ -2,8 +2,26 @@
 {% block extra_css %}
 <link href="{% static 'css/randomblogs.css' %}" rel="stylesheet">
 {% endblock %}
+
+
+
+  <h2>
+    <i class="fas fa-user-friends"></i>
+    {{ user.username }}'s Posts in this page:
+    <span class="followers-count">
+        ({{ posts.paginator.count }})
+    </span>
+</h2>
+<form method="GET">
+    <input type="hidden" name="tab" value="{{ tab }}">
+    <input type="text" name="search" placeholder="Search..." value="{{ search }}">
+    <button type="submit">Search</button>
+</form>
 {% if posts.paginator.count %}
+
 <div class="rb-blog-container">
+
+
     {% for blog in posts %}
     <div class="rb-blog-item">
 
@@ -62,22 +80,7 @@
     {% endfor %}
 </div>
 
-<div class="pagination">
-    {% if posts.has_previous %}
-        <a href="?tab=posts&page=1" class="page-link">First</a>
-        <a href="?tab=posts&page={{ posts.previous_page_number }}" class="page-link">Prev</a>
-    {% endif %}
-
-    <span>
-        Page {{ posts.number }} of {{ posts.paginator.num_pages }}
-        ({{ posts.paginator.count }} total)
-    </span>
-
-    {% if posts.has_next %}
-        <a href="?tab=posts&page={{ posts.next_page_number }}" class="page-link">Next</a>
-        <a href="?tab=posts&page={{ posts.paginator.num_pages }}" class="page-link">Last</a>
-    {% endif %}
-</div>
+{% include "includes/pagination.html" with page_obj=posts tab="posts" search=search %}
 
 {% else %}
 <div class="no-posts-container">
@@ -89,6 +92,15 @@
     <a href="{% url 'add_post' %}" class="btn btn-primary mt-3">
         <i class="fas fa-plus"></i> Create Your First Post
     </a>
+
+    {% if search %}
+            <p>No posts match "{{ search }}"</p>
+            <a href="?tab=posts" class="clear-filter-btn">
+                <i class="fas fa-redo"></i> Clear Search
+            </a>
+        {% else %}
+            <p>{{ user.username }} doesn't have any posts yet.</p>
+        {% endif %}
 </div>
 {% endif %}
 
