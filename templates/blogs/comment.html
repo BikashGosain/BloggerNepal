@@ -1,97 +1,97 @@
-<div class="bd-comment bd-comment-level-{{ level|default:0 }}" id="bd-comment-{{ comment.id }}" data-comment-id="{{ comment.id }}">
+<div class="bd-comment bd-comment-level-{{ level|default:0 }}"
+     id="bd-comment-{{ comment.id }}">
+
     <div class="bd-comment-container">
+
         <div class="bd-comment-avatar">
             {{ comment.user.username|slice:":1"|upper }}
         </div>
-        
+
         <div class="bd-comment-content">
-            <!-- Comment Header -->
+
+            <!-- Header -->
             <div class="bd-comment-header">
                 <div class="bd-comment-meta">
-                    <span class="bd-comment-author">{{ comment.user.username }}</span>
-                    <span class="bd-comment-time">
-                        <i class="far fa-clock"></i> {{ comment.created_at|timesince }} ago
-                    </span>
+                    <strong>{{ comment.user.username }}</strong>
+                    <span>{{ comment.created_at|timesince }} ago</span>
                     {% if comment.parent %}
-                    <span class="bd-comment-reply-to">
-                        <i class="fas fa-reply"></i> Replying to <strong>@{{ comment.parent.user.username }}</strong>
-                    </span>
+                        · replying to <strong>@{{ comment.parent.user.username }}</strong>
                     {% endif %}
                 </div>
-                
-                <!-- Comment Actions (Edit/Delete) -->
+
                 <div class="bd-comment-actions">
                     {% if request.user == comment.user %}
-                    <button class="bd-icon-btn bd-edit-btn" onclick="bdToggleEditForm({{ comment.id }})" title="Edit">
-                        <i class="fas fa-edit"></i>
+                    <button onclick="bdToggleEditForm({{ comment.id }})">
+                        ✏️
                     </button>
                     {% endif %}
-                    
+
                     {% if request.user == comment.user or request.user.is_superuser %}
-                    <button class="bd-icon-btn bd-delete-btn" onclick="bdDeleteComment('{% url 'delete_comment' comment.id %}')" title="Delete">
-                        <i class="fas fa-trash-alt"></i>
+                    <button onclick="bdDeleteComment('{% url 'delete_comment' comment.id %}')">
+                        🗑️
                     </button>
                     {% endif %}
                 </div>
             </div>
 
-            <!-- Comment Text -->
+            <!-- Text -->
             <div class="bd-comment-text" id="bd-comment-text-{{ comment.id }}">
                 {{ comment.comment }}
             </div>
 
-            <!-- Edit Form (Hidden by default) -->
-            <div id="bd-edit-form-{{ comment.id }}" class="bd-edit-form bd-hidden">
-                <textarea class="bd-textarea bd-edit-textarea" id="bd-edit-text-{{ comment.id }}">{{ comment.comment }}</textarea>
-                <div class="bd-edit-actions">
-                    <button class="bd-btn bd-btn-primary bd-btn-sm" onclick="bdSubmitEdit({{ comment.id }}, '{% url 'edit_comment' comment.id %}')">
-                        <i class="fas fa-check"></i> Save
-                    </button>
-                    <button class="bd-btn bd-btn-secondary bd-btn-sm" onclick="bdToggleEditForm({{ comment.id }})">
-                        <i class="fas fa-times"></i> Cancel
-                    </button>
-                </div>
+            <!-- Edit form -->
+            <div id="bd-edit-form-{{ comment.id }}" class="bd-hidden">
+                <textarea id="bd-edit-text-{{ comment.id }}">{{ comment.comment }}</textarea>
+                <button onclick="bdSubmitEdit({{ comment.id }}, '{% url 'edit_comment' comment.id %}')">Save</button>
+                <button onclick="bdToggleEditForm({{ comment.id }})">Cancel</button>
             </div>
 
-            <!-- Comment Footer (Reply button) -->
+            <!-- Reply button -->
             {% if user.is_authenticated %}
-            <div class="bd-comment-footer">
-                <button class="bd-reply-btn" onclick="bdToggleReplyForm({{ comment.id }})">
-                    <i class="fas fa-reply"></i> Reply
-                </button>
-            </div>
+            <button onclick="bdToggleReplyForm({{ comment.id }})">Reply</button>
             {% endif %}
 
-            <!-- Reply Form (Hidden by default) -->
+            <!-- Reply form -->
             {% if user.is_authenticated %}
-            <div id="bd-reply-form-{{ comment.id }}" class="bd-reply-form bd-hidden">
-                <form method="POST" onsubmit="return bdSubmitReply(event, {{ comment.id }})">
+            <div id="bd-reply-form-{{ comment.id }}" class="bd-hidden">
+                <form method="POST"
+                      onsubmit="return bdSubmitReply(event, {{ comment.id }})">
                     {% csrf_token %}
                     <input type="hidden" name="parent_id" value="{{ comment.id }}">
-                    <div class="bd-reply-form-header">
-                        <span class="bd-user-avatar bd-user-avatar-sm">{{ user.username|slice:":1"|upper }}</span>
-                        <textarea name="comment" class="bd-textarea bd-reply-textarea" placeholder="Write your reply..." required></textarea>
-                    </div>
-                    <div class="bd-reply-form-actions">
-                        <button type="button" class="bd-btn bd-btn-secondary bd-btn-sm" onclick="bdToggleReplyForm({{ comment.id }})">
-                            Cancel
-                        </button>
-                        <button type="submit" class="bd-btn bd-btn-primary bd-btn-sm">
-                            <i class="fas fa-paper-plane"></i> Reply
-                        </button>
-                    </div>
+                    <textarea name="comment" required></textarea>
+                    <button type="submit">Reply</button>
                 </form>
             </div>
             {% endif %}
         </div>
     </div>
 
-    <!-- Nested Replies -->
-    {% if comment.replies.all %}
-    <div class="bd-comment-replies">
-        {% for reply in comment.replies.all %}
-            {% include 'blogs/comment.html' with comment=reply level=level|add:1 %}
-        {% endfor %}
+<!-- Nested Replies -->
+{% if comment.replies.count > 0 %}
+<div class="bd-comment-replies bd-hidden" 
+     id="bd-replies-{{ comment.id }}" 
+     data-total="{{ comment.replies.count }}">
+
+    {% for reply in comment.replies.all %}
+    <div class="{% if forloop.counter > 2 %}bd-hidden bd-extra-reply-{{ comment.id }}{% endif %}">
+        {% include 'blogs/comment.html' with comment=reply level=level|add:1 %}
     </div>
+    {% endfor %}
+
+    {% if comment.replies.count > 2 %}
+    <button id="bd-show-more-{{ comment.id }}"
+            onclick="bdShowMoreReplies({{ comment.id }})">
+        Show more replies
+    </button>
     {% endif %}
+</div>
+
+<!-- Show/hide replies button -->
+<button class="bd-reply-btn bd-toggle-replies-btn"
+        data-count="{{ comment.replies.count }}"
+        onclick="bdToggleReplies({{ comment.id }}, this)">
+    <i class="fas fa-comments"></i> Show replies ({{ comment.replies.count }})
+</button>
+{% endif %}
+
 </div>

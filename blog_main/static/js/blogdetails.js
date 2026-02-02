@@ -175,7 +175,7 @@
     /**
      * Submit reply (called on form submit)
      */
-    window.bdSubmitReply = function(event, commentId) {
+window.bdSubmitReply = function(event, commentId) {
     event.preventDefault();
 
     const form = event.target;
@@ -202,15 +202,32 @@
     })
     .then(res => {
         if (!res.ok) throw new Error();
-        return res.text();
+        return res.text(); // return rendered HTML of new reply
     })
-    .then(() => {
+    .then(html => {
         showToast('Reply posted successfully!', 'success');
-        textarea.value = '';
-        bdToggleReplyForm(commentId);
 
-        // 🔁 Reload only comments section (simple & safe)
-        location.reload();
+        // Clear textarea
+        textarea.value = '';
+
+        // Show replies container
+        const container = document.getElementById(`bd-replies-${commentId}`);
+        if (container) {
+            container.classList.remove('bd-hidden');
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        // Update button text
+        const btn = document.querySelector(`#bd-comment-${commentId} .bd-toggle-replies-btn`);
+        if (btn) {
+            let total = parseInt(btn.dataset.count) || 0;
+            total += 1;
+            btn.dataset.count = total;
+            btn.innerHTML = `<i class="fas fa-comments"></i> Hide replies (${total})`;
+        }
+
+        // Hide reply form
+        form.classList.add('bd-hidden');
     })
     .catch(() => {
         showToast('Failed to post reply', 'error');
@@ -222,6 +239,7 @@
 
     return false;
 };
+
 
 
     /**
@@ -601,3 +619,48 @@
     }
 
 })();
+
+
+function bdToggleReplies(commentId) {
+    const repliesBox = document.getElementById(`bd-replies-${commentId}`);
+    const btn = event.currentTarget;
+
+    if (!repliesBox) return;
+
+    if (repliesBox.classList.contains('bd-hidden')) {
+        repliesBox.classList.remove('bd-hidden');
+        btn.innerHTML = '<i class="fas fa-chevron-up"></i> Hide replies';
+    } else {
+        repliesBox.classList.add('bd-hidden');
+        btn.innerHTML = `<i class="fas fa-comments"></i> Show replies (${repliesBox.dataset.total})`;
+    }
+}
+
+function bdShowMoreReplies(commentId) {
+    const hiddenReplies = document.querySelectorAll(`.bd-extra-reply-${commentId}`);
+    hiddenReplies.forEach(r => r.classList.remove('bd-hidden'));
+
+    const btn = document.getElementById(`bd-show-more-${commentId}`);
+    if (btn) btn.remove();
+}
+
+
+window.bdToggleReplies = function (commentId, btn) {
+    const container = document.getElementById(`bd-replies-${commentId}`);
+    if (!container) return;
+
+    // Always get total count from dataset
+    const count = btn.dataset.count;
+
+    const isHidden = container.classList.contains('bd-hidden');
+
+    // Toggle visibility
+    container.classList.toggle('bd-hidden');
+
+    // Update button text safely
+    if (isHidden) {
+        btn.innerHTML = `<i class="fas fa-comments"></i> Hide replies (${count})`;
+    } else {
+        btn.innerHTML = `<i class="fas fa-comments"></i> Show replies (${count})`;
+    }
+};

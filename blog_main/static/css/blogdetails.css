@@ -223,14 +223,15 @@
 }
 
 .bd-like-btn.bd-active {
-    background: rgba(16, 185, 129, 0.3);
+    background: rgba(185, 16, 160, 0.3);
     border-color: var(--bd-success);
 }
 
 .bd-dislike-btn.bd-active {
-    background: rgba(239, 68, 68, 0.3);
+    background: rgba(220, 10, 10, 0.3);
     border-color: var(--bd-danger);
 }
+
 
 .bd-report-btn {
     background: rgba(245, 158, 11, 0.2);
@@ -1442,4 +1443,34 @@
     .bd-category {
         color: var(--bd-dark);
     }
+}
+
+/* Scrollable comments container */
+.bd-comments-box {
+    max-height: 550px;           /* adjust if you want */
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+/* Smooth scrolling */
+.bd-comments-box {
+    scroll-behavior: smooth;
+}
+
+/* Nice scrollbar (optional) */
+.bd-comments-box::-webkit-scrollbar {
+    width: 8px;
+}
+
+.bd-comments-box::-webkit-scrollbar-thumb {
+    background: var(--bd-gray-300);
+    border-radius: 10px;
+}
+
+.bd-comments-box::-webkit-scrollbar-thumb:hover {
+    background: var(--bd-gray-400);
+}
+.bd-toggle-replies-btn,
+.bd-show-more-btn {
+    margin-left: 0.5rem;
 }

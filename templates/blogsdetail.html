@@ -45,6 +45,9 @@
                                 <i class="far fa-user"></i> {{ single_blog.author.username }}
                             </a>
                         </span>
+                        <span class="bd-meta-item">
+                            <i class="far fa-clock"></i> {{ single_blog.updated_at|timesince }} ago
+                        </span>
                     </div>
 
                     <!-- Action Buttons -->
@@ -154,6 +157,7 @@
                     {% endif %}
 
                     <!-- Comments List -->
+                    <div class="bd-comments-box">
                     <div class="bd-comments-list">
                         {% for comment in comments %}
                             {% if not comment.parent %}
@@ -165,6 +169,7 @@
                                 <p>No comments yet. Be the first to comment!</p>
                             </div>
                         {% endfor %}
+                    </div>
                     </div>
                 </section>
             </article>
@@ -187,7 +192,7 @@
                     </li>
                     {% endfor %}
                 </ul>
-                
+                {% include "includes/pagination.html" with page_obj=categories tab="categories" search=category_search %}
                 <!-- Uncategorized -->
                 {% if uncategorized_count > 0 %}
                 <a href="{% url 'posts_by_category' 0 %}" class="bd-uncategorized-link">

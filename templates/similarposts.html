@@ -13,7 +13,9 @@
         {% endif %}
 
         {% if blog.category %}
-        <span class="sp-blog-category">{{ blog.category.category_name }}</span>
+        <a href="{{ blog.get_category_url }}" class="rbl-category-badge">
+                    <span class="sp-blog-category">{{ blog.category.category_name }}</span>
+                </a>
         {% endif %}
     </div>
 
@@ -22,7 +24,7 @@
         <p class="sp-blog-description">{{ blog.short_description|truncatewords:20 }}</p>
 
         <div class="sp-blog-meta">
-            <span><i class="far fa-user"></i> {{ blog.author }}</span>
+             <a href="{% url 'profile' blog.author.username %}"><span><i class="far fa-user"></i> {{ blog.author }}</span></a>
             <span><i class="far fa-clock"></i> {{ blog.created_at|timesince }} ago</span>
             <span>{{ blog.views|default:0 }} <i class="fas fa-eye"></i></span>
             <span>{{ blog.total_likes }} <i class="fas fa-thumbs-up"></i></span>
