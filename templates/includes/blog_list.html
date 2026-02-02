@@ -1,0 +1,91 @@
+{% comment %}
+Reusable blog listing + search + pagination
+Requires:
+- page_obj (paginated queryset, e.g., posts, followers)
+- tab (optional)
+- request.user (current user)
+- search (optional)
+- can_see_all (optional)
+{% endcomment %}
+
+{% if page_obj and page_obj.object_list %}
+<div class="rb-blog-container">
+    <!-- Search form -->
+    <form method="GET" style="margin-bottom: 20px;">
+        <input type="hidden" name="tab" value="{{ tab }}">
+        <input type="text" name="search" placeholder="Search..." value="{{ search }}">
+        <button type="submit">Search</button>
+    </form>
+
+    {% for blog in page_obj %}
+    <div class="rb-blog-item">
+        <a href="{{ blog.get_absolute_url }}">
+            {% if blog.featured_image %}
+                <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}">
+            {% else %}
+                <img src="https://via.placeholder.com/600x400?text=No+Image" alt="{{ blog.title }}">
+            {% endif %}
+        </a>
+
+        <a href="{{ blog.get_category_url }}" class="rb-blog-category">
+            {{ blog.get_category_name }}
+        </a>
+
+        <div class="rb-blog-content">
+            <a href="{{ blog.get_absolute_url }}" class="rb-blog-title">
+                {{ blog.title|capfirst }}
+            </a>
+
+            <p class="rb-blog-description">
+                {{ blog.short_description|truncatewords:30|capfirst }}
+            </p>
+
+            <div class="rb-blog-meta">
+                <a href="{% url 'profile' blog.author.username %}" class="follower-username">
+                    <i class="far fa-user"></i> {{ blog.author }}
+                </a>
+                <span>{{ blog.created_at|timesince }} ago</span>
+                <span>{{ blog.views|default:0 }} views</span>
+                <span>{{ blog.total_likes }} likes</span>
+                <span>{{ blog.total_dislikes }} dislikes</span>
+            </div>
+
+            {% if blog.author == request.user or can_see_all %}
+                <a href="{% url 'edit_post' blog.id %}" class="rb-blog-readmore" onclick="event.stopPropagation();">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'delete_post' blog.id %}" class="rb-blog-readmore" onclick="event.stopPropagation();">
+                    <i class="fas fa-trash"></i> Delete
+                </a>
+            {% endif %}
+
+            <a href="{{ blog.get_absolute_url }}" class="rb-blog-readmore">Read More</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% include "includes/pagination.html" with page_obj=page_obj tab=tab search=search %}
+
+{% else %}
+<div class="no-posts-container">
+    <div class="no-posts-icon">
+        <i class="fas fa-inbox"></i>
+    </div>
+    <h5>No Posts Yet</h5>
+    <p class="text-muted">You haven't created any posts yet. Start writing!</p>
+    <a href="{% url 'add_post' %}" class="btn btn-primary mt-3">
+        <i class="fas fa-plus"></i> Create Your First Post
+    </a>
+
+    {% if search %}
+            <p>No posts match "{{ search }}"</p>
+            <a href="?tab=posts" class="clear-filter-btn">
+                <i class="fas fa-redo"></i> Clear Search
+            </a>
+        {% else %}
+            <p>{{ user.username }} doesn't have any posts yet.</p>
+        {% endif %}
+</div>
+{% endif %}

@@ -35,7 +35,7 @@ def home(request):
 def randomblogs(request):
     blogs = Blog.objects.filter(status='Published').order_by('?')
     
-    paginator = Paginator(blogs, 9)
+    paginator = Paginator(blogs, 2)
     page = request.GET.get('page', 1)
     blogs_page = paginator.get_page(page)
 
