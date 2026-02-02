@@ -16,16 +16,17 @@
                 <!-- Header -->
                 <header class="bd-header">
                     <h1 class="bd-title">{{ single_blog.title }}</h1>
+                    
                     <!-- Follow Button -->
                     {% if user.is_authenticated and user != single_blog.author %}
                     <div class="bd-follow-section">
                         {% if is_following %}
                         <a href="{% url 'unfollow_user' single_blog.author.id %}" class="bd-btn bd-btn-unfollow">
-                            Unfollow
+                            <i class="fas fa-user-minus"></i> Unfollow
                         </a>
                         {% else %}
                         <a href="{% url 'follow_user' single_blog.author.id %}" class="bd-btn bd-btn-follow">
-                            Follow
+                            <i class="fas fa-user-plus"></i> Follow
                         </a>
                         {% endif %}
                     </div>
@@ -36,10 +37,11 @@
                         <span class="bd-meta-item">
                             <i class="far fa-clock"></i> {{ single_blog.created_at|timesince }} ago
                         </span>
-                        <span>{{ single_blog.views|default:0 }} views</span>
-                       
                         <span class="bd-meta-item">
-                            <a href="{% url 'profile' single_blog.author.username %}" class="follower-username">
+                            <i class="far fa-eye"></i> {{ single_blog.views|default:0 }} views
+                        </span>
+                        <span class="bd-meta-item">
+                            <a href="{% url 'profile' single_blog.author.username %}" class="bd-author-link">
                                 <i class="far fa-user"></i> {{ single_blog.author.username }}
                             </a>
                         </span>
@@ -49,47 +51,53 @@
                     {% if user.is_authenticated %}
                     <div class="bd-actions">
                         <!-- Like -->
-                        <a href="{% url 'blog_like' single_blog.id %}"
-                            class="bd-action-btn {% if user in single_blog.likes.all %}bd-active-like{% endif %}">
-                            👍 Like <span class="bd-count">({{ single_blog.total_likes }})</span>
+                        <a href="{% url 'blog_like' single_blog.id %}" 
+                           class="bd-action-btn bd-like-btn {% if user in single_blog.likes.all %}bd-active{% endif %}">
+                            <i class="fas fa-thumbs-up"></i>
+                            <span class="bd-action-text">Like</span>
+                            <span class="bd-count">{{ single_blog.total_likes }}</span>
                         </a>
 
                         <!-- Dislike -->
-                        <a href="{% url 'blog_dislike' single_blog.id %}"
-                            class="bd-action-btn {% if user in single_blog.dislikes.all %}bd-active-dislike{% endif %}">
-                            👎 Dislike <span class="bd-count">({{ single_blog.total_dislikes }})</span>
+                        <a href="{% url 'blog_dislike' single_blog.id %}" 
+                           class="bd-action-btn bd-dislike-btn {% if user in single_blog.dislikes.all %}bd-active{% endif %}">
+                            <i class="fas fa-thumbs-down"></i>
+                            <span class="bd-action-text">Dislike</span>
+                            <span class="bd-count">{{ single_blog.total_dislikes }}</span>
                         </a>
 
                         <!-- Report -->
                         {% if user != single_blog.author %}
-                        {% if user_reported %}
-                        {% if can_report %}
-                        <button class="bd-action-btn bd-report-btn" onclick="bdOpenReportModal()">
-                            🚩 Report Again
-                        </button>
-                        {% else %}
-                        <button class="bd-action-btn bd-disabled" disabled>
-                            🚩 Already Reported
-                        </button>
-                        {% endif %}
-                        {% else %}
-                        <button class="bd-action-btn bd-report-btn" onclick="bdOpenReportModal()">
-                            🚩 Report
-                        </button>
-                        {% endif %}
+                            {% if user_reported %}
+                                {% if can_report %}
+                                <button class="bd-action-btn bd-report-btn" onclick="bdOpenReportModal()">
+                                    <i class="fas fa-flag"></i>
+                                    <span class="bd-action-text">Report Again</span>
+                                </button>
+                                {% else %}
+                                <button class="bd-action-btn bd-disabled" disabled>
+                                    <i class="fas fa-flag"></i>
+                                    <span class="bd-action-text">Already Reported</span>
+                                </button>
+                                {% endif %}
+                            {% else %}
+                            <button class="bd-action-btn bd-report-btn" onclick="bdOpenReportModal()">
+                                <i class="fas fa-flag"></i>
+                                <span class="bd-action-text">Report</span>
+                            </button>
+                            {% endif %}
                         {% endif %}
                     </div>
                     {% else %}
                     <a href="{% url 'login' %}" class="bd-login-prompt">
-                        Login to Like, Dislike or Report
+                        <i class="fas fa-sign-in-alt"></i> Login to Like, Dislike or Report
                     </a>
                     {% endif %}
 
                     <!-- Category Badge -->
-                   <a class="bd-category" href="{{ single_blog.get_category_url }}">
-    {{ single_blog.get_category_name }}
-</a>
-
+                    <a class="bd-category" href="{{ single_blog.get_category_url }}">
+                        <i class="fas fa-tag"></i> {{ single_blog.get_category_name }}
+                    </a>
                 </header>
 
                 <!-- Featured Image -->
@@ -104,99 +112,58 @@
                     <p class="bd-excerpt">{{ single_blog.short_description }}</p>
                     <div class="bd-body">
                         {% if single_blog.blog_body %}
-                        {{ single_blog.blog_body|safe }}
+                            {{ single_blog.blog_body|safe }}
                         {% else %}
-                        <p>No content yet.</p>
+                            <p>No content yet.</p>
                         {% endif %}
                     </div>
                 </section>
+
+                <!-- Similar Posts -->
                 {% include 'similarposts.html' %}
 
                 <!-- Comments Section -->
                 <section class="bd-comments-section">
+                    <h3 class="bd-section-title">
+                        <i class="fas fa-comments"></i> 
+                        Comments (<span id="bd-comment-count">{{ comment_count }}</span>)
+                    </h3>
+
                     <!-- Comment Form -->
                     {% if user.is_authenticated %}
-                    <h4 class="bd-section-title">Leave a Comment</h4>
-                    <form class="bd-comment-form" id="bd-comment-form">
-                        {% csrf_token %}
-                        <textarea name="comment" class="bd-textarea" placeholder="Write your comment here..."
-                            required></textarea>
-                        <button type="submit" class="bd-btn bd-btn-primary">Submit Comment</button>
-                    </form>
+                    <div class="bd-comment-form-wrapper">
+                        <form class="bd-comment-form" method="POST" onsubmit="return bdSubmitMainComment(event)">
+                            {% csrf_token %}
+                            <div class="bd-form-header">
+                                <span class="bd-user-avatar">{{ user.username|slice:":1"|upper }}</span>
+                                <span class="bd-username">{{ user.username }}</span>
+                            </div>
+                            <textarea name="comment" class="bd-textarea" placeholder="Share your thoughts..." required></textarea>
+                            <div class="bd-form-actions">
+                                <button type="submit" class="bd-btn bd-btn-primary">
+                                    <i class="fas fa-paper-plane"></i> Post Comment
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                     {% else %}
-                    <p class="bd-login-message">
-                        Please <a href="{% url 'login' %}">login</a> to leave a comment.
-                    </p>
+                    <div class="bd-login-message">
+                        <i class="fas fa-lock"></i>
+                        <p>Please <a href="{% url 'login' %}">login</a> to leave a comment.</p>
+                    </div>
                     {% endif %}
 
                     <!-- Comments List -->
                     <div class="bd-comments-list">
-                        <h4 class="bd-section-title">
-                            Comments (<span id="bd-comment-count">{{ comment_count }}</span>)
-                        </h4>
-
                         {% for comment in comments %}
-                        {% if not comment.parent %}
-                        <div class="bd-comment" id="bd-comment-{{ comment.id }}">
-                            <div class="bd-comment-header">
-                                <strong>{{ comment.user }}</strong>
-                                <span class="bd-comment-time">{{ comment.created_at|timesince }} ago</span>
-                            </div>
-
-                            <!-- Edit Form -->
-                            <div id="bd-edit-form-{{ comment.id }}" class="bd-edit-form bd-hidden">
-                                <textarea class="bd-textarea"
-                                    id="bd-edit-text-{{ comment.id }}">{{ comment.comment }}</textarea>
-                                <div class="bd-edit-actions">
-                                    <button class="bd-btn bd-btn-primary bd-btn-sm"
-                                        onclick="bdSubmitEdit({{ comment.id }})">
-                                        Save
-                                    </button>
-                                    <button class="bd-btn bd-btn-secondary bd-btn-sm"
-                                        onclick="bdToggleEditForm({{ comment.id }})">
-                                        Cancel
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Comment Actions -->
-                            <div class="bd-comment-actions">
-                                {% if request.user == comment.user %}
-                                <button class="bd-icon-btn bd-edit-btn" onclick="bdToggleEditForm({{ comment.id }})">
-                                    <i class="fa fa-edit"></i>
-                                </button>
-                                {% endif %}
-                                {% if request.user == comment.user or request.user.is_superuser %}
-                                <button class="bd-icon-btn bd-delete-btn" onclick="bdDeleteComment({{ comment.id }})">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                                {% endif %}
-                            </div>
-
-                            <p class="bd-comment-text">{{ comment.comment }}</p>
-
-                            <!-- Reply Button -->
-                            <button class="bd-reply-btn" onclick="bdToggleReplyForm('{{ comment.id }}')">
-                                Reply
-                            </button>
-
-                            <!-- Reply Form -->
-                            <form class="bd-reply-form bd-hidden" id="bd-reply-form-{{ comment.id }}">
-                                {% csrf_token %}
-                                <input type="hidden" name="parent_id" value="{{ comment.id }}">
-                                <textarea name="comment" class="bd-textarea bd-textarea-sm"
-                                    placeholder="Write a reply..." required></textarea>
-                                <button type="submit" class="bd-btn bd-btn-primary bd-btn-sm">Reply</button>
-                            </form>
-
-                            <!-- Nested Replies -->
-                            {% for reply in comment.replies.all %}
-                            {% include 'blogs/comment.html' with comment=reply level=level|add:1 %}
-                            {% endfor %}
-                        </div>
-                        {% endif %}
+                            {% if not comment.parent %}
+                                {% include 'blogs/comment.html' with comment=comment level=0 %}
+                            {% endif %}
                         {% empty %}
-                        <p class="bd-no-comments">No comments yet.</p>
+                            <div class="bd-no-comments">
+                                <i class="far fa-comment-dots"></i>
+                                <p>No comments yet. Be the first to comment!</p>
+                            </div>
                         {% endfor %}
                     </div>
                 </section>
@@ -207,45 +174,49 @@
         <aside class="bd-sidebar">
             <!-- Categories Widget -->
             <div class="bd-widget">
-                <h4 class="bd-widget-title">Categories</h4>
+                <h4 class="bd-widget-title">
+                    <i class="fas fa-folder"></i> Categories
+                </h4>
                 <ul class="bd-category-list">
                     {% for cate in categories %}
-                    <li><a href="{% url 'posts_by_category' cate.id %}">{{ cate.category_name }}</a></li>
+                    <li>
+                        <a href="{% url 'posts_by_category' cate.id %}">
+                            <i class="fas fa-chevron-right"></i>
+                            <span>{{ cate.category_name }}</span>
+                        </a>
+                    </li>
                     {% endfor %}
-                    {% include "includes/pagination.html" with page_obj=categories tab="categories" search=category_search %}
-                    <!-- Uncategorized -->
-            {% if uncategorized_count > 0 %}
-                <a href="{% url 'posts_by_category' 0 %}" class="rcat-card rcat-uncategorized">
-                    <div class="rcat-card-icon">
+                </ul>
+                
+                <!-- Uncategorized -->
+                {% if uncategorized_count > 0 %}
+                <a href="{% url 'posts_by_category' 0 %}" class="bd-uncategorized-link">
+                    <div class="bd-uncategorized-icon">
                         <i class="fas fa-question-circle"></i>
                     </div>
-                    <div class="rcat-card-content">
-                        <h3 class="rcat-card-name">Uncategorized</h3>
-                        <div class="rcat-card-meta">
-                            <span class="rcat-blog-count">
-                                <i class="fas fa-file-alt"></i>
-                                {{ uncategorized_count }} blog{{ uncategorized_count|pluralize }}
-                            </span>
-                        </div>
+                    <div class="bd-uncategorized-content">
+                        <h5>Uncategorized</h5>
+                        <span>{{ uncategorized_count }} blog{{ uncategorized_count|pluralize }}</span>
                     </div>
-                    <div class="rcat-card-arrow">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
+                    <i class="fas fa-arrow-right"></i>
                 </a>
-            {% endif %}
-
-                </ul>
+                {% endif %}
             </div>
 
             <!-- Social Links Widget -->
             {% if social_links %}
             <div class="bd-widget">
-                <h4 class="bd-widget-title">Follow Us</h4>
-                <ul class="bd-social-list">
+                <h4 class="bd-widget-title">
+                    <i class="fas fa-share-alt"></i> Follow Us
+                </h4>
+                <div class="bd-social-links">
                     {% for social_link in social_links %}
-                    <li><a href="{{ social_link.link }}" target="_blank">{{ social_link.platform }}</a></li>
+                    <a href="{{ social_link.link }}" target="_blank" class="bd-social-link">
+                        <i class="fab fa-{{ social_link.platform|lower }}"></i>
+                        {{ social_link.platform }}
+                    </a>
                     {% endfor %}
-                </ul>
+                </div>
             </div>
             {% endif %}
         </aside>
@@ -254,19 +225,36 @@
 
 <!-- Report Modal -->
 <div id="bd-report-modal" class="bd-modal">
+    <div class="bd-modal-overlay" onclick="bdCloseReportModal()"></div>
     <div class="bd-modal-content">
-        <span class="bd-modal-close" onclick="bdCloseReportModal()">&times;</span>
-        <h4 class="bd-modal-title">Report Blog</h4>
+        <div class="bd-modal-header">
+            <h4 class="bd-modal-title">
+                <i class="fas fa-flag"></i> Report Blog
+            </h4>
+            <button class="bd-modal-close" onclick="bdCloseReportModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
         <form method="POST" action="{% url 'report_blog' single_blog.id %}">
             {% csrf_token %}
-            <textarea name="reason" class="bd-textarea" rows="4" placeholder="Enter reason (optional)"></textarea>
-            <div class="bd-modal-actions">
-                <button type="button" class="bd-btn bd-btn-secondary" onclick="bdCloseReportModal()">Cancel</button>
-                <button type="submit" class="bd-btn bd-btn-warning">Submit</button>
+            <div class="bd-modal-body">
+                <textarea name="reason" class="bd-textarea" rows="5" placeholder="Please describe the reason for reporting this blog (optional)"></textarea>
+            </div>
+            <div class="bd-modal-footer">
+                <button type="button" class="bd-btn bd-btn-secondary" onclick="bdCloseReportModal()">
+                    Cancel
+                </button>
+                <button type="submit" class="bd-btn bd-btn-warning">
+                    <i class="fas fa-flag"></i> Submit Report
+                </button>
             </div>
         </form>
     </div>
 </div>
+
+<!-- Toast Container -->
+<div id="bd-toast-container"></div>
+
 {% endblock %}
 
 {% block extra_js %}
