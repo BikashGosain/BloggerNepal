@@ -402,17 +402,50 @@ def delete_post(request, pk):
 #     }
 #     return render(request, 'users.html', context)
 
+# Django shortcuts & utilities
+from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import permission_required, login_required
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponseBadRequest, JsonResponse
+from django.core.paginator import Paginator
+from django.template.defaultfilters import slugify
+
+# Django ORM & utilities
+from django.db.models import Q, Count, When, Case
+from django.db.models.functions import ExtractMonth
+
+# Python standard library
+from calendar import month_name
+
+# Third-party editors
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
+
+# Local apps & utilities
+from blogs.models import Blog, Category, Notification
+from .forms import BlogPostForm, CategoryForm, AddUserForm, EditUserForm, ProfileEditForm
+from .utils import dashboard_header_context
+from follow_following.models import Follow
+
+
 def users(request):
+    """
+    Display paginated list of users with search, filter, and sorting capabilities.
+    """
     users = User.objects.all()
 
     # ---------------------------
     # 1. Search filter
     # ---------------------------
-    query = request.GET.get('q', '')
+    query = request.GET.get('q', '').strip()
     if query:
         users = users.filter(
             Q(username__icontains=query) |
-            Q(email__icontains=query)
+            Q(email__icontains=query) |
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query)
         )
 
     # ---------------------------
@@ -426,44 +459,61 @@ def users(request):
     elif role == 'superuser':
         users = users.filter(is_superuser=True)
     elif role == 'normal':
-        users = users.filter(groups=None, is_superuser=False)
+        users = users.filter(groups__isnull=True, is_superuser=False, is_staff=False)
+    
     # ---------------------------
-    # 2. Sorting
+    # 3. Sorting
     # ---------------------------
-    sort_field = request.GET.get('sort_field', 'username')  # username, date_joined, last_login
-    sort_order = request.GET.get('sort_order', 'asc')       # asc or desc
+    sort_field = request.GET.get('sort_field', 'username')
+    sort_order = request.GET.get('sort_order', 'asc')
 
+    # Validate sort_field to prevent errors
+    valid_sort_fields = ['username', 'date_joined', 'last_login', 'email']
+    if sort_field not in valid_sort_fields:
+        sort_field = 'username'
+
+    # Apply sort order
     if sort_order == 'desc':
-        sort_field = '-' + sort_field
+        sort_field_final = '-' + sort_field
+    else:
+        sort_field_final = sort_field
 
     # ---------------------------
-    # 3. Self user first
+    # 4. Self user first (optional)
     # ---------------------------
     users = users.annotate(
         self_user_first=Case(
             When(pk=request.user.pk, then=0),
             default=1
         )
-    ).order_by('self_user_first', sort_field)
+    ).order_by('self_user_first', sort_field_final)
 
     # ---------------------------
-    # 4. Pagination
+    # 5. Prefetch related data for efficiency
     # ---------------------------
-    paginator = Paginator(users, 2)  # 10 per page
+    users = users.prefetch_related('groups')
+
+    # ---------------------------
+    # 6. Pagination
+    # ---------------------------
+    paginator = Paginator(users, 2)  # 10 users per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     context = {
         'users': page_obj,
         'query': query,
-        'role': request.GET.get('role', ''),
+        'role': role,
         'sort_field': request.GET.get('sort_field', 'username'),
-        'sort_order': request.GET.get('sort_order', 'asc'),
+        'sort_order': sort_order,
     }
     return render(request, 'users.html', context)
 
 
 def add_user(request):
+    """
+    Add a new user. Only accessible by superusers or users in the Manager group.
+    """
     # Permission check: only superuser or Manager can access
     if not request.user.is_superuser and not request.user.groups.filter(name='Manager').exists():
         messages.warning(request, "You do not have permission to access this page.")
@@ -483,7 +533,11 @@ def add_user(request):
     }
     return render(request, 'add_user.html', context)
 
+
 def edit_user(request, pk):
+    """
+    Edit an existing user. Only accessible by superusers or users in the Manager group.
+    """
     # Permission check: only superuser or Manager can access
     if not request.user.is_superuser and not request.user.groups.filter(name='Manager').exists():
         messages.warning(request, "You do not have permission to access this page.")
@@ -503,7 +557,7 @@ def edit_user(request, pk):
         form = EditUserForm(request.POST, instance=user, request_user=request.user)
         if form.is_valid():
             form.save()
-            messages.success(request, f'Username "{user}" updated successfully. ✅')
+            messages.success(request, f'User "{user.username}" updated successfully. ✅')
             return redirect('users')
     else:
         form = EditUserForm(instance=user, request_user=request.user)
@@ -514,11 +568,27 @@ def edit_user(request, pk):
     }
     return render(request, 'edit_user.html', context)
 
+
 @permission_required('auth.delete_user', raise_exception=True)
 def delete_user(request, pk):
+    """
+    Delete a user. Requires 'auth.delete_user' permission.
+    """
     user = get_object_or_404(User, pk=pk)
+    
+    # Prevent deleting superusers unless the requester is also a superuser
+    if user.is_superuser and not request.user.is_superuser:
+        messages.error(request, "You do not have permission to delete this user.")
+        return redirect('users')
+    
+    # Prevent users from deleting themselves
+    if user == request.user:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect('users')
+    
+    username = user.username
     user.delete()
-    messages.success(request, f'Username "{user}" deleted successfully. ✅')
+    messages.success(request, f'User "{username}" deleted successfully. ✅')
     return redirect('users')
 
 def profile(request):

@@ -63,47 +63,68 @@
                 </div>
             </div>
         </div>
-<!-- Search & Filter Form -->
-<form method="GET" class="users-search-form">
-    <div class="users-search-fields">
-        <!-- Search by username/email -->
-        <input type="text" name="q" placeholder="Search by username or email"
-               value="{{ query }}" class="users-search-input">
 
-        <!-- Role Filter -->
-        <select name="role" class="users-search-select">
-            <option value="">All Roles</option>
-            <option value="normal" {% if role == 'normal' %}selected{% endif %}>Normal User</option>
-            <option value="editor" {% if role == 'editor' %}selected{% endif %}>Editor</option>
-            <option value="manager" {% if role == 'manager' %}selected{% endif %}>Manager</option>
-            <option value="superuser" {% if role == 'superuser' %}selected{% endif %}>Superuser</option>
-        </select>
+        <!-- Search & Filter Form -->
+        <form method="GET" class="users-search-form">
+            <div class="users-search-row">
+                <!-- Search Input -->
+                <div class="users-search-group users-search-main">
+                    <input type="text" name="q" placeholder="Search by username or email"
+                           value="{{ query }}" class="users-search-input">
+                </div>
 
-        <!-- Sort Fields -->
-        <select name="sort_field" class="users-search-select">
-            <option value="username" {% if sort_field == 'username' %}selected{% endif %}>Username</option>
-            <option value="date_joined" {% if sort_field == 'date_joined' %}selected{% endif %}>Created At</option>
-            <option value="last_login" {% if sort_field == 'last_login' %}selected{% endif %}>Last Login</option>
-        </select>
+                <!-- Role Filter -->
+                <div class="users-search-group">
+                    <select name="role" class="users-search-select">
+                        <option value="">All Roles</option>
+                        <option value="normal" {% if role == 'normal' %}selected{% endif %}>Normal User</option>
+                        <option value="editor" {% if role == 'editor' %}selected{% endif %}>Editor</option>
+                        <option value="manager" {% if role == 'manager' %}selected{% endif %}>Manager</option>
+                        <option value="superuser" {% if role == 'superuser' %}selected{% endif %}>Superuser</option>
+                    </select>
+                </div>
 
-        <!-- Sort Order -->
-        <select name="sort_order" class="users-search-select">
-            <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>Ascending</option>
-            <option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>Descending</option>
-        </select>
+                <!-- Sort Field -->
+                <div class="users-search-group">
+                    <select name="sort_field" class="users-search-select">
+                        <option value="username" {% if sort_field == 'username' %}selected{% endif %}>Username</option>
+                        <option value="date_joined" {% if sort_field == 'date_joined' %}selected{% endif %}>Created At</option>
+                        <option value="last_login" {% if sort_field == 'last_login' %}selected{% endif %}>Last Login</option>
+                    </select>
+                </div>
 
-        <!-- Search Buttons -->
-        <button type="submit" class="users-search-btn">Search</button>
-        <!-- Clear Search Button -->
-        <a href="{% url 'users' %}" class="users-search-btn" style="background:#d93025;">Clear</a>
-    </div>
-</form>
+                <!-- Sort Order -->
+                <div class="users-search-group">
+                    <select name="sort_order" class="users-search-select">
+                        <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>Ascending</option>
+                        <option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>Descending</option>
+                    </select>
+                </div>
 
-
-
+                <!-- Action Buttons -->
+                <div class="users-search-actions">
+                    <button type="submit" class="users-search-btn users-btn-search">Search</button>
+                    <a href="{% url 'users' %}" class="users-search-btn users-btn-clear">Clear</a>
+                </div>
+            </div>
+        </form>
 
         <!-- Users Table Card -->
         <div class="users-table-card">
+            {% if users.paginator.count == 0 %}
+            <div class="users-no-results">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                    <line x1="8" y1="12" x2="16" y2="12" stroke-width="2"/>
+                </svg>
+                <h3>No Users Found</h3>
+                {% if query or role %}
+                <p>Try changing your search or filter criteria, or <a href="{% url 'users' %}">clear search</a>.</p>
+                {% else %}
+                <p>No users are available.</p>
+                {% endif %}
+            </div>
+            {% else %}
             <div class="users-table-wrapper">
                 <table class="users-table">
                     <thead class="users-table-head">
@@ -127,7 +148,9 @@
                                     <div class="users-user-avatar">{{ user.username|first|upper }}</div>
                                     <div class="users-user-details">
                                         <div class="users-user-name">{{ user.first_name }} {{ user.last_name }}</div>
-                                        <div class="users-user-username">@{{ user.username }}</div>
+                                        <div class="users-user-username">
+                                            <a href="#" class="users-username-link">@{{ user.username }}</a>
+                                        </div>
                                     </div>
                                 </div>
                             </td>
@@ -160,13 +183,30 @@
                                         </svg>
                                         SuperUser
                                     </span>
-                                    {% endif %}
-                                    {% if user.is_staff %}
+                                    {% elif user.is_staff %}
                                     <span class="users-role-badge users-role-staff">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                             <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" stroke-width="2"/>
                                         </svg>
                                         Staff
+                                    </span>
+                                    {% endif %}
+                                    
+                                    {% for group in user.groups.all %}
+                                    <span class="users-role-badge users-role-group">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke-width="2"/>
+                                        </svg>
+                                        {{ group.name }}
+                                    </span>
+                                    {% endfor %}
+                                    
+                                    {% if not user.is_superuser and not user.is_staff and user.groups.count == 0 %}
+                                    <span class="users-role-badge users-role-normal">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke-width="2"/>
+                                        </svg>
+                                        Normal User
                                     </span>
                                     {% endif %}
                                 </div>
@@ -195,21 +235,6 @@
                     </tbody>
                 </table>
             </div>
-            {% if users.paginator.count == 0 %}
-<div class="users-no-results">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <circle cx="12" cy="12" r="10" stroke-width="2"/>
-        <line x1="8" y1="12" x2="16" y2="12" stroke-width="2"/>
-    </svg>
-    <h3>No Users Found</h3>
-    {% if query or role %}
-    <p>Try changing your search or filter criteria, or <a href="{% url 'users' %}">clear search</a>.</p>
-    {% else %}
-    <p>No users are available.</p>
-    {% endif %}
-</div>
-{% endif %}
-
 
             <!-- Pagination -->
             {% if users.paginator.num_pages > 1 %}
@@ -221,15 +246,13 @@
                 <div class="users-pagination-controls">
                     {% if users.has_previous %}
                     <a href="?page=1&q={{ query }}&role={{ role }}&sort_field={{ sort_field }}&sort_order={{ sort_order }}" 
-   class="users-page-btn users-page-first" title="First Page">
-
+                       class="users-page-btn users-page-first" title="First Page">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M11 19l-7-7 7-7M18 19l-7-7 7-7" stroke-width="2" stroke-linecap="round"/>
                         </svg>
                     </a>
                     <a href="?page={{ users.previous_page_number }}&q={{ query }}&role={{ role }}&sort_field={{ sort_field }}&sort_order={{ sort_order }}" 
-   class="users-page-btn users-page-prev" title="Previous">
-
+                       class="users-page-btn users-page-prev" title="Previous">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round"/>
                         </svg>
@@ -255,12 +278,10 @@
                             <span class="users-page-num users-page-active">{{ page_num }}</span>
                             {% elif page_num >= users.number|add:"-2" and page_num <= users.number|add:"2" %}
                             <a href="?page={{ page_num }}&q={{ query }}&role={{ role }}&sort_field={{ sort_field }}&sort_order={{ sort_order }}" 
-   class="users-page-num">{{ page_num }}</a>
-
+                               class="users-page-num">{{ page_num }}</a>
                             {% elif page_num == 1 or page_num == users.paginator.num_pages %}
                             <a href="?page={{ page_num }}&q={{ query }}&role={{ role }}&sort_field={{ sort_field }}&sort_order={{ sort_order }}" 
-   class="users-page-num">{{ page_num }}</a>
-
+                               class="users-page-num">{{ page_num }}</a>
                             {% elif page_num == users.number|add:"-3" or page_num == users.number|add:"3" %}
                             <span class="users-page-ellipsis">...</span>
                             {% endif %}
@@ -269,16 +290,14 @@
 
                     {% if users.has_next %}
                     <a href="?page={{ users.next_page_number }}&q={{ query }}&role={{ role }}&sort_field={{ sort_field }}&sort_order={{ sort_order }}" 
-   class="users-page-btn users-page-next" title="Next">
-
+                       class="users-page-btn users-page-next" title="Next">
                         <span class="users-page-btn-text">Next</span>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
                         </svg>
                     </a>
                     <a href="?page={{ users.paginator.num_pages }}&q={{ query }}&role={{ role }}&sort_field={{ sort_field }}&sort_order={{ sort_order }}" 
-   class="users-page-btn users-page-last" title="Last Page">
-
+                       class="users-page-btn users-page-last" title="Last Page">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M13 5l7 7-7 7M6 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
                         </svg>
@@ -298,6 +317,7 @@
                     {% endif %}
                 </div>
             </div>
+            {% endif %}
             {% endif %}
         </div>
 
@@ -343,9 +363,9 @@
     }
 }
 
-/* Main wrapper - Dynamically adjusts based on sidebar state */
+/* Main wrapper */
 .users-page-wrapper {
-    margin-left: 280px; /* Default: sidebar open on desktop */
+    margin-left: 280px;
     margin-top: 64px;
     padding: 24px;
     background: var(--users-bg-secondary);
@@ -353,12 +373,10 @@
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* JavaScript will add this class when sidebar is closed */
 .users-page-wrapper.sidebar-collapsed {
     margin-left: 0;
 }
 
-/* On mobile/tablet - sidebar is overlay, no margin needed */
 @media (max-width: 1024px) {
     .users-page-wrapper {
         margin-left: 0 !important;
@@ -501,6 +519,135 @@
     margin-top: 4px;
 }
 
+/* Search & Filter Form - IMPROVED */
+.users-search-form {
+    margin-bottom: 24px;
+    background: var(--users-bg);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--users-border);
+    box-shadow: var(--users-shadow);
+}
+
+.users-search-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
+    gap: 12px;
+    align-items: center;
+}
+
+.users-search-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.users-search-main {
+    grid-column: span 1;
+}
+
+.users-search-input,
+.users-search-select {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--users-border);
+    font-size: 14px;
+    color: var(--users-text);
+    background: var(--users-bg);
+    transition: all 0.2s ease;
+}
+
+.users-search-input:focus,
+.users-search-select:focus {
+    outline: none;
+    border-color: var(--users-primary);
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+}
+
+.users-search-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.users-search-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.users-btn-search {
+    background: var(--users-primary);
+    color: white;
+}
+
+.users-btn-search:hover {
+    background: var(--users-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(26, 115, 232, 0.2);
+}
+
+.users-btn-clear {
+    background: var(--users-danger);
+    color: white;
+}
+
+.users-btn-clear:hover {
+    background: #b71c1c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(217, 48, 37, 0.2);
+}
+
+/* Responsive Search Form */
+@media (max-width: 1200px) {
+    .users-search-row {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+    
+    .users-search-main {
+        grid-column: span 3;
+    }
+    
+    .users-search-actions {
+        grid-column: span 3;
+        justify-content: stretch;
+    }
+    
+    .users-search-btn {
+        flex: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .users-search-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .users-search-main {
+        grid-column: span 1;
+    }
+    
+    .users-search-group {
+        grid-column: span 1;
+    }
+    
+    .users-search-actions {
+        grid-column: span 1;
+        flex-direction: column;
+    }
+    
+    .users-search-btn {
+        width: 100%;
+    }
+}
+
 /* Table Card */
 .users-table-card {
     background: var(--users-bg);
@@ -515,7 +662,6 @@
     position: relative;
 }
 
-/* Custom scrollbar styling for table */
 .users-table-wrapper::-webkit-scrollbar {
     height: 8px;
 }
@@ -529,29 +675,6 @@
     border-radius: 4px;
 }
 
-.users-table-wrapper::-webkit-scrollbar-thumb:hover {
-    background: var(--users-text-secondary);
-}
-
-/* Scroll shadow indicator */
-.users-table-wrapper::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 30px;
-    background: linear-gradient(to left, rgba(0,0,0,0.05), transparent);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.users-table-wrapper.has-scroll::after {
-    opacity: 1;
-}
-
-/* Table */
 .users-table {
     width: 100%;
     border-collapse: collapse;
@@ -646,6 +769,18 @@
     color: var(--users-text-secondary);
 }
 
+/* Username Link */
+.users-username-link {
+    color: var(--users-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.users-username-link:hover {
+    color: var(--users-primary-hover);
+    text-decoration: underline;
+}
+
 .users-email-text {
     color: var(--users-text-secondary);
 }
@@ -677,7 +812,7 @@
     color: var(--users-text-secondary);
 }
 
-/* Role Badges */
+/* Role Badges - IMPROVED */
 .users-role-badges {
     display: flex;
     flex-wrap: wrap;
@@ -688,7 +823,7 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 3px 10px;
+    padding: 4px 10px;
     border-radius: 12px;
     font-size: 11px;
     font-weight: 600;
@@ -709,6 +844,18 @@
     background: rgba(249, 171, 0, 0.15);
     color: #f57c00;
     border: 1px solid rgba(249, 171, 0, 0.3);
+}
+
+.users-role-group {
+    background: rgba(26, 115, 232, 0.1);
+    color: var(--users-primary);
+    border: 1px solid rgba(26, 115, 232, 0.3);
+}
+
+.users-role-normal {
+    background: rgba(95, 99, 104, 0.1);
+    color: var(--users-text-secondary);
+    border: 1px solid var(--users-border);
 }
 
 /* Action Buttons */
@@ -756,7 +903,7 @@
     transform: scale(1.1);
 }
 
-/* Pagination */
+/* Pagination - IMPROVED FOR MOBILE */
 .users-pagination {
     display: flex;
     justify-content: space-between;
@@ -764,6 +911,8 @@
     padding: 20px 24px;
     border-top: 1px solid var(--users-border);
     background: var(--users-bg-secondary);
+    flex-wrap: wrap;
+    gap: 16px;
 }
 
 .users-pagination-info {
@@ -776,6 +925,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-wrap: wrap;
 }
 
 .users-page-btn {
@@ -820,6 +970,7 @@
     display: flex;
     gap: 4px;
     margin: 0 8px;
+    flex-wrap: wrap;
 }
 
 .users-page-num {
@@ -858,6 +1009,38 @@
     align-items: center;
     justify-content: center;
     color: var(--users-text-secondary);
+}
+
+/* No Results */
+.users-no-results {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--users-bg);
+}
+
+.users-no-results svg {
+    width: 64px;
+    height: 64px;
+    color: var(--users-text-secondary);
+    margin-bottom: 20px;
+    stroke-width: 1.5;
+}
+
+.users-no-results h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--users-text);
+    margin-bottom: 8px;
+}
+
+.users-no-results p {
+    font-size: 14px;
+    color: var(--users-text-secondary);
+}
+
+.users-no-results a {
+    color: var(--users-primary);
+    text-decoration: underline;
 }
 
 /* No Permission */
@@ -925,14 +1108,13 @@
         grid-template-columns: 1fr;
     }
 
-    /* Make table scrollable on smaller screens */
     .users-table-wrapper {
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        -webkit-overflow-scrolling: touch;
     }
 
     .users-table {
-        min-width: 800px; /* Minimum width to trigger horizontal scroll */
+        min-width: 800px;
     }
 
     .users-th,
@@ -955,132 +1137,50 @@
         gap: 16px;
     }
 
-    .users-page-numbers {
-        order: -1;
+    .users-pagination-controls {
+        width: 100%;
+        justify-content: center;
     }
 
     .users-page-btn-text {
         display: none;
     }
-}
-
-@media (max-width: 640px) {
-    /* Even smaller screens - reduce minimum table width slightly */
-    .users-table {
-        min-width: 700px;
-    }
-
+    
+    /* Show only active page number and adjacent on mobile */
     .users-page-num:not(.users-page-active) {
         display: none;
     }
-
+    
     .users-page-ellipsis {
         display: none;
     }
 }
 
-/* Search & Filter Form */
-.users-search-form {
-    margin-bottom: 20px;
-    background: var(--users-bg);
-    padding: 12px 16px;
-    border-radius: 8px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-    border: 1px solid var(--users-border);
-}
-
-.users-search-fields {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    width: 100%;
-}
-
-.users-search-input {
-    flex: 1;
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid var(--users-border);
-    font-size: 14px;
-    color: var(--users-text);
-    min-width: 200px;
-}
-
-.users-search-select {
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid var(--users-border);
-    font-size: 14px;
-    color: var(--users-text);
-    background: var(--users-bg);
-}
-
-.users-search-btn {
-    padding: 8px 16px;
-    border-radius: 6px;
-    border: none;
-    background: var(--users-primary);
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.users-search-btn:hover {
-    background: var(--users-primary-hover);
-    transform: translateY(-1px);
-}
-
-/* Responsive: stack inputs on mobile */
 @media (max-width: 640px) {
-    .users-search-form {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
+    .users-table {
+        min-width: 700px;
     }
-    .users-search-input,
-    .users-sort-select,
-    .users-search-btn {
+    
+    .users-page-first,
+    .users-page-last {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .users-page-wrapper {
+        padding: 12px;
+    }
+    
+    .users-stat-value {
+        font-size: 24px;
+    }
+    
+    .users-pagination-info {
         width: 100%;
+        text-align: center;
     }
 }
-.users-no-results {
-    text-align: center;
-    padding: 60px 20px;
-    background: var(--users-bg);
-    border: 1px solid var(--users-border);
-    border-radius: 12px;
-    margin-top: 20px;
-}
-
-.users-no-results svg {
-    width: 64px;
-    height: 64px;
-    color: var(--users-text-secondary);
-    margin-bottom: 20px;
-    stroke-width: 1.5;
-}
-
-.users-no-results h3 {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--users-text);
-    margin-bottom: 8px;
-}
-
-.users-no-results p {
-    font-size: 14px;
-    color: var(--users-text-secondary);
-}
-
-.users-no-results a {
-    color: var(--users-primary);
-    text-decoration: underline;
-}
-
 </style>
 
 <script>
@@ -1093,18 +1193,14 @@
     
     if (!usersWrapper) return;
     
-    // Function to update wrapper based on sidebar state
     function updateWrapperMargin() {
-        // Check if screen is desktop
         const isDesktop = window.innerWidth > 1024;
         
         if (!isDesktop) {
-            // Mobile: always no margin
             usersWrapper.classList.add('sidebar-collapsed');
             return;
         }
         
-        // Desktop: check if sidebar exists and its state
         if (sidebar) {
             if (sidebar.classList.contains('dash-collapsed') || 
                 sidebar.classList.contains('dash-open') === false) {
@@ -1113,15 +1209,12 @@
                 usersWrapper.classList.remove('sidebar-collapsed');
             }
         } else {
-            // No sidebar found, remove margin
             usersWrapper.classList.add('sidebar-collapsed');
         }
     }
     
-    // Initial check
     updateWrapperMargin();
     
-    // Watch for sidebar class changes using MutationObserver
     if (sidebar) {
         const observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
@@ -1137,44 +1230,12 @@
         });
     }
     
-    // Watch for window resize
     window.addEventListener('resize', updateWrapperMargin);
     
-    // Also listen for sidebar toggle button click (backup method)
     const menuToggle = document.getElementById('dashMenuToggle');
     if (menuToggle) {
         menuToggle.addEventListener('click', function() {
-            setTimeout(updateWrapperMargin, 50); // Small delay to let classes update
-        });
-    }
-    
-    // Table scroll indicator
-    function checkTableScroll() {
-        const tableWrapper = document.querySelector('.users-table-wrapper');
-        if (tableWrapper) {
-            const hasScroll = tableWrapper.scrollWidth > tableWrapper.clientWidth;
-            if (hasScroll) {
-                tableWrapper.classList.add('has-scroll');
-            } else {
-                tableWrapper.classList.remove('has-scroll');
-            }
-        }
-    }
-    
-    // Check on load and resize
-    checkTableScroll();
-    window.addEventListener('resize', checkTableScroll);
-    
-    // Remove scroll indicator when user scrolls to the end
-    const tableWrapper = document.querySelector('.users-table-wrapper');
-    if (tableWrapper) {
-        tableWrapper.addEventListener('scroll', function() {
-            const isAtEnd = this.scrollLeft + this.clientWidth >= this.scrollWidth - 10;
-            if (isAtEnd) {
-                this.classList.remove('has-scroll');
-            } else {
-                checkTableScroll();
-            }
+            setTimeout(updateWrapperMargin, 50);
         });
     }
 })();
