@@ -138,7 +138,7 @@
 
 
                             <th class="users-th users-th-actions">Switch User</th>
-                            <th class="users-th users-th-actions">Ban/UnBan Userh>
+                            <th class="users-th users-th-actions">Ban/UnBan User<th>
 
 
 
@@ -242,31 +242,26 @@
 
 
 <td>
-        <!-- Role Switch Form -->
         <form method="post" action="{% url 'change_user_role' user.id %}">
             {% csrf_token %}
-            <select name="role" onchange="this.form.submit()">
-                <option value="normal" {% if user.groups.count == 0 and not user.is_superuser %}selected{% endif %}>Normal</option>
-                <option value="editor" {% if user.is_editor %}selected{% endif %}>Editor</option>
-<option value="manager" {% if user.is_manager %}selected{% endif %}>Manager</option>
+<select name="role" onchange="this.form.submit()" {% if not user.can_manage %}disabled{% endif %}>
+    <option value="normal" {% if user.role == 'normal' %}selected{% endif %}>Normal</option>
+    <option value="editor" {% if user.role == 'editor' %}selected{% endif %}>Editor</option>
+    <option value="manager" {% if user.role == 'manager' %}selected{% endif %}>Manager</option>
+    <option value="superuser" {% if user.role == 'superuser' %}selected{% endif %}>Superuser</option>
+</select>
 
-                <option value="superuser" {% if user.is_superuser %}selected{% endif %}>Superuser</option>
-            </select>
         </form>
     </td>
     <td>
-        <!-- Ban/Unban Button -->
         <form method="post" action="{% url 'toggle_ban_user' user.id %}">
             {% csrf_token %}
-            {% if user.is_active %}
-                <button type="submit" class="btn btn-danger btn-sm">Ban</button>
-            {% else %}
-                <button type="submit" class="btn btn-success btn-sm">Unban</button>
-            {% endif %}
+<button type="submit" class="btn {% if user.is_active %}btn-danger{% else %}btn-success{% endif %} btn-sm"
+        {% if not user.can_ban %}disabled{% endif %}>
+    {% if user.is_active %}Ban{% else %}Unban{% endif %}
+</button>
         </form>
     </td>
-
-
                         </tr>
                     {% endfor %}
                     </tbody>

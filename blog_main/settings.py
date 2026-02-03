@@ -255,16 +255,16 @@ SOCIALACCOUNT_PROVIDERS = {
     },
 }
 SOCIALACCOUNT_LOGIN_ON_GET = True
-
-
-# Django Allauth Settings
-ACCOUNT_EMAIL_VERIFICATION = 'none'  # or 'optional' or 'mandatory'
-ACCOUNT_UNIQUE_EMAIL = True
-SOCIALACCOUNT_AUTO_SIGNUP = True
-
-# Important: This prevents the signup form from showing
+SOCIALACCOUNT_LOGIN_ON_GET = True 
+ 
+# Django Allauth Settings 
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_UNIQUE_EMAIL = True 
+SOCIALACCOUNT_AUTO_SIGNUP = True 
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
-SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+
+# Add this:
+SOCIALACCOUNT_ADAPTER = 'blog_main.adapters.MySocialAccountAdapter'
 
 # # LOGIN_REDIRECT_URL = '/'  # where users go after login
 # # LOGOUT_REDIRECT_URL = '/' # optional

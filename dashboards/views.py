@@ -465,17 +465,46 @@ def users(request):
     # 5. Prefetch related data for efficiency
     # ---------------------------
     users = users.prefetch_related('groups')
-    for u in users:
-        u.is_editor = u.groups.filter(name='Editor').exists()
-        u.is_manager = u.groups.filter(name='Manager').exists()
+
+
 
 
     # ---------------------------
     # 6. Pagination
     # ---------------------------
-    paginator = Paginator(users, 2)  # 10 users per page
+    paginator = Paginator(users, 10)  # 10 users per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
+
+    for u in page_obj.object_list:
+        # Default: cannot manage/ban
+        u.can_manage = False
+        u.can_ban = False
+
+        # Annotate role for template
+        if u.is_superuser:
+            u.role = 'superuser'
+        elif u.groups.filter(name='Manager').exists():
+            u.role = 'manager'
+        elif u.groups.filter(name='Editor').exists():
+            # u.role = 'editor'
+            u.role = 'normal'
+        else:
+            u.role = 'normal'
+
+        # Permissions
+        if request.user.is_superuser:
+            # Superuser can manage anyone except self
+            if u.pk != request.user.pk:
+                u.can_manage = True
+                u.can_ban = True
+        elif request.user.groups.filter(name='Manager').exists():
+            # Manager can manage only Editors/Normal users
+            if u.role in ['editor', 'normal']:
+                u.can_manage = True
+                u.can_ban = True
+
 
     context = {
         'users': page_obj,
@@ -569,28 +598,45 @@ def delete_user(request, pk):
     return redirect('users')
 
 def change_user_role(request, user_id):
-    if not request.user.is_superuser:
-        messages.error(request, "You don't have permission to change roles.")
+    if not request.user.is_authenticated:
+        messages.error(request, "You must be logged in.")
         return redirect('users')
 
     user = get_object_or_404(User, pk=user_id)
     new_role = request.POST.get('role')
 
-    # Clear all roles (groups) first
+    # Prevent changing own role
+    if user.pk == request.user.pk:
+        messages.error(request, "You cannot change your own role.")
+        return redirect('users')
+
+    # Superuser can change anyone
+    if request.user.is_superuser:
+        pass
+    # Manager can only manage Editors/Normal
+    elif request.user.groups.filter(name='Manager').exists():
+        if user.is_superuser or user.groups.filter(name='Manager').exists():
+            messages.error(request, "Managers cannot change roles of other Managers or Superusers.")
+            return redirect('users')
+    else:
+        messages.error(request, "You do not have permission to change roles.")
+        return redirect('users')
+
+    # Clear all groups first
     user.groups.clear()
     user.is_staff = False
     user.is_superuser = False
 
+    # Assign new role
     if new_role == 'manager':
         group = Group.objects.get(name='Manager')
         user.groups.add(group)
-        user.is_staff = True  # Optional: make manager staff
+        user.is_staff = True
     elif new_role == 'editor':
         group = Group.objects.get(name='Editor')
         user.groups.add(group)
     elif new_role == 'normal':
-        # No group
-        pass
+        pass  # no group
     elif new_role == 'superuser':
         user.is_superuser = True
         user.is_staff = True
@@ -599,19 +645,38 @@ def change_user_role(request, user_id):
     messages.success(request, f"{user.username}'s role changed to {new_role}.")
     return redirect('users')
 
-
 def toggle_ban_user(request, user_id):
-    if not request.user.is_superuser:
-        messages.error(request, "You don't have permission to ban/unban users.")
+    if not request.user.is_authenticated:
+        messages.error(request, "You must be logged in.")
         return redirect('users')
 
     user = get_object_or_404(User, pk=user_id)
+
+    # Prevent self-ban
+    if user.pk == request.user.pk:
+        messages.error(request, "You cannot ban/unban yourself.")
+        return redirect('users')
+
+    # Superuser can ban anyone except self
+    if request.user.is_superuser:
+        pass
+    # Manager can ban only Editors/Normal
+    elif request.user.groups.filter(name='Manager').exists():
+        if user.is_superuser or user.groups.filter(name='Manager').exists():
+            messages.error(request, "Managers cannot ban/unban other Managers or Superusers.")
+            return redirect('users')
+    else:
+        messages.error(request, "You do not have permission to ban/unban users.")
+        return redirect('users')
+
+    # Toggle ban
     user.is_active = not user.is_active
     user.save()
 
     status = "unbanned" if user.is_active else "banned"
     messages.success(request, f"{user.username} has been {status}.")
     return redirect('users')
+
 
 
 def profile(request):
