@@ -2,7 +2,7 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.contrib import messages
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import permission_required, login_required
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseBadRequest, JsonResponse
@@ -465,6 +465,10 @@ def users(request):
     # 5. Prefetch related data for efficiency
     # ---------------------------
     users = users.prefetch_related('groups')
+    for u in users:
+        u.is_editor = u.groups.filter(name='Editor').exists()
+        u.is_manager = u.groups.filter(name='Manager').exists()
+
 
     # ---------------------------
     # 6. Pagination
@@ -563,6 +567,52 @@ def delete_user(request, pk):
     user.delete()
     messages.success(request, f'User "{username}" deleted successfully. ✅')
     return redirect('users')
+
+def change_user_role(request, user_id):
+    if not request.user.is_superuser:
+        messages.error(request, "You don't have permission to change roles.")
+        return redirect('users')
+
+    user = get_object_or_404(User, pk=user_id)
+    new_role = request.POST.get('role')
+
+    # Clear all roles (groups) first
+    user.groups.clear()
+    user.is_staff = False
+    user.is_superuser = False
+
+    if new_role == 'manager':
+        group = Group.objects.get(name='Manager')
+        user.groups.add(group)
+        user.is_staff = True  # Optional: make manager staff
+    elif new_role == 'editor':
+        group = Group.objects.get(name='Editor')
+        user.groups.add(group)
+    elif new_role == 'normal':
+        # No group
+        pass
+    elif new_role == 'superuser':
+        user.is_superuser = True
+        user.is_staff = True
+
+    user.save()
+    messages.success(request, f"{user.username}'s role changed to {new_role}.")
+    return redirect('users')
+
+
+def toggle_ban_user(request, user_id):
+    if not request.user.is_superuser:
+        messages.error(request, "You don't have permission to ban/unban users.")
+        return redirect('users')
+
+    user = get_object_or_404(User, pk=user_id)
+    user.is_active = not user.is_active
+    user.save()
+
+    status = "unbanned" if user.is_active else "banned"
+    messages.success(request, f"{user.username} has been {status}.")
+    return redirect('users')
+
 
 def profile(request):
     user = request.user
