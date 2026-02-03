@@ -63,6 +63,44 @@
                 </div>
             </div>
         </div>
+<!-- Search & Filter Form -->
+<form method="GET" class="users-search-form">
+    <div class="users-search-fields">
+        <!-- Search by username/email -->
+        <input type="text" name="q" placeholder="Search by username or email"
+               value="{{ query }}" class="users-search-input">
+
+        <!-- Role Filter -->
+        <select name="role" class="users-search-select">
+            <option value="">All Roles</option>
+            <option value="normal" {% if role == 'normal' %}selected{% endif %}>Normal User</option>
+            <option value="editor" {% if role == 'editor' %}selected{% endif %}>Editor</option>
+            <option value="manager" {% if role == 'manager' %}selected{% endif %}>Manager</option>
+            <option value="superuser" {% if role == 'superuser' %}selected{% endif %}>Superuser</option>
+        </select>
+
+        <!-- Sort Fields -->
+        <select name="sort_field" class="users-search-select">
+            <option value="username" {% if sort_field == 'username' %}selected{% endif %}>Username</option>
+            <option value="date_joined" {% if sort_field == 'date_joined' %}selected{% endif %}>Created At</option>
+            <option value="last_login" {% if sort_field == 'last_login' %}selected{% endif %}>Last Login</option>
+        </select>
+
+        <!-- Sort Order -->
+        <select name="sort_order" class="users-search-select">
+            <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>Ascending</option>
+            <option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>Descending</option>
+        </select>
+
+        <!-- Search Buttons -->
+        <button type="submit" class="users-search-btn">Search</button>
+        <!-- Clear Search Button -->
+        <a href="{% url 'users' %}" class="users-search-btn" style="background:#d93025;">Clear</a>
+    </div>
+</form>
+
+
+
 
         <!-- Users Table Card -->
         <div class="users-table-card">
@@ -135,17 +173,21 @@
                             </td>
                             <td class="users-td users-td-actions">
                                 <div class="users-action-btns">
+                                    {% if not user.is_superuser or request.user.is_superuser %}
                                     <a href="{% url 'edit_user' user.id %}" class="users-action-btn users-action-edit" title="Edit User">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke-width="2"/>
                                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke-width="2"/>
                                         </svg>
                                     </a>
+                                    {% endif %}
+                                    {% if not user.is_superuser or request.user.is_superuser %}
                                     <a href="{% url 'delete_user' user.id %}" class="users-action-btn users-action-delete" title="Delete User" onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                             <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6" stroke-width="2"/>
                                         </svg>
                                     </a>
+                                    {% endif %}
                                 </div>
                             </td>
                         </tr>
@@ -153,6 +195,21 @@
                     </tbody>
                 </table>
             </div>
+            {% if users.paginator.count == 0 %}
+<div class="users-no-results">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <circle cx="12" cy="12" r="10" stroke-width="2"/>
+        <line x1="8" y1="12" x2="16" y2="12" stroke-width="2"/>
+    </svg>
+    <h3>No Users Found</h3>
+    {% if query or role %}
+    <p>Try changing your search or filter criteria, or <a href="{% url 'users' %}">clear search</a>.</p>
+    {% else %}
+    <p>No users are available.</p>
+    {% endif %}
+</div>
+{% endif %}
+
 
             <!-- Pagination -->
             {% if users.paginator.num_pages > 1 %}
@@ -163,12 +220,16 @@
                 
                 <div class="users-pagination-controls">
                     {% if users.has_previous %}
-                    <a href="?page=1" class="users-page-btn users-page-first" title="First Page">
+                    <a href="?page=1&q={{ query }}&role={{ role }}&sort_field={{ sort_field }}&sort_order={{ sort_order }}" 
+   class="users-page-btn users-page-first" title="First Page">
+
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M11 19l-7-7 7-7M18 19l-7-7 7-7" stroke-width="2" stroke-linecap="round"/>
                         </svg>
                     </a>
-                    <a href="?page={{ users.previous_page_number }}" class="users-page-btn users-page-prev" title="Previous">
+                    <a href="?page={{ users.previous_page_number }}&q={{ query }}&role={{ role }}&sort_field={{ sort_field }}&sort_order={{ sort_order }}" 
+   class="users-page-btn users-page-prev" title="Previous">
+
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round"/>
                         </svg>
@@ -193,9 +254,13 @@
                             {% if page_num == users.number %}
                             <span class="users-page-num users-page-active">{{ page_num }}</span>
                             {% elif page_num >= users.number|add:"-2" and page_num <= users.number|add:"2" %}
-                            <a href="?page={{ page_num }}" class="users-page-num">{{ page_num }}</a>
+                            <a href="?page={{ page_num }}&q={{ query }}&role={{ role }}&sort_field={{ sort_field }}&sort_order={{ sort_order }}" 
+   class="users-page-num">{{ page_num }}</a>
+
                             {% elif page_num == 1 or page_num == users.paginator.num_pages %}
-                            <a href="?page={{ page_num }}" class="users-page-num">{{ page_num }}</a>
+                            <a href="?page={{ page_num }}&q={{ query }}&role={{ role }}&sort_field={{ sort_field }}&sort_order={{ sort_order }}" 
+   class="users-page-num">{{ page_num }}</a>
+
                             {% elif page_num == users.number|add:"-3" or page_num == users.number|add:"3" %}
                             <span class="users-page-ellipsis">...</span>
                             {% endif %}
@@ -203,13 +268,17 @@
                     </div>
 
                     {% if users.has_next %}
-                    <a href="?page={{ users.next_page_number }}" class="users-page-btn users-page-next" title="Next">
+                    <a href="?page={{ users.next_page_number }}&q={{ query }}&role={{ role }}&sort_field={{ sort_field }}&sort_order={{ sort_order }}" 
+   class="users-page-btn users-page-next" title="Next">
+
                         <span class="users-page-btn-text">Next</span>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
                         </svg>
                     </a>
-                    <a href="?page={{ users.paginator.num_pages }}" class="users-page-btn users-page-last" title="Last Page">
+                    <a href="?page={{ users.paginator.num_pages }}&q={{ query }}&role={{ role }}&sort_field={{ sort_field }}&sort_order={{ sort_order }}" 
+   class="users-page-btn users-page-last" title="Last Page">
+
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M13 5l7 7-7 7M6 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
                         </svg>
@@ -909,6 +978,109 @@
         display: none;
     }
 }
+
+/* Search & Filter Form */
+.users-search-form {
+    margin-bottom: 20px;
+    background: var(--users-bg);
+    padding: 12px 16px;
+    border-radius: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    border: 1px solid var(--users-border);
+}
+
+.users-search-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 100%;
+}
+
+.users-search-input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--users-border);
+    font-size: 14px;
+    color: var(--users-text);
+    min-width: 200px;
+}
+
+.users-search-select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--users-border);
+    font-size: 14px;
+    color: var(--users-text);
+    background: var(--users-bg);
+}
+
+.users-search-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    background: var(--users-primary);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.users-search-btn:hover {
+    background: var(--users-primary-hover);
+    transform: translateY(-1px);
+}
+
+/* Responsive: stack inputs on mobile */
+@media (max-width: 640px) {
+    .users-search-form {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    .users-search-input,
+    .users-sort-select,
+    .users-search-btn {
+        width: 100%;
+    }
+}
+.users-no-results {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--users-bg);
+    border: 1px solid var(--users-border);
+    border-radius: 12px;
+    margin-top: 20px;
+}
+
+.users-no-results svg {
+    width: 64px;
+    height: 64px;
+    color: var(--users-text-secondary);
+    margin-bottom: 20px;
+    stroke-width: 1.5;
+}
+
+.users-no-results h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--users-text);
+    margin-bottom: 8px;
+}
+
+.users-no-results p {
+    font-size: 14px;
+    color: var(--users-text-secondary);
+}
+
+.users-no-results a {
+    color: var(--users-primary);
+    text-decoration: underline;
+}
+
 </style>
 
 <script>

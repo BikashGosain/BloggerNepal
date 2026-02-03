@@ -1,39 +1,43 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
 {% load socialaccount %}
 
 {% block content %}
-    <div class="container">
-        <h3 class="text-center">Login</h3>
-        
-        <!-- Google Signup Button -->
-        <a class="btn mb-3 w-100" style="background-color:#24292e; color:white;" href="{% provider_login_url 'google' %}">
-            Login with Google
-        </a>
-        
-        <!-- GitHub Button -->
-        <a class="btn mb-3 w-100" style="background-color:#24292e; color:white;" 
-           href="{% provider_login_url 'github' %}">
-            Login with GitHub
-        </a>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h3 class="auth-title">Welcome Back</h3>
+            
+            <!-- Social Login Buttons -->
+            <div class="social-buttons">
+                <a class="social-btn google-btn" href="{% provider_login_url 'google' %}">
+                    <span class="btn-icon">G</span>
+                    <span class="btn-text">Continue with Google</span>
+                </a>
+                
+                <a class="social-btn github-btn" href="{% provider_login_url 'github' %}">
+                    <span class="btn-icon">⚡</span>
+                    <span class="btn-text">Continue with GitHub</span>
+                </a>
+            </div>
 
-        <form action="{% url 'login' %}" method="POST" style="width:500px; margin:auto">
-            {% csrf_token %}
-            {{ form | crispy }}
-            <button type="submit" class="btn btn-warning">Login</button>
-        </form>
-        
-        <!-- Forgot Password Link -->
-        <div class="text-center mt-3" style="width:500px; margin:auto">
-            <small>
-                <a href="{% url 'forgot_password' %}" class="text-warning fw-bold">Forgot Password?</a>
-            </small>
-        </div>
-        
-        <div class="card-footer text-center bg-light">
-            <small>Don't have an account? 
-                <a href="{% url 'register' %}" class="text-warning fw-bold">Register here</a>
-            </small>
+            <div class="divider">
+                <span class="divider-text">or</span>
+            </div>
+
+            <form action="{% url 'login' %}" method="POST" class="auth-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="submit-btn">Sign In</button>
+            </form>
+            
+            <!-- Forgot Password Link -->
+            <div class="auth-link">
+                <a href="{% url 'forgot_password' %}" class="link-primary">Forgot Password?</a>
+            </div>
+            
+            <div class="auth-footer">
+                <span>Don't have an account? </span>
+                <a href="{% url 'register' %}" class="link-accent">Create one</a>
+            </div>
         </div>
     </div>
 {% endblock %}

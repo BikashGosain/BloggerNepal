@@ -1,6 +1,6 @@
 # Django shortcuts & utilities
 from django.shortcuts import get_object_or_404, render, redirect
-from django.urls import reverse # If email is missing, show a clickable link 
+from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import permission_required, login_required
@@ -10,8 +10,10 @@ from django.core.paginator import Paginator
 from django.template.defaultfilters import slugify
 
 # Django ORM & utilities
-from django.db.models import Q, Count
+from django.db.models import Q, Count, When, Case
 from django.db.models.functions import ExtractMonth
+
+# Python standard library
 from calendar import month_name
 
 # Third-party editors
@@ -22,12 +24,6 @@ from blogs.models import Blog, Category, Notification
 from .forms import BlogPostForm, CategoryForm, AddUserForm, EditUserForm, ProfileEditForm
 from .utils import dashboard_header_context
 from follow_following.models import Follow
-
-from django.shortcuts import render
-from django.db.models import Count
-from django.db.models.functions import ExtractMonth
-from calendar import month_name
-from blogs.models import Blog
 
 # Create your views here.
 
@@ -396,52 +392,122 @@ def delete_post(request, pk):
     return redirect('posts')
 
 
+# def users(request):
+#     page_number = request.GET.get('page', 1)
+#     users_list = User.objects.all().order_by('username')
+#     paginator = Paginator(users_list, 2)
+#     page_obj = paginator.get_page(page_number)
+#     context = {
+#         'users': page_obj,
+#     }
+#     return render(request, 'users.html', context)
+
 def users(request):
-    page_number = request.GET.get('page', 1)
-    users_list = User.objects.all().order_by('username')
-    paginator = Paginator(users_list, 2)
+    users = User.objects.all()
+
+    # ---------------------------
+    # 1. Search filter
+    # ---------------------------
+    query = request.GET.get('q', '')
+    if query:
+        users = users.filter(
+            Q(username__icontains=query) |
+            Q(email__icontains=query)
+        )
+
+    # ---------------------------
+    # 2. Role filter
+    # ---------------------------
+    role = request.GET.get('role', '')
+    if role == 'editor':
+        users = users.filter(groups__name='Editor')
+    elif role == 'manager':
+        users = users.filter(groups__name='Manager')
+    elif role == 'superuser':
+        users = users.filter(is_superuser=True)
+    elif role == 'normal':
+        users = users.filter(groups=None, is_superuser=False)
+    # ---------------------------
+    # 2. Sorting
+    # ---------------------------
+    sort_field = request.GET.get('sort_field', 'username')  # username, date_joined, last_login
+    sort_order = request.GET.get('sort_order', 'asc')       # asc or desc
+
+    if sort_order == 'desc':
+        sort_field = '-' + sort_field
+
+    # ---------------------------
+    # 3. Self user first
+    # ---------------------------
+    users = users.annotate(
+        self_user_first=Case(
+            When(pk=request.user.pk, then=0),
+            default=1
+        )
+    ).order_by('self_user_first', sort_field)
+
+    # ---------------------------
+    # 4. Pagination
+    # ---------------------------
+    paginator = Paginator(users, 2)  # 10 per page
+    page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
     context = {
         'users': page_obj,
+        'query': query,
+        'role': request.GET.get('role', ''),
+        'sort_field': request.GET.get('sort_field', 'username'),
+        'sort_order': request.GET.get('sort_order', 'asc'),
     }
     return render(request, 'users.html', context)
 
 
 def add_user(request):
+    # Permission check: only superuser or Manager can access
+    if not request.user.is_superuser and not request.user.groups.filter(name='Manager').exists():
+        messages.warning(request, "You do not have permission to access this page.")
+        return redirect('users')
+
     if request.method == 'POST':
-        form = AddUserForm(request.POST)
+        form = AddUserForm(request.POST, request_user=request.user)
         if form.is_valid():
-            user = form.save()  # capture created user
-            messages.success(
-                request,
-                f'User "{user.username}" added successfully ✅'
-            )
+            user = form.save()
+            messages.success(request, f'User "{user.username}" added successfully ✅')
             return redirect('users')
-        else:
-            messages.error(
-                request,
-                "User could not be added. Please fix the errors below ❌"
-            )
-    form = AddUserForm()
+    else:
+        form = AddUserForm(request_user=request.user)
+
     context = {
         'form': form,
     }
-        
     return render(request, 'add_user.html', context)
 
 def edit_user(request, pk):
+    # Permission check: only superuser or Manager can access
+    if not request.user.is_superuser and not request.user.groups.filter(name='Manager').exists():
+        messages.warning(request, "You do not have permission to access this page.")
+        return redirect('users')
+
     user = User.objects.filter(pk=pk).first()
     if not user:
         messages.warning(request, "The user you are trying to edit does not exist.")
         return redirect('users')
+    
+    # Block managers from editing superusers
+    if not request.user.is_superuser and user.is_superuser:
+        messages.warning(request, "You do not have permission to edit this user.")
+        return redirect('users')
+
     if request.method == 'POST':
-        form = EditUserForm(request.POST, instance=user)
+        form = EditUserForm(request.POST, instance=user, request_user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, f'Username "{user}" updated successfully. ✅')
             return redirect('users')
     else:
-        form = EditUserForm(instance=user)
+        form = EditUserForm(instance=user, request_user=request.user)
+
     context = {
         'form': form,
         'user': user,

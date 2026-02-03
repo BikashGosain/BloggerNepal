@@ -23,7 +23,13 @@ class RegistrationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.fields['email'].required = True
+
+        for field in self.fields.values():
+            field.help_text = None
+            field.widget.attrs.update({'class': 'form-input'})
+
 
     def clean_email(self):
         email = self.cleaned_data.get('email')

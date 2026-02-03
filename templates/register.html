@@ -1,32 +1,38 @@
 {% extends 'base.html' %}
-
-
-{% load crispy_forms_tags %}
 {% load socialaccount %}
 
 {% block content %}
-\    <div class="container">
-        <h3 class="text-center">Register</h3>
-        <!-- Google Signup Button -->
-<!-- Google Signup Button -->
-<a class="btn mb-3 w-100" style="background-color:#24292e; color:white;" href="{% provider_login_url 'google' %}">
-    Signup with Google
-</a>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h3 class="auth-title">Create Account</h3>
+            
+            <!-- Social Signup Buttons -->
+            <div class="social-buttons">
+                <a class="social-btn google-btn" href="{% provider_login_url 'google' %}">
+                    <span class="btn-icon">G</span>
+                    <span class="btn-text">Sign up with Google</span>
+                </a>
+                
+                <a class="social-btn github-btn" href="{% provider_login_url 'github' %}">
+                    <span class="btn-icon">⚡</span>
+                    <span class="btn-text">Sign up with GitHub</span>
+                </a>
+            </div>
 
-<!-- GitHub Signup Button -->
-<a class="btn mb-3 w-100" style="background-color:#24292e; color:white;" 
-   href="{% provider_login_url 'github' %}">
-    Signup with GitHub
-</a>
-        <form action="{% url 'register' %}" method="POST" style="width:500px; margin:auto">
-            {% csrf_token %}
-            {{ form | crispy }}
-            <button type="submit" class="btn btn-warning">Register</button>
-        </form>
-        <div class="text-center mt-3">
-    <p>Don't have an account? 
-        <a href="{% url 'login' %}">Login here</a>
-    </p>
-</div>
+            <div class="divider">
+                <span class="divider-text">or</span>
+            </div>
+
+            <form action="{% url 'register' %}" method="POST" class="auth-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="submit-btn">Create Account</button>
+            </form>
+            
+            <div class="auth-footer">
+                <span>Already have an account? </span>
+                <a href="{% url 'login' %}" class="link-accent">Sign in</a>
+            </div>
+        </div>
     </div>
 {% endblock %}

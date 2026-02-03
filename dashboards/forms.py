@@ -1,9 +1,8 @@
 from django import forms
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from blogs.models import Blog, Category
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.forms import UserCreationForm
-
 
 class CategoryForm(forms.ModelForm):
     class Meta:
@@ -42,12 +41,76 @@ class BlogPostForm(forms.ModelForm):
 class AddUserForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'username', 'email', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')
+        fields = (
+            'first_name', 'last_name', 'username', 'email', 'is_active',
+            'is_staff', 'is_superuser', 'groups', 'user_permissions'
+        )
+
+    def __init__(self, *args, **kwargs):
+        # Pop the logged-in user from kwargs
+        self.request_user = kwargs.pop('request_user', None)
+        super().__init__(*args, **kwargs)
+
+        # Remove all default help texts
+        for field in self.fields.values():
+            field.help_text = None
+
+        # Role-based field access
+        if self.request_user and not self.request_user.is_superuser:
+            # For Manager
+            allowed_fields = ['first_name', 'last_name', 'username', 'email', 'is_active', 'is_staff', 'groups', 'password1', 'password2']
+            for field_name in list(self.fields):
+                if field_name not in allowed_fields:
+                    self.fields.pop(field_name)
+
+            # Limit groups to "Editor" only
+            if 'groups' in self.fields:
+                self.fields['groups'].queryset = Group.objects.filter(name='Editor')
+
+    # Validate unique email
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("This email is already in use.")
+        return email
 
 class EditUserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'username', 'email', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')
+        
+
+    def __init__(self, *args, **kwargs):
+        self.request_user = kwargs.pop('request_user', None)
+        super().__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            field.help_text = None
+
+        
+        # Role-based field access
+        if self.request_user and not self.request_user.is_superuser:
+            allowed_fields = ['first_name', 'last_name', 'username', 'email', 'is_active', 'is_staff', 'groups']
+            for field_name in list(self.fields):
+                if field_name not in allowed_fields:
+                    self.fields.pop(field_name)
+
+            # Limit groups to "Editor" only
+            if 'groups' in self.fields:
+                self.fields['groups'].queryset = Group.objects.filter(name='Editor')
+
+    # Validate unique username and email while allowing current user's values
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.exclude(pk=self.instance.pk).filter(username=username).exists():
+            raise forms.ValidationError("This username is already taken.")
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.exclude(pk=self.instance.pk).filter(email=email).exists():
+            raise forms.ValidationError("This email is already in use.")
+        return email
 
 
 class ProfileEditForm(forms.ModelForm):

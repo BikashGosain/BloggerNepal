@@ -1,5 +1,4 @@
 {% extends 'dashboard_base.html' %}
-{% load crispy_forms_tags %}
 
 {% block content %}
 
@@ -34,8 +33,22 @@
                 {% csrf_token %}
                 
                 <div class="form-fields">
-                    {{ form | crispy }}
-                </div>
+    {% for field in form %}
+  <div class="form-group">
+    <label for="{{ field.id_for_label }}" class="form-label">
+        {{ field.label }}
+    </label>
+
+    {{ field }}
+
+    {% for error in field.errors %}
+      <small class="form-error">{{ error }}</small>
+    {% endfor %}
+  </div>
+{% endfor %}
+
+</div>
+
                 
                 <div class="form-actions">
                     <button type="submit" class="form-btn form-btn-primary">
@@ -206,6 +219,15 @@
 .form-fields {
     margin-bottom: 24px;
 }
+
+/* Add this to your CSS file */
+.form-error {
+    color: #dc3545;      /* red, like Bootstrap's danger color */
+    font-size: 0.875rem; /* slightly smaller than input text */
+    margin-top: 0.25rem; /* small spacing from the input */
+    display: block;      /* ensures it starts on a new line */
+}
+
 
 .form-fields .form-group {
     margin-bottom: 24px;
