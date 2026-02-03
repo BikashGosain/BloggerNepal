@@ -3,6 +3,7 @@ from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from blogs.models import Blog, Category
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.forms import UserCreationForm
+from .models import Profile
 
 class CategoryForm(forms.ModelForm):
     class Meta:
@@ -114,12 +115,49 @@ class EditUserForm(forms.ModelForm):
 
 
 class ProfileEditForm(forms.ModelForm):
+    # User fields
+    first_name = forms.CharField(max_length=150, required=False)
+    last_name = forms.CharField(max_length=150, required=False)
+    email = forms.EmailField(required=False)
+    
+    # Profile fields
+    contact = forms.CharField(max_length=20, required=False, label='Phone Number')
+    profile_image = forms.ImageField(required=False, label='Profile Picture')
+    
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email']
-
+    
     def __init__(self, *args, **kwargs):
         super(ProfileEditForm, self).__init__(*args, **kwargs)
-        # Optional: remove help texts
+        
+        # Get profile data if exists
+        if hasattr(self.instance, 'profile'):
+            self.fields['contact'].initial = self.instance.profile.contact
+            self.fields['profile_image'].initial = self.instance.profile.profile_image
+        
+        # Remove help texts
         for field in self.fields.values():
             field.help_text = None
+        
+        # Add widget for image input
+        self.fields['profile_image'].widget.attrs.update({
+            'accept': 'image/*',
+            'id': 'profileImageInput'
+        })
+    
+    def save(self, commit=True):
+        user = super(ProfileEditForm, self).save(commit=commit)
+        
+        if commit:
+            # Save profile data
+            profile = user.profile
+            profile.contact = self.cleaned_data.get('contact')
+            
+            # Handle profile image
+            if 'profile_image' in self.cleaned_data and self.cleaned_data['profile_image']:
+                profile.profile_image = self.cleaned_data['profile_image']
+            
+            profile.save()
+        
+        return user

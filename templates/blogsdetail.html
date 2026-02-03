@@ -35,18 +35,19 @@
                     <!-- Meta Info -->
                     <div class="bd-meta">
                         <span class="bd-meta-item">
-                            <i class="far fa-clock"></i> {{ single_blog.created_at|timesince }} ago
+                            <i class="far fa-clock"></i>Created_at: {{ single_blog.created_at|timesince }} ago
                         </span>
-                        <span class="bd-meta-item">
-                            <i class="far fa-eye"></i> {{ single_blog.views|default:0 }} views
-                        </span>
+                        
                         <span class="bd-meta-item">
                             <a href="{% url 'profile' single_blog.author.username %}" class="bd-author-link">
                                 <i class="far fa-user"></i> {{ single_blog.author.username }}
                             </a>
                         </span>
                         <span class="bd-meta-item">
-                            <i class="far fa-clock"></i> {{ single_blog.updated_at|timesince }} ago
+                            <i class="far fa-eye"></i> {{ single_blog.views|default:0 }} views
+                        </span>
+                        <span class="bd-meta-item">
+                            <i class="far fa-clock"></i>Updated_at: {{ single_blog.updated_at|timesince }} ago
                         </span>
                     </div>
 

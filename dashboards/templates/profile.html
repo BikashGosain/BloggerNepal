@@ -51,6 +51,27 @@
             </div>
 
             <div class="profile-card-body">
+                <!-- Profile Image Section -->
+                <div class="profile-image-showcase">
+                    <div class="profile-image-container">
+                        {% if user.profile.profile_image %}
+                            <img src="{{ user.profile.profile_image.url }}" alt="Profile Picture" class="profile-image">
+                        {% else %}
+                            <div class="profile-image-placeholder">
+                                <span class="profile-placeholder-text">
+                                    {{ user.first_name.0|upper|default:user.username.0|upper }}{{ user.last_name.0|upper|default:"" }}
+                                </span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="profile-image-info">
+                        <h3>{{ user.get_full_name|default:user.username }}</h3>
+                        <p class="profile-username-label">@{{ user.username }}</p>
+                    </div>
+                </div>
+
+                <div class="profile-divider"></div>
+
                 <div class="profile-details-grid">
                     <!-- Left Column -->
                     <div class="profile-detail-item">
@@ -93,6 +114,25 @@
                         <div class="profile-detail-content">
                             <span class="profile-detail-label">Email</span>
                             <span class="profile-detail-value">{{ user.email }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Contact Field -->
+                    <div class="profile-detail-item">
+                        <div class="profile-detail-icon profile-icon-info">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="profile-detail-content">
+                            <span class="profile-detail-label">Phone Number</span>
+                            <span class="profile-detail-value">
+                                {% if user.profile.contact %}
+                                    {{ user.profile.contact }}
+                                {% else %}
+                                    <span class="profile-detail-empty">Not set</span>
+                                {% endif %}
+                            </span>
                         </div>
                     </div>
 
@@ -408,6 +448,67 @@
     padding: 24px;
 }
 
+/* Profile Image Showcase */
+.profile-image-showcase {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 32px;
+    padding: 24px;
+    background: var(--prof-bg-secondary);
+    border-radius: 12px;
+}
+
+.profile-image-container {
+    flex-shrink: 0;
+}
+
+.profile-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--prof-border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.profile-image-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--prof-primary) 0%, var(--prof-primary-hover) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid var(--prof-border);
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+}
+
+.profile-placeholder-text {
+    font-size: 40px;
+    font-weight: 700;
+    color: white;
+}
+
+.profile-image-info h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--prof-text);
+    margin: 0 0 8px 0;
+}
+
+.profile-username-label {
+    font-size: 16px;
+    color: var(--prof-text-secondary);
+    margin: 0;
+}
+
+.profile-divider {
+    height: 1px;
+    background: var(--prof-border);
+    margin: 24px 0;
+}
+
 .profile-details-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -644,6 +745,11 @@
         justify-content: center;
     }
 
+    .profile-image-showcase {
+        flex-direction: column;
+        text-align: center;
+    }
+
     .profile-details-grid {
         grid-template-columns: 1fr;
     }
@@ -670,6 +776,20 @@
 
     .profile-card-body {
         padding: 16px;
+    }
+
+    .profile-image {
+        width: 100px;
+        height: 100px;
+    }
+
+    .profile-image-placeholder {
+        width: 100px;
+        height: 100px;
+    }
+
+    .profile-placeholder-text {
+        font-size: 32px;
     }
 
     .profile-detail-item {

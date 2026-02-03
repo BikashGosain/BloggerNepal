@@ -135,14 +135,8 @@
                             <th class="users-th users-th-status">STATUS</th>
                             <th class="users-th users-th-roles">ROLES</th>
                             <th class="users-th users-th-actions">ACTIONS</th>
-
-
                             <th class="users-th users-th-actions">Switch User</th>
-                            <th class="users-th users-th-actions">Ban/UnBan User<th>
-
-
-
-
+                            <th class="users-th users-th-actions">Ban/UnBan User</th>
                         </tr>
                     </thead>
                     <tbody class="users-table-body">
@@ -153,7 +147,13 @@
                             </td>
                             <td class="users-td users-td-user">
                                 <div class="users-user-cell">
-                                    <div class="users-user-avatar">{{ user.username|first|upper }}</div>
+                                    <div class="users-user-avatar">
+                                        {% if user.profile.profile_image %}
+                                            <img src="{{ user.profile.profile_image.url }}" alt="{{ user.username }}" class="users-avatar-img">
+                                        {% else %}
+                                            <span class="users-avatar-initials">{{ user.username|first|upper }}</span>
+                                        {% endif %}
+                                    </div>
                                     <div class="users-user-details">
                                         <div class="users-user-name">{{ user.first_name }} {{ user.last_name }}</div>
                                         <div class="users-user-username">
@@ -238,30 +238,26 @@
                                     {% endif %}
                                 </div>
                             </td>
-
-
-
-<td>
-        <form method="post" action="{% url 'change_user_role' user.id %}">
-            {% csrf_token %}
-<select name="role" onchange="this.form.submit()" {% if not user.can_manage %}disabled{% endif %}>
-    <option value="normal" {% if user.role == 'normal' %}selected{% endif %}>Normal</option>
-    <option value="editor" {% if user.role == 'editor' %}selected{% endif %}>Editor</option>
-    <option value="manager" {% if user.role == 'manager' %}selected{% endif %}>Manager</option>
-    <option value="superuser" {% if user.role == 'superuser' %}selected{% endif %}>Superuser</option>
-</select>
-
-        </form>
-    </td>
-    <td>
-        <form method="post" action="{% url 'toggle_ban_user' user.id %}">
-            {% csrf_token %}
-<button type="submit" class="btn {% if user.is_active %}btn-danger{% else %}btn-success{% endif %} btn-sm"
-        {% if not user.can_ban %}disabled{% endif %}>
-    {% if user.is_active %}Ban{% else %}Unban{% endif %}
-</button>
-        </form>
-    </td>
+                            <td>
+                                <form method="post" action="{% url 'change_user_role' user.id %}">
+                                    {% csrf_token %}
+                                    <select name="role" onchange="this.form.submit()" {% if not user.can_manage %}disabled{% endif %}>
+                                        <option value="normal" {% if user.role == 'normal' %}selected{% endif %}>Normal</option>
+                                        <option value="editor" {% if user.role == 'editor' %}selected{% endif %}>Editor</option>
+                                        <option value="manager" {% if user.role == 'manager' %}selected{% endif %}>Manager</option>
+                                        <option value="superuser" {% if user.role == 'superuser' %}selected{% endif %}>Superuser</option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'toggle_ban_user' user.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn {% if user.is_active %}btn-danger{% else %}btn-success{% endif %} btn-sm"
+                                            {% if not user.can_ban %}disabled{% endif %}>
+                                        {% if user.is_active %}Ban{% else %}Unban{% endif %}
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -765,7 +761,7 @@
     color: var(--users-text-secondary);
 }
 
-/* User Cell */
+/* User Cell - UPDATED WITH IMAGE SUPPORT */
 .users-user-cell {
     display: flex;
     align-items: center;
@@ -784,6 +780,22 @@
     font-weight: 600;
     font-size: 14px;
     flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.users-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.users-avatar-initials {
+    position: relative;
+    z-index: 1;
 }
 
 .users-user-details {

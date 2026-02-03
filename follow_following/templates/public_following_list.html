@@ -38,9 +38,20 @@
             {% for item in following %}
                 <div class="pub-following-card">
                     <div class="pub-following-info">
-                        <div class="pub-following-avatar">
+                        <!-- <div class="pub-following-avatar">
                             <i class="fas fa-user"></i>
-                        </div>
+                        </div> -->
+                        <div class="dash-avatar-large">
+    {% if item.following.profile.profile_image %}
+        <img src="{{ item.following.profile.profile_image.url }}"
+             alt="{{ item.following.username }}"
+             class="dash-avatar-img">
+    {% else %}
+        <span class="dash-avatar-initials">
+            {{ item.following.username|first|upper }}
+        </span>
+    {% endif %}
+</div>
                         <a href="{% url 'profile' item.following.username %}" class="pub-following-name">
                             {{ item.following.username }}
                         </a>
@@ -439,4 +450,44 @@
         right: 90px;
     }
 }
+
+/* Footer Avatar Wrapper */
+.dash-avatar-large {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a73e8, #667eea);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Profile Image */
+.dash-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+/* Initials fallback */
+.dash-avatar-initials {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    user-select: none;
+}
+
+/* Hover effect (nice for footer) */
+.dash-avatar-large:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+
 </style>

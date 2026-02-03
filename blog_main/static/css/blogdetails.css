@@ -1474,3 +1474,34 @@
 .bd-show-more-btn {
     margin-left: 0.5rem;
 }
+/* Tiny avatar container */
+.dash-avatar-tiny {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px;
+    min-height: 18px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+}
+
+/* Image inside */
+.dash-avatar-tiny img,
+.dash-avatar-tiny .dash-avatar-img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+/* Initial fallback */
+.dash-avatar-tiny .dash-avatar-initials {
+    font-size: 9px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+}

@@ -27,11 +27,72 @@
 
         <!-- Form Card -->
         <div class="form-card">
-            <form method="POST" action="{% url 'edit_profile' %}" class="form-content">
+            <form method="POST" action="{% url 'edit_profile' %}" enctype="multipart/form-data" class="form-content">
                 {% csrf_token %}
                 
+                <!-- Profile Image Upload Section -->
+                <div class="profile-image-section">
+                    <div class="profile-image-container">
+                        <div class="profile-image-wrapper">
+                            <img id="profilePreview" 
+                                 src="{% if user.profile.profile_image %}{{ user.profile.profile_image.url }}{% else %}https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username|urlencode }}&size=200&background=1a73e8&color=fff{% endif %}" 
+                                 alt="Profile Picture"
+                                 class="profile-image-preview">
+                            <div class="profile-image-overlay">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke-width="2"/>
+                                    <circle cx="12" cy="13" r="4" stroke-width="2"/>
+                                </svg>
+                                <span>Change Photo</span>
+                            </div>
+                            <input type="file" 
+                                   name="profile_image" 
+                                   id="profileImageInput" 
+                                   accept="image/*" 
+                                   style="display: none;">
+                        </div>
+                        {% if user.profile.profile_image %}
+                        <button type="button" id="removeImageBtn" class="remove-image-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                                <path d="M15 9l-6 6M9 9l6 6" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            Remove Photo
+                        </button>
+                        {% endif %}
+                    </div>
+                    <div class="profile-image-info">
+                        <h3>Profile Picture</h3>
+                        <p>Click on the image to upload a new photo</p>
+                        <ul>
+                            <li>Recommended: Square image, at least 200x200px</li>
+                            <li>Max file size: 5MB</li>
+                            <li>Formats: JPG, PNG, GIF</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="form-divider"></div>
+                
                 <div class="form-fields">
-                    {{ form.as_p }}
+                    {% for field in form %}
+                        {% if field.name != 'profile_image' %}
+                            <p>
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <span class="helptext">{{ field.help_text }}</span>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <ul class="errorlist">
+                                        {% for error in field.errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </p>
+                        {% endif %}
+                    {% endfor %}
                 </div>
                 
                 <div class="form-actions">
@@ -172,6 +233,142 @@
     max-width: 600px;
 }
 
+/* Profile Image Section */
+.profile-image-section {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 32px;
+    margin-bottom: 32px;
+    align-items: start;
+}
+
+.profile-image-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.profile-image-wrapper {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    cursor: pointer;
+    border-radius: 50%;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.profile-image-wrapper:hover {
+    transform: scale(1.05);
+}
+
+.profile-image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border: 4px solid var(--form-border);
+    border-radius: 50%;
+}
+
+.profile-image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    color: white;
+    border-radius: 50%;
+}
+
+.profile-image-wrapper:hover .profile-image-overlay {
+    opacity: 1;
+}
+
+.profile-image-overlay svg {
+    width: 32px;
+    height: 32px;
+}
+
+.profile-image-overlay span {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.remove-image-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid var(--form-danger);
+    color: var(--form-danger);
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.remove-image-btn:hover {
+    background: var(--form-danger);
+    color: white;
+}
+
+.remove-image-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.profile-image-info h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--form-text);
+    margin: 0 0 8px 0;
+}
+
+.profile-image-info p {
+    font-size: 14px;
+    color: var(--form-text-secondary);
+    margin: 0 0 12px 0;
+}
+
+.profile-image-info ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.profile-image-info ul li {
+    font-size: 12px;
+    color: var(--form-text-secondary);
+    margin-bottom: 4px;
+    padding-left: 16px;
+    position: relative;
+}
+
+.profile-image-info ul li:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--form-primary);
+}
+
+.form-divider {
+    height: 1px;
+    background: var(--form-border);
+    margin: 32px 0;
+}
+
 .form-fields {
     margin-bottom: 24px;
 }
@@ -196,6 +393,7 @@
 .form-fields input[type="url"],
 .form-fields input[type="date"],
 .form-fields input[type="time"],
+.form-fields input[type="tel"],
 .form-fields textarea,
 .form-fields select {
     width: 100%;
@@ -325,6 +523,15 @@
         font-size: 24px;
     }
 
+    .profile-image-section {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .profile-image-container {
+        justify-content: center;
+    }
+
     .form-actions {
         flex-direction: column;
     }
@@ -340,6 +547,78 @@
 (function() {
     'use strict';
     
+    // ==================== Image Upload Preview ====================
+    const imageInput = document.getElementById('profileImageInput');
+    const imagePreview = document.getElementById('profilePreview');
+    const imageWrapper = document.querySelector('.profile-image-wrapper');
+    const removeBtn = document.getElementById('removeImageBtn');
+    
+    // Click on wrapper to trigger file input
+    if (imageWrapper && imageInput) {
+        imageWrapper.addEventListener('click', function() {
+            imageInput.click();
+        });
+    }
+    
+    // Preview selected image
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file size (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5MB');
+                    imageInput.value = '';
+                    return;
+                }
+                
+                // Validate file type
+                if (!file.type.match('image.*')) {
+                    alert('Please select an image file');
+                    imageInput.value = '';
+                    return;
+                }
+                
+                // Preview image
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Remove image button
+    if (removeBtn) {
+        removeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (confirm('Are you sure you want to remove your profile picture?')) {
+                // Create a form to submit the removal
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{% url "edit_profile" %}';
+                
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = csrfToken;
+                
+                const removeInput = document.createElement('input');
+                removeInput.type = 'hidden';
+                removeInput.name = 'remove_image';
+                removeInput.value = 'true';
+                
+                form.appendChild(csrfInput);
+                form.appendChild(removeInput);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    }
+    
+    // ==================== Sidebar Handling ====================
     const formWrapper = document.getElementById('formPageWrapper');
     const sidebar = document.getElementById('dashSidebar');
     

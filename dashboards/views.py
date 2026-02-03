@@ -765,10 +765,7 @@ def profile(request):
     return render(request, 'profile.html', context)
 
 
-
-
-
-
+@login_required
 def edit_profile(request):
     """
     Edit logged-in user's profile
@@ -776,7 +773,15 @@ def edit_profile(request):
     user = request.user
 
     if request.method == 'POST':
-        form = ProfileEditForm(request.POST, instance=user)
+        # Check if user wants to remove image
+        if request.POST.get('remove_image') == 'true':
+            if hasattr(user, 'profile') and user.profile.profile_image:
+                user.profile.profile_image.delete()
+                user.profile.save()
+                messages.success(request, "✅ Profile picture removed successfully.")
+            return redirect('edit_profile')
+        
+        form = ProfileEditForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
             messages.success(request, "✅ Your profile has been updated successfully.")
