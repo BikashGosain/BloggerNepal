@@ -149,7 +149,7 @@
                                     <div class="users-user-details">
                                         <div class="users-user-name">{{ user.first_name }} {{ user.last_name }}</div>
                                         <div class="users-user-username">
-                                            <a href="#" class="users-username-link">@{{ user.username }}</a>
+                                            <a href="{% url 'profile' user.username %}" class="users-username-link">@{{ user.username }}</a>
                                         </div>
                                     </div>
                                 </div>

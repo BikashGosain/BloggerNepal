@@ -402,33 +402,6 @@ def delete_post(request, pk):
 #     }
 #     return render(request, 'users.html', context)
 
-# Django shortcuts & utilities
-from django.shortcuts import get_object_or_404, render, redirect
-from django.urls import reverse
-from django.contrib import messages
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import permission_required, login_required
-from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseBadRequest, JsonResponse
-from django.core.paginator import Paginator
-from django.template.defaultfilters import slugify
-
-# Django ORM & utilities
-from django.db.models import Q, Count, When, Case
-from django.db.models.functions import ExtractMonth
-
-# Python standard library
-from calendar import month_name
-
-# Third-party editors
-from ckeditor_uploader.widgets import CKEditorUploadingWidget
-
-# Local apps & utilities
-from blogs.models import Blog, Category, Notification
-from .forms import BlogPostForm, CategoryForm, AddUserForm, EditUserForm, ProfileEditForm
-from .utils import dashboard_header_context
-from follow_following.models import Follow
-
 
 def users(request):
     """
