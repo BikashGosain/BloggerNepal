@@ -331,16 +331,16 @@
                                     {% endif %}
                                     
                                     {% if user.can_delete %}
-                                    <form method="post" action="{% url 'delete_user' user.id %}" style="display: inline;">
-                                        {% csrf_token %}
-                                        <button type="submit" class="users-action-btn users-action-delete" title="Delete User"
-                                                onclick="return confirm('Are you sure you want to delete user \"{{ user.username }}\"? This action cannot be undone.');">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke-width="2"/>
-                                                <path d="M10 11v6M14 11v6" stroke-width="2"/>
-                                            </svg>
-                                        </button>
-                                    </form>
+                                    <form method="post" action="{% url 'delete_user' user.id %}" style="display: inline;"
+      data-confirm="Are you sure you want to delete user &quot;{{ user.username|escapejs }}&quot;? This action cannot be undone.">
+    {% csrf_token %}
+    <button type="submit" class="users-action-btn users-action-delete" title="Delete User">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke-width="2"/>
+            <path d="M10 11v6M14 11v6" stroke-width="2"/>
+        </svg>
+    </button>
+</form>
                                     {% else %}
                                     <button class="users-action-btn users-action-disabled" disabled title="Cannot Delete">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -1607,6 +1607,13 @@
 <script>
 (function() {
     'use strict';
+    document.querySelectorAll('form[data-confirm]').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            if (!confirm(form.getAttribute('data-confirm'))) {
+                e.preventDefault();
+            }
+        });
+    });
     
     const usersWrapper = document.getElementById('usersPageWrapper');
     const sidebar = document.getElementById('dashSidebar');
