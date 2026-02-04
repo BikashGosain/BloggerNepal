@@ -1,179 +1,730 @@
 {% load static %}
+
 {% block extra_css %}
-<link href="{% static 'css/headers.css' %}" rel="stylesheet">
 {% endblock %}
 
-<!-- DESKTOP HEADER -->
-<header class="desktop-header">
-    <div class="logo">
-        <a href="{% url 'home' %}">BlogNova</a>
-    </div>
+<!-- Modern Chrome-Inspired Home Header -->
+<div class="home-container">
+    <!-- Top Header Bar -->
+    <header class="home-header">
+        <div class="home-header-left">
+            <div class="home-logo">
+                <svg class="home-logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" stroke-width="2" />
+                </svg>
+                <a href="{% url 'home' %}" class="home-logo-link">
+                    <span class="home-logo-text">BlogNova</span>
+                </a>
+            </div>
+        </div>
 
-    <div class="search">
-        <form method="GET" action="{% url 'search' %}">
-            <input type="text" name="keyword" placeholder="Search..." value="{{ keyword }}">
-            <button type="submit">Search</button>
-        </form>
-    </div>
+        <div class="home-header-center">
+            <div class="home-search-wrapper">
+                <form method="GET" action="{% url 'search' %}" class="home-search-form">
+                    <input type="text" name="keyword" class="home-search-input" placeholder="Search posts, users, categories..." value="{{ keyword }}">
+                    <button type="submit" class="home-search-btn" title="Search">&#128269;</button>
+                    <button type="button" class="home-search-clear" title="Clear">&times;</button>
+                </form>
+            </div>
+        </div>
 
-    <div class="auth">
-        {% if not user.is_authenticated %}
-            <a href="{% url 'login' %}">Login</a>
-            <a href="{% url 'register' %}">Register</a>
-        {% else %}
-            <a href="{% url 'notifications' %}">
-                Notifications
-                {% if unread_count > 0 %}<span>{{ unread_count }}</span>{% endif %}
-            </a>
-            <a href="{% url 'dashboard' %}">Dashboard</a>
-            <a href="{% url 'logout' %}" onclick="return confirm('Are you sure you want to logout?');">Logout</a>
-        {% endif %}
-    </div>
-</header>
+        <div class="home-header-right">
+            {% if user.is_authenticated %}
+                <a href="{% url 'posts' %}" class="home-icon-btn home-create-btn" title="Create Post">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M12 5v14M5 12h14" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </a>
+                
+                <a href="{% url 'notifications' %}" class="home-icon-btn home-notification-btn" title="Notifications">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" stroke-width="2"/>
+                    </svg>
+                    {% if unread_count > 0 %}
+                    <span class="home-notification-badge">{{ unread_count }}</span>
+                    {% endif %}
+                </a>
 
-<!-- MOBILE HEADER -->
-<header class="mobile-header">
-    <div class="mobile-top">
-        <a href="/" class="logo">BlogNova</a>
-        <button id="menu-btn">☰</button>
-    </div>
+                <a href="{% url 'dashboard' %}" class="home-dropdown-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" stroke-width="2"/>
+                        <path d="M9 22V12h6v10" stroke-width="2"/>
+                    </svg>
+                </a>
 
-    <div class="mobile-menu" id="mobile-menu">
-        <form method="GET" action="{% url 'search' %}">
-            <input type="text" name="keyword" placeholder="Search..." value="{{ keyword }}">
-            <button type="submit">🔍</button>
-        </form>
+                <div class="home-user-menu">
+                    <button class="home-user-btn" id="homeUserBtn">
+                        <div class="home-avatar">
+                            {% if request.user.profile.profile_image %}
+                                <img src="{{ request.user.profile.profile_image.url }}" alt="{{ request.user.username }}" class="home-avatar-img">
+                            {% else %}
+                                <span class="home-avatar-initials">{{ request.user.username|first|upper }}</span>
+                            {% endif %}
+                        </div>
+                        <span class="home-username">{{ request.user.username }}</span>
+                        <svg class="home-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <div class="home-user-dropdown" id="homeUserDropdown">
+                        <div class="home-dropdown-header">
+                            <div class="home-avatar-large">
+                                {% if request.user.profile.profile_image %}
+                                    <img src="{{ request.user.profile.profile_image.url }}" alt="{{ request.user.username }}" class="home-avatar-img">
+                                {% else %}
+                                    <span class="home-avatar-initials">{{ request.user.username|first|upper }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="home-user-info">
+                                <div class="home-user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+                                <div class="home-user-email">{{ request.user.email }}</div>
+                                {% if request.user.profile.contact %}
+                                    <div class="home-user-email">{{ request.user.profile.contact }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="home-dropdown-divider"></div>
+                        <a href="{% url 'profile' %}" class="home-dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke-width="2"/>
+                            </svg>
+                            <span>Profile</span>
+                        </a>
+                        <a href="{% url 'dashboard' %}" class="home-dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" stroke-width="2"/>
+                                <path d="M9 22V12h6v10" stroke-width="2"/>
+                            </svg>
+                            <span>Dashboard</span>
+                        </a>
+                        <a href="{% url 'notifications' %}" class="home-dropdown-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke-width="2"/>
+                            </svg>
+                            <span>Notifications</span>
+                            {% if unread_count > 0 %}
+                                <span class="home-badge">{{ unread_count }}</span>
+                            {% endif %}
+                        </a>
+                        <div class="home-dropdown-divider"></div>
+                        <a href="{% url 'logout' %}" class="home-dropdown-item home-logout" onclick="return confirm('Are you sure you want to logout?');">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke-width="2"/>
+                            </svg>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'login' %}" class="home-auth-btn">Login</a>
+                <a href="{% url 'register' %}" class="home-auth-btn home-auth-btn-primary">Register</a>
+            {% endif %}
+        </div>
+    </header>
 
-        <nav>
-            <a href="{% url 'home' %}" class="nav-link">Home</a>
-            <a href="{% url 'randomblogs' %}" class="nav-link">Blogs</a>
-            <a href="{% url 'latestpost' %}" class="nav-link">Latest</a>
-            <a href="{% url 'popularpost' %}" class="nav-link">Popular</a>
-            <a href="{% url 'category' %}" class="nav-link">Categories</a>
-            <a href="{% url 'about_us' %}" class="nav-link">About</a>
-            <a href="{% url 'contact' %}" class="nav-link">Contact</a>
+    <!-- Category Navigation -->
+    <nav class="home-category-nav">
+        <a href="{% url 'home' %}" class="home-nav-link">Home</a>
+        <a href="{% url 'randomblogs' %}" class="home-nav-link">Blogs</a>
+        <a href="{% url 'latestpost' %}" class="home-nav-link">Latest</a>
+        <a href="{% url 'popularpost' %}" class="home-nav-link">Popular</a>
+        <a href="{% url 'category' %}" class="home-nav-link">Categories</a>
+        <a href="{% url 'about_us' %}" class="home-nav-link">About</a>
+        <a href="{% url 'contact' %}" class="home-nav-link">Contact</a>
 
-            <details>
-                <summary>Social Links ▼</summary>
+        <div class="home-nav-dropdown">
+            <button type="button" class="home-nav-dropdown-btn">
+                Social Links 
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="home-nav-dropdown-menu">
                 {% for social_link in social_links %}
                     <a href="{{ social_link.link }}" target="_blank">{{ social_link.platform }}</a>
                 {% endfor %}
-            </details>
-        </nav>
-
-        <div class="auth">
-            {% if not user.is_authenticated %}
-                <a href="{% url 'login' %}">Login</a>
-                <a href="{% url 'register' %}">Register</a>
-            {% else %}
-                <a href="{% url 'notifications' %}">
-                    Notifications {% if unread_count > 0 %}({{ unread_count }}){% endif %}
-                </a>
-                <a href="{% url 'dashboard' %}">Dashboard</a>
-                <a href="{% url 'logout' %}" onclick="return confirm('Are you sure you want to logout?');">Logout</a>
-            {% endif %}
+            </div>
         </div>
-    </div>
-</header>
+    </nav>
+</div>
 
-<!-- CATEGORY NAV (Desktop) -->
-<nav class="category-nav">
-    <a href="{% url 'home' %}" class="nav-link">Home</a>
-    <a href="{% url 'randomblogs' %}" class="nav-link">Blogs</a>
-    <a href="{% url 'latestpost' %}" class="nav-link">Latest</a>
-    <a href="{% url 'popularpost' %}" class="nav-link">Popular</a>
-    <a href="{% url 'category' %}" class="nav-link">Categories</a>
-    <a href="{% url 'about_us' %}" class="nav-link">About</a>
-    <a href="{% url 'contact' %}" class="nav-link">Contact</a>
-
-    <div class="nav-dropdown">
-        <button type="button" class="nav-dropdown-btn">Social Links ▼</button>
-        <div class="nav-dropdown-menu">
-            {% for social_link in social_links %}
-                <a href="{{ social_link.link }}" target="_blank">{{ social_link.platform }}</a>
-            {% endfor %}
-        </div>
-    </div>
-</nav>
-
-<!-- Hamburger Icon Styles -->
 <style>
-.header-sidebar-toggle {
+/* Home Header Specific Styles */
+.home-container {
+    --home-primary: #1a73e8;
+    --home-primary-hover: #1557b0;
+    --home-secondary: #5f6368;
+    --home-success: #1e8e3e;
+    --home-danger: #d93025;
+    --home-bg: #ffffff;
+    --home-bg-secondary: #f8f9fa;
+    --home-border: #e0e0e0;
+    --home-text: #202124;
+    --home-text-secondary: #5f6368;
+    --home-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+    --home-shadow-lg: 0 4px 6px -1px rgba(60,64,67,0.1), 0 2px 4px -1px rgba(60,64,67,0.06);
+    --home-header-height: 64px;
+    --home-nav-height: 48px;
+    --home-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+    .home-container {
+        --home-bg: #1f1f1f;
+        --home-bg-secondary: #2d2d2d;
+        --home-border: #3c4043;
+        --home-text: #e8eaed;
+        --home-text-secondary: #9aa0a6;
+    }
+}
+
+/* Header Styles */
+.home-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--home-header-height);
+    background: var(--home-bg);
+    border-bottom: 1px solid var(--home-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 1000;
+    box-shadow: var(--home-shadow);
+}
+
+.home-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 0 0 auto;
+}
+
+.home-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 20px;
+    color: var(--home-text);
+}
+
+.home-logo-icon {
+    width: 32px;
+    height: 32px;
+    color: var(--home-primary);
+}
+
+.home-logo-text {
+    font-weight: 600;
+}
+
+.home-logo-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* Header Center - Search */
+.home-header-center {
+    flex: 1;
+    max-width: 720px;
+    margin: 0 24px;
+}
+
+.home-search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--home-bg-secondary);
+    border-radius: 24px;
+    padding: 0 16px;
+    height: 44px;
+    transition: var(--home-transition);
+}
+
+.home-search-wrapper:focus-within {
+    background: var(--home-bg);
+    box-shadow: var(--home-shadow-lg);
+}
+
+.home-search-form {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.home-search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    padding: 0 12px;
+    font-size: 14px;
+    color: var(--home-text);
+}
+
+/* Search & Clear Buttons */
+.home-search-btn, .home-search-clear {
     background: transparent;
     border: none;
     cursor: pointer;
-    padding: 8px;
-    display: inline-flex;
-    flex-direction: column;
-    gap: 4px;
+    font-size: 16px;
+    padding: 4px 6px;
+    color: var(--home-text-secondary);
+    transition: var(--home-transition);
+}
+
+.home-search-btn:hover, .home-search-clear:hover {
+    color: var(--home-primary);
+}
+
+.home-search-clear {
+    margin-left: 4px;
+}
+
+/* Header Right */
+.home-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.home-icon-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 15px;
-    transition: all 0.2s ease;
+    position: relative;
+    transition: var(--home-transition);
+    text-decoration: none;
 }
 
-.header-sidebar-toggle:hover {
-    opacity: 0.7;
+.home-icon-btn:hover {
+    background: var(--home-bg-secondary);
 }
 
-.header-hamburger-line {
-    width: 22px;
-    height: 2px;
-    background: currentColor;
-    border-radius: 2px;
-    transition: all 0.3s ease;
+.home-icon-btn svg {
+    width: 20px;
+    height: 20px;
+    color: var(--home-text-secondary);
 }
 
-/* Desktop header */
-.desktop-header .logo {
+.home-create-btn svg {
+    color: var(--home-primary);
+}
+
+.home-notification-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--home-danger);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 5px;
+    border-radius: 10px;
+    min-width: 16px;
+    text-align: center;
+}
+
+/* Auth Buttons */
+.home-auth-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: var(--home-transition);
+    color: var(--home-primary);
+    border: 1px solid var(--home-border);
+    background: transparent;
+}
+
+.home-auth-btn:hover {
+    background: var(--home-bg-secondary);
+}
+
+.home-auth-btn-primary {
+    background: var(--home-primary);
+    color: white;
+    border-color: var(--home-primary);
+}
+
+.home-auth-btn-primary:hover {
+    background: var(--home-primary-hover);
+}
+
+/* User Menu */
+.home-user-menu {
+    position: relative;
+}
+
+.home-user-btn {
     display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px 6px 6px;
+    border: none;
+    background: transparent;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: var(--home-transition);
+}
+
+.home-user-btn:hover {
+    background: var(--home-bg-secondary);
+}
+
+.home-avatar,
+.home-avatar-large {
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--home-primary), #667eea);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.home-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+}
+
+.home-avatar-large {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+}
+
+.home-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.home-avatar-initials {
+    position: relative;
+    z-index: 1;
+}
+
+.home-username {
+    font-size: 14px;
+    color: var(--home-text);
+    font-weight: 500;
+}
+
+.home-chevron {
+    width: 16px;
+    height: 16px;
+    color: var(--home-text-secondary);
+    transition: var(--home-transition);
+}
+
+.home-user-menu.home-open .home-chevron {
+    transform: rotate(180deg);
+}
+
+.home-user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: var(--home-bg);
+    border: 1px solid var(--home-border);
+    border-radius: 12px;
+    box-shadow: var(--home-shadow-lg);
+    min-width: 280px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: var(--home-transition);
+}
+
+.home-user-menu.home-open .home-user-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.home-dropdown-header {
+    padding: 16px;
+    display: flex;
+    gap: 12px;
     align-items: center;
 }
 
-.desktop-header .header-sidebar-toggle {
-    color: #fff;
+.home-user-info {
+    flex: 1;
 }
 
-/* Mobile header */
-.mobile-header .mobile-top {
+.home-user-name {
+    font-weight: 600;
+    color: var(--home-text);
+    font-size: 14px;
+}
+
+.home-user-email {
+    font-size: 12px;
+    color: var(--home-text-secondary);
+    margin-top: 2px;
+}
+
+.home-dropdown-divider {
+    height: 1px;
+    background: var(--home-border);
+    margin: 8px 0;
+}
+
+.home-dropdown-item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    padding: 12px 16px;
+    color: var(--home-text);
+    text-decoration: none;
+    transition: var(--home-transition);
 }
 
-.mobile-header .header-sidebar-toggle {
-    color: #333;
-    order: -1;
+.home-dropdown-item:hover {
+    background: var(--home-bg-secondary);
 }
+
+.home-dropdown-item svg {
+    width: 18px;
+    height: 18px;
+    color: var(--home-text-secondary);
+}
+
+.home-dropdown-item span {
+    flex: 1;
+}
+
+.home-dropdown-item.home-logout {
+    color: var(--home-danger);
+}
+
+.home-dropdown-item.home-logout svg {
+    color: var(--home-danger);
+}
+
+.home-badge {
+    background: var(--home-danger);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Category Navigation */
+.home-category-nav {
+    position: fixed;
+    top: var(--home-header-height);
+    left: 0;
+    right: 0;
+    height: var(--home-nav-height);
+    background: var(--home-bg);
+    border-bottom: 1px solid var(--home-border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 24px;
+    z-index: 999;
+    overflow-x: auto;
+}
+
+.home-nav-link {
+    padding: 8px 16px;
+    border-radius: 8px;
+    color: var(--home-text);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: var(--home-transition);
+}
+
+.home-nav-link:hover {
+    background: var(--home-bg-secondary);
+}
+
+.home-nav-dropdown {
+    position: relative;
+    margin-left: auto;
+}
+
+.home-nav-dropdown-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--home-text);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--home-transition);
+}
+
+.home-nav-dropdown-btn:hover {
+    background: var(--home-bg-secondary);
+}
+
+.home-nav-dropdown-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.home-nav-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: var(--home-bg);
+    border: 1px solid var(--home-border);
+    border-radius: 8px;
+    box-shadow: var(--home-shadow-lg);
+    min-width: 180px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: var(--home-transition);
+}
+
+.home-nav-dropdown.home-open .home-nav-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.home-nav-dropdown-menu a {
+    display: block;
+    padding: 10px 16px;
+    color: var(--home-text);
+    text-decoration: none;
+    font-size: 14px;
+    transition: var(--home-transition);
+}
+
+.home-nav-dropdown-menu a:hover {
+    background: var(--home-bg-secondary);
+}
+
+/* Add top padding to body to account for fixed headers */
+body {
+    padding-top: calc(var(--home-header-height) + var(--home-nav-height));
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .home-header-center {
+        margin: 0 12px;
+    }
+
+    .home-username {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .home-category-nav {
+        padding: 0 12px;
+        gap: 4px;
+    }
+
+    .home-nav-link {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+
+    .home-search-clear {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .home-header {
+        padding: 0 12px;
+    }
+
+    .home-logo-text {
+        font-size: 18px;
+    }
+
+    .home-header-center {
+        display: none;
+    }
+}
+
 </style>
 
-<!-- JavaScript to connect header hamburger with sidebar -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const headerToggles = document.querySelectorAll('.header-sidebar-toggle');
-    const sidebarWrapper = document.querySelector('.gmail-sidebar-wrapper');
-    
-    if (headerToggles.length > 0 && sidebarWrapper) {
-        headerToggles.forEach(function(toggle) {
-            toggle.addEventListener('click', function(e) {
-                e.stopPropagation();
-                
-                // Toggle sidebar
-                if (sidebarWrapper.classList.contains('is-open')) {
-                    sidebarWrapper.classList.remove('is-open');
-                    document.body.style.overflow = '';
-                } else {
-                    sidebarWrapper.classList.add('is-open');
-                    if (window.innerWidth < 1198) {
-                        document.body.style.overflow = 'hidden';
-                    }
-                }
-            });
+// COMPLETE JS
+(function() {
+    'use strict';
+
+    // User Dropdown
+    const homeUserBtn = document.getElementById('homeUserBtn');
+    const homeUserMenu = homeUserBtn?.closest('.home-user-menu');
+
+    if (homeUserBtn && homeUserMenu) {
+        homeUserBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            homeUserMenu.classList.toggle('home-open');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!homeUserMenu.contains(e.target)) {
+                homeUserMenu.classList.remove('home-open');
+            }
         });
     }
-});
+
+    // Social Links Dropdown
+    const navDropdownBtn = document.querySelector('.home-nav-dropdown-btn');
+    const navDropdown = navDropdownBtn?.closest('.home-nav-dropdown');
+
+    if (navDropdownBtn && navDropdown) {
+        navDropdownBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            navDropdown.classList.toggle('home-open');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!navDropdown.contains(e.target)) {
+                navDropdown.classList.remove('home-open');
+            }
+        });
+    }
+
+    // Search Clear Button
+    const clearBtn = document.querySelector('.home-search-clear');
+    const searchInput = document.querySelector('.home-search-input');
+    if (clearBtn && searchInput) {
+        clearBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            searchInput.focus();
+        });
+    }
+})();
 </script>
 
 {% block extra_js %}
-<script src="{% static 'js/headers.js' %}"></script>
 {% endblock %}
