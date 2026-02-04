@@ -149,7 +149,14 @@
                                 <span class="categories-blog-count">{{ cat.blog_count }}</span>
                             </td>
                             <td class="categories-td categories-td-author">
-                                <span class="categories-author-text">{{ cat.author }}</span>
+                                {% if cat.author %}
+    <span class="categories-author-text"><a href="{% url 'profile' cat.author.username %}" class="categories-author-text">
+        {{ cat.author }}
+    </a>
+{% else %}
+    <span class="categories-author-text">Deleted User</span>
+{% endif %}
+
                             </td>
                             <td class="categories-td categories-td-created">
                                 <span class="categories-date-text">{{ cat.created_at|date:"M d, Y" }}</span>

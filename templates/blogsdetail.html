@@ -39,9 +39,15 @@
                         </span>
                         
                         <span class="bd-meta-item">
+                            {% if single_blog.author %}
                             <a href="{% url 'profile' single_blog.author.username %}" class="bd-author-link">
                                 <i class="far fa-user"></i> {{ single_blog.author.username }}
                             </a>
+                            {% else %}
+                            <span class="bd-author-link">
+                                <i class="far fa-user"></i> Deleted User
+                            </span>
+                        {% endif %}
                         </span>
                         <span class="bd-meta-item">
                             <i class="far fa-eye"></i> {{ single_blog.views|default:0 }} views

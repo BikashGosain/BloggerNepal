@@ -59,10 +59,18 @@ Requires:
                 </p>
 
                 <div class="rbl-meta">
-                    <a href="{% url 'profile' blog.author.username %}" class="rbl-author">
+
+{% if blog.author %}
+    <a href="{% url 'profile' blog.author.username %}" class="rbl-author">
                         <i class="far fa-user"></i>
                         <span>{{ blog.author.username }}</span>
                     </a>
+{% else %}
+<i class="far fa-user"></i>
+    <span class="rbl-author">Deleted User</span>
+{% endif %}
+                   
+                   
                     <span class="rbl-meta-divider">•</span>
                     <span class="rbl-time">
                         <i class="far fa-clock"></i>

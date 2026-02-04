@@ -204,7 +204,15 @@
                                 <span class="posts-category-badge">{{ post.category }}</span>
                             </td>
                             <td class="posts-td posts-td-author">
-                                <span class="posts-author-text">{{ post.author }}</span>
+                                
+                                {% if post.author %}
+    <span class="posts-author-text"><a href="{% url 'profile' post.author.username %}">
+        {{ post.author }}
+    </a>
+{% else %}
+    <span class="posts-author-text">Deleted User</span>
+{% endif %}
+
                             </td>
                             <td class="posts-td posts-td-status">
                                 {% if post.status == "Published" %}

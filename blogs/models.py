@@ -33,7 +33,8 @@ class Blog(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='blog')
-    author = models.ForeignKey(User, on_delete=models.CASCADE) # on delete user all posts related user will be deleted
+    # author = models.ForeignKey(User, on_delete=models.CASCADE) # on delete user all posts related user will be deleted
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     featured_image = models.ImageField(upload_to='uploads/%Y/%m/%d/', blank=False, null=False)
     short_description = models.TextField(max_length=200)
     # blog_body = models.TextField(max_length=5000)
