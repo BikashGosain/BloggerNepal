@@ -464,10 +464,7 @@ def users(request):
     # ---------------------------
     # 5. Prefetch related data for efficiency
     # ---------------------------
-    users = users.prefetch_related('groups')
-
-
-
+    users = users.prefetch_related('groups', 'profile')
 
     # ---------------------------
     # 6. Pagination
@@ -476,11 +473,11 @@ def users(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-
     for u in page_obj.object_list:
-        # Default: cannot manage/ban
+        # Default: cannot manage/ban/delete
         u.can_manage = False
         u.can_ban = False
+        u.can_delete = False
 
         # Annotate role for template
         if u.is_superuser:
@@ -488,23 +485,23 @@ def users(request):
         elif u.groups.filter(name='Manager').exists():
             u.role = 'manager'
         elif u.groups.filter(name='Editor').exists():
-            # u.role = 'editor'
-            u.role = 'normal'
+            u.role = 'editor'
         else:
             u.role = 'normal'
 
         # Permissions
         if request.user.is_superuser:
-            # Superuser can manage anyone except self
+            # Superuser can manage/ban/delete anyone except self
             if u.pk != request.user.pk:
                 u.can_manage = True
                 u.can_ban = True
+                u.can_delete = True
         elif request.user.groups.filter(name='Manager').exists():
-            # Manager can manage only Editors/Normal users
+            # Manager can manage/ban/delete only Editors/Normal users
             if u.role in ['editor', 'normal']:
                 u.can_manage = True
                 u.can_ban = True
-
+                u.can_delete = True
 
     context = {
         'users': page_obj,
@@ -529,6 +526,12 @@ def add_user(request):
         form = AddUserForm(request.POST, request_user=request.user)
         if form.is_valid():
             user = form.save()
+            
+            # Set the creator in the profile
+            if hasattr(user, 'profile'):
+                user.profile.created_by = request.user
+                user.profile.save()
+            
             messages.success(request, f'User "{user.username}" added successfully ✅')
             return redirect('users')
     else:
@@ -554,10 +557,11 @@ def edit_user(request, pk):
         messages.warning(request, "The user you are trying to edit does not exist.")
         return redirect('users')
     
-    # Block managers from editing superusers
-    if not request.user.is_superuser and user.is_superuser:
-        messages.warning(request, "You do not have permission to edit this user.")
-        return redirect('users')
+    # Block managers from editing superusers and other managers
+    if not request.user.is_superuser:
+        if user.is_superuser or user.groups.filter(name='Manager').exists():
+            messages.warning(request, "You do not have permission to edit this user.")
+            return redirect('users')
 
     if request.method == 'POST':
         form = EditUserForm(request.POST, instance=user, request_user=request.user)
@@ -575,27 +579,57 @@ def edit_user(request, pk):
     return render(request, 'edit_user.html', context)
 
 
-@permission_required('auth.delete_user', raise_exception=True)
 def delete_user(request, pk):
     """
-    Delete a user. Requires 'auth.delete_user' permission.
+    Delete a user with proper permission checks.
+    - Superuser can delete anyone except themselves
+    - Manager can delete Editor and Normal users only
     """
+    if not request.user.is_authenticated:
+        messages.error(request, "You must be logged in.")
+        return redirect('users')
+
     user = get_object_or_404(User, pk=pk)
     
-    # Prevent deleting superusers unless the requester is also a superuser
-    if user.is_superuser and not request.user.is_superuser:
-        messages.error(request, "You do not have permission to delete this user.")
-        return redirect('users')
-    
     # Prevent users from deleting themselves
-    if user == request.user:
+    if user.pk == request.user.pk:
         messages.error(request, "You cannot delete your own account.")
         return redirect('users')
     
-    username = user.username
-    user.delete()
-    messages.success(request, f'User "{username}" deleted successfully. ✅')
-    return redirect('users')
+    # Determine target user's role
+    if user.is_superuser:
+        target_role = 'superuser'
+    elif user.groups.filter(name='Manager').exists():
+        target_role = 'manager'
+    elif user.groups.filter(name='Editor').exists():
+        target_role = 'editor'
+    else:
+        target_role = 'normal'
+    
+    # Permission check
+    if request.user.is_superuser:
+        # Superuser can delete anyone except self (already checked above)
+        pass
+    elif request.user.groups.filter(name='Manager').exists():
+        # Manager can only delete Editor and Normal users
+        if target_role not in ['editor', 'normal']:
+            messages.error(request, "Managers can only delete Editor and Normal users.")
+            return redirect('users')
+    else:
+        # No permission
+        messages.error(request, "You do not have permission to delete users.")
+        return redirect('users')
+    
+    if request.method == 'POST':
+        username = user.username
+        user.delete()
+        messages.success(request, f'User "{username}" deleted successfully. ✅')
+        return redirect('users')
+    else:
+        # If someone tries to access via GET, redirect them
+        messages.warning(request, "Invalid request method.")
+        return redirect('users')
+
 
 def change_user_role(request, user_id):
     if not request.user.is_authenticated:
@@ -610,13 +644,19 @@ def change_user_role(request, user_id):
         messages.error(request, "You cannot change your own role.")
         return redirect('users')
 
-    # Superuser can change anyone
+    # Superuser can change anyone to any role
     if request.user.is_superuser:
         pass
-    # Manager can only manage Editors/Normal
+    # Manager can only manage Editors/Normal users
     elif request.user.groups.filter(name='Manager').exists():
+        # Check if target user is superuser or manager
         if user.is_superuser or user.groups.filter(name='Manager').exists():
             messages.error(request, "Managers cannot change roles of other Managers or Superusers.")
+            return redirect('users')
+        
+        # Check if trying to promote to Manager or Superuser
+        if new_role in ['manager', 'superuser']:
+            messages.error(request, "Managers cannot promote users to Manager or Superuser roles.")
             return redirect('users')
     else:
         messages.error(request, "You do not have permission to change roles.")
@@ -635,8 +675,9 @@ def change_user_role(request, user_id):
     elif new_role == 'editor':
         group = Group.objects.get(name='Editor')
         user.groups.add(group)
+        user.is_staff = True  # Editors are also staff
     elif new_role == 'normal':
-        pass  # no group
+        pass  # no group, not staff
     elif new_role == 'superuser':
         user.is_superuser = True
         user.is_staff = True
@@ -644,6 +685,7 @@ def change_user_role(request, user_id):
     user.save()
     messages.success(request, f"{user.username}'s role changed to {new_role}.")
     return redirect('users')
+
 
 def toggle_ban_user(request, user_id):
     if not request.user.is_authenticated:

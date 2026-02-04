@@ -149,6 +149,13 @@
                                 {% if user.is_superuser %}
                                     <span class="profile-badge profile-badge-danger">Admin</span>
                                 {% endif %}
+                                <!-- Staff Badge -->
+                                    {% if user.is_staff %}
+                                    <span class="profile-badge profile-badge-info">
+                                        Staff
+                                    </span>
+                                    {% endif %}
+                                    
                                 {% for group in user.groups.all %}
                                     <span class="profile-badge profile-badge-info">{{ group.name }}</span>
                                 {% empty %}
