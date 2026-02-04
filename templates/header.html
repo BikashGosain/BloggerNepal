@@ -172,6 +172,8 @@
     --home-shadow: 0 1px 2px rgba(60,64,67,0.3), 0 1px 3px rgba(60,64,67,0.15);
     --home-shadow-lg: 0 4px 6px -1px rgba(60,64,67,0.1);
     --home-transition: all 0.3s ease;
+    --home-header-height: 64px;
+    --home-nav-height: 48px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -184,13 +186,13 @@
     }
 }
 
-body { padding-top: 112px; }
+body { padding-top: calc(var(--home-header-height) + var(--home-nav-height)); }
 
 .home-container { display: contents; }
 
 /* Header */
 .home-header {
-    position: fixed; top: 0; left: 0; right: 0; height: 64px;
+    position: fixed; top: 0; left: 0; right: 0; height: var(--home-header-height);
     background: var(--home-bg); border-bottom: 1px solid var(--home-border);
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 16px; z-index: 1000; box-shadow: var(--home-shadow);
@@ -248,11 +250,44 @@ body { padding-top: 112px; }
 
 .home-create-btn svg { color: var(--home-primary); }
 
+
+/* Notification button container */
+.home-notification-btn {
+    position: relative;        /* REQUIRED for badge positioning */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Make the bell icon bigger */
+.home-notification-btn svg {
+    width: 20px;   /* increase size */
+    height: 30px;
+    stroke-width: 2.2;
+}
+
+/* Notification count badge */
 .home-notification-badge {
-    position: absolute; top: 8px; right: 8px;
-    background: var(--home-danger); color: white; font-size: 10px;
-    font-weight: 600; padding: 2px 5px; border-radius: 10px;
-    min-width: 16px; text-align: center;
+    position: absolute;
+    top: -2px;
+    right: -2px;
+
+    background-color: #e53935;
+    color: #fff;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: 0 0 0 2px #fff; /* optional white outline */
 }
 
 /* Auth Buttons */
@@ -355,7 +390,7 @@ body { padding-top: 112px; }
 
 /* Category Nav */
 .home-category-nav {
-    position: fixed; top: 64px; left: 0; right: 0; height: 48px;
+    position: fixed; top: var(--home-header-height); left: 0; right: 0; height: var(--home-nav-height);
     background: var(--home-bg); border-bottom: 1px solid var(--home-border);
     display: flex; align-items: center; gap: 8px; padding: 0 24px;
     z-index: 999; overflow: visible;
@@ -414,17 +449,19 @@ body { padding-top: 112px; }
 }
 
 @media (max-width: 768px) {
-    body { padding-top: 112px; }
-    .home-header { padding: 0 12px; }
-    .home-header-center { display: none; }
-    .home-header-right { gap: 4px; }
+    :root { --home-header-height: 116px; }
+    .home-header { padding: 8px 12px; flex-wrap: wrap; row-gap: 8px; align-content: center; }
+    .home-header-left { order: 1; }
+    .home-header-right { order: 2; gap: 4px; }
+    .home-header-center { display: block; order: 3; flex: 1 1 100%; max-width: none; margin: 0; min-width: 0; width: 100%; }
+    .home-search-wrapper { width: 100%; }
     .home-category-nav { padding: 0 12px; gap: 4px; }
     .home-category-scroll { gap: 4px; }
     .home-nav-link { padding: 6px 12px; font-size: 13px; }
 }
 
 @media (max-width: 480px) {
-    .home-header { padding: 0 8px; }
+    .home-header { padding: 8px 8px; }
     .home-logo-icon { width: 28px; height: 28px; }
     .home-logo-text { font-size: 16px; }
 }

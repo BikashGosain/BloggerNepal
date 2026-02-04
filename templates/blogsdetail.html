@@ -25,9 +25,17 @@
                             <i class="fas fa-user-minus"></i> Unfollow
                         </a>
                         {% else %}
-                        <a href="{% url 'follow_user' single_blog.author.id %}" class="bd-btn bd-btn-follow">
+                        
+                        {% if single_blog.author %}
+                            <a href="{% url 'follow_user' single_blog.author.id %}" class="bd-btn bd-btn-follow">
                             <i class="fas fa-user-plus"></i> Follow
                         </a>
+                           {% comment %}
+{% else %}
+<span class="bd-author-link">
+    <i class="far fa-user"></i> Deleted User
+{% endcomment %}
+                            {% endif %}
                         {% endif %}
                     </div>
                     {% endif %}
@@ -35,8 +43,14 @@
                     <!-- Meta Info -->
                     <div class="bd-meta">
                         <span class="bd-meta-item">
-                            <i class="far fa-clock"></i>Created_at: {{ single_blog.created_at|timesince }} ago
-                        </span>
+    <i class="far fa-clock"></i>
+    {% if single_blog.updated_at and single_blog.updated_at > single_blog.created_at %}
+        Updated {{ single_blog.updated_at|timesince }} ago
+    {% else %}
+        Created {{ single_blog.created_at|timesince }} ago
+    {% endif %}
+</span>
+
                         
                         <span class="bd-meta-item">
                             {% if single_blog.author %}
@@ -46,14 +60,10 @@
                             {% else %}
                             <span class="bd-author-link">
                                 <i class="far fa-user"></i> Deleted User
-                            </span>
-                        {% endif %}
+                            {% endif %}
                         </span>
                         <span class="bd-meta-item">
                             <i class="far fa-eye"></i> {{ single_blog.views|default:0 }} views
-                        </span>
-                        <span class="bd-meta-item">
-                            <i class="far fa-clock"></i>Updated_at: {{ single_blog.updated_at|timesince }} ago
                         </span>
                     </div>
 
