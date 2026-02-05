@@ -5,7 +5,19 @@
 <!-- Main Content Area - Dynamically adjusts to sidebar -->
 <div class="posts-page-wrapper" id="postsPageWrapper">
     <div class="posts-container">
-        
+        <div class="profile-breadcrumb">
+                <a href="{% url 'dashboard' %}" class="profile-breadcrumb-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" stroke-width="2"/>
+                        <path d="M9 22V12h6v10" stroke-width="2"/>
+                    </svg>
+                    Dashboard
+                </a>
+                <svg class="profile-breadcrumb-separator" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span class="profile-breadcrumb-current">My Posts</span>
+        </div>
         <!-- Page Header -->
         <div class="posts-page-header">
             <div class="posts-header-left">
@@ -1109,6 +1121,45 @@
         display: none;
     }
 }
+
+.profile-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.profile-breadcrumb-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: blue;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.profile-breadcrumb-link:hover {
+    color: var(--prof-primary-hover);
+}
+
+.profile-breadcrumb-link svg {
+    width: 16px;
+    height: 16px;
+}
+
+.profile-breadcrumb-separator {
+    width: 16px;
+    height: 16px;
+    color: var(--prof-text-secondary);
+}
+
+.profile-breadcrumb-current {
+    color: var(--prof-text-secondary);
+    font-size: 14px;
+}
+
 </style>
 
 <script>
