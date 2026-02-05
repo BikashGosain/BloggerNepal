@@ -613,7 +613,7 @@ or (shorter)
             <h3 class="rcat-empty-title">No Categories Found</h3>
             {% if category_search %}
                 <p class="rcat-empty-text">No categories match "{{ category_search }}"</p>
-                <a href="{% url 'categories' %}" class="rcat-empty-btn">
+                <a href="{% url 'category' %}" class="rcat-empty-btn">
                     <i class="fas fa-redo"></i> Clear Search
                 </a>
             {% else %}
