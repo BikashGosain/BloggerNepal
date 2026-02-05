@@ -11,6 +11,7 @@ django-crispy-forms==2.5
 django-js-asset==3.1.2
 django-tinymce==5.0.0
 Django==6.0.1
+djangorestframework==3.16.1
 idna==3.11
 pillow==12.1.0
 pycparser==3.0
@@ -20,3 +21,4 @@ requests==2.32.5
 sqlparse==0.5.5
 tzdata==2025.3
 urllib3==2.6.3
+whitenoise==6.11.0
