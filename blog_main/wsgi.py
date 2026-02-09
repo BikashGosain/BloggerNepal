@@ -14,3 +14,9 @@ from django.core.wsgi import get_wsgi_application
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'blog_main.settings')
 
 application = get_wsgi_application()
+
+
+try:
+    import create_superuser_on_startup
+except Exception as e:
+    print("Superuser creation skipped:", e)
