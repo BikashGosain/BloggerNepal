@@ -352,17 +352,19 @@ def edit_comment(request, comment_id):
 
 def search(request):
     keyword = request.GET.get('keyword', '').strip()
-    if keyword:
+    if keyword and len(keyword) >= 2:
         results = Blog.objects.filter(
             Q(title__icontains=keyword) | 
-            Q(short_description__icontains=keyword) | 
-            Q(blog_body__icontains=keyword) |
+            # Q(short_description__icontains=keyword) | 
+            # Q(blog_body__icontains=keyword) |
             Q(author__username__icontains=keyword) |
             Q(category__category_name__icontains=keyword),
             status='Published'
         ).order_by('-created_at')
     else:
         results = Blog.objects.none()
+    
+    total_results = results.count()
 
     paginator = Paginator(results, 24)
     page_number = request.GET.get('page', 1)
@@ -371,6 +373,8 @@ def search(request):
     context = {
         'results': blogs_page,
         'keyword': keyword,
+        'min_length_required': len(keyword) < 2 if keyword else False,
+        'total_results': total_results,
     }
     return render(request, 'search.html', context)
 

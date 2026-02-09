@@ -12,23 +12,24 @@ Requires:
 {% if page_obj and page_obj.object_list %}
 <div class="rbl-wrapper">
     <!-- Search form -->
-    <form method="GET" class="rbl-search-form">
+    <form method="GET" action="{% url 'search' %}" class="rbl-search-form">
         <input type="hidden" name="tab" value="{{ tab }}">
         <div class="rbl-search-container">
             <i class="fas fa-search rbl-search-icon"></i>
             <input 
-                type="text" 
-                name="search" 
-                class="rbl-search-input" 
-                placeholder="Search posts..." 
-                value="{{ search }}"
-            >
-            <button type="submit" class="rbl-search-btn">
+    type="text" 
+    name="keyword" 
+    class="rbl-search-input" 
+    placeholder="Search posts by title, author, or category..." 
+    value="{{ keyword }}"
+    minlength="2"
+    required
+>
+            <button type="submit" class="rbl-search-btn" title="Search">
                 <i class="fas fa-arrow-right"></i>
             </button>
         </div>
     </form>
-
     <div class="rbl-grid">
         {% for blog in page_obj %}
         <article class="rbl-card">

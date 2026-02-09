@@ -58,6 +58,40 @@
 </div>
 
 {% else %}
-<p>No posts available.</p>
+
+{% if min_length_required %}
+    <p class="alert" style="
+        background-color: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 8px;
+        padding: 15px 20px;
+        margin: 20px auto;
+        max-width: 600px;
+        text-align: center;
+        color: #856404;
+        font-size: 16px;
+        font-weight: 500;
+    ">
+        <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+        Please enter at least 2 characters to search.
+    </p>
+{% elif keyword and total_results == 0 %}
+    <p style="
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 8px;
+        padding: 15px 20px;
+        margin: 20px auto;
+        max-width: 600px;
+        text-align: center;
+        color: #721c24;
+        font-size: 16px;
+        font-weight: 500;
+    ">
+        <i class="fas fa-search" style="margin-right: 8px;"></i>
+        No posts available for "{{ keyword }}"
+    </p>
+{% endif %}
+
 {% endif %}
 {% endblock %}
