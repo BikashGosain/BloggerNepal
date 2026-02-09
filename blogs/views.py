@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 
 
 from follow_following.models import Follow
-from inymce.django.core.paginator import Paginator
+from django.core.paginator import Paginator
 from .models import Blog, Category, Comment, Notification, Report
 from django.db.models import Q
 from django.contrib import messages
