@@ -1,4 +1,4 @@
-from inymce.django.core.paginator import Paginator
+from django.core.paginator import Paginator
 from .models import Category,Blog, Notification
 from social_links.models import SocialLinks
 from django.db.models import Count, Q
