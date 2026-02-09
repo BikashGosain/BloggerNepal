@@ -106,7 +106,14 @@ class Report(models.Model):
     
     
 class Notification(models.Model): 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    # user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    user = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL,  # if user deleted, set user to NULL
+        null=True, 
+        blank=True, 
+        related_name='notifications'
+    )
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, null=True, blank=True)
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
