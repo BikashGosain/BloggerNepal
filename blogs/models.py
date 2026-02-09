@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.urls import reverse
+from cloudinary.models import CloudinaryField
 
 from django.template.defaultfilters import slugify
 
@@ -35,7 +36,8 @@ class Blog(models.Model):
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='blog')
     # author = models.ForeignKey(User, on_delete=models.CASCADE) # on delete user all posts related user will be deleted
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    featured_image = models.ImageField(upload_to='uploads/%Y/%m/%d/', blank=False, null=False)
+    # featured_image = models.ImageField(upload_to='uploads/%Y/%m/%d/', blank=False, null=False)
+    featured_image = CloudinaryField('featured_image', blank=False, null=False)
     short_description = models.TextField(max_length=200)
     # blog_body = models.TextField(max_length=5000)
     # blog_body = HTMLField()

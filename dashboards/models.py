@@ -2,13 +2,16 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from cloudinary.models import CloudinaryField
 
 # Create your models here.
 
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
+    # profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
+    profile_image = CloudinaryField('profile_image', blank=True, null=True)
+
     contact = models.CharField(max_length=20, blank=True, null=True)
     created_by = models.ForeignKey(
         User, 
@@ -38,6 +41,8 @@ class Profile(models.Model):
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
+    else:
+        instance.profile.save()
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
