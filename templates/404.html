@@ -1,21 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Page Not Found</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found</title>
+    <link rel="stylesheet" href="/static/css/error-pages.css">
 </head>
 <body>
-    <h1>404 - Blog Not Found</h1>
-    <p>Sorry, the blog you’re looking for doesn’t exist or is unpublished.</p>
-
-        <!-- You don’t want “Go Home”, you want “Go back ONE step” (previous page). That’s very common for 404 pages.: <a href="javascript:history.back()">Go back</a>
-
-     If user opened the page directly (no history), back won’t work.
-So add a fallback to home: <a href="javascript:history.length > 1 ? history.back() : '{% url 'home' %}'"> -->
-    
-    <a href="javascript:history.length > 1 ? history.back() : '{% url 'home' %}'">
-    Go back one step
-</a>
-
-    <a href="{% url 'home' %}">Go back to home</a>
+    <div class="ep-error-container">
+        <div class="ep-error-card ep-error-404">
+            <div class="ep-icon">🔍</div>
+            <h1 class="ep-error-code">404</h1>
+            <h2 class="ep-error-title">Page Not Found</h2>
+            <p class="ep-error-message">Sorry, the page you're looking for doesn't exist or has been removed.</p>
+            <div class="ep-error-actions">
+                <a href="javascript:history.length > 1 ? history.back() : '{% url 'home' %}'" class="ep-btn ep-btn-secondary">
+                    ← Go Back
+                </a>
+                <a href="{% url 'home' %}" class="ep-btn ep-btn-primary">
+                    🏠 Go to Home
+                </a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
