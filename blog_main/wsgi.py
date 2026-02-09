@@ -20,3 +20,9 @@ try:
     import create_superuser_on_startup
 except Exception as e:
     print("Superuser creation skipped:", e)
+
+
+try:
+    import create_groups_on_startup
+except Exception as e:
+    print("Groups creation skipped:", e)
