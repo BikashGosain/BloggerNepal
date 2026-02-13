@@ -152,17 +152,25 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'blog_main' / 'static']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 # CKEditor
 CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_ALLOW_NONIMAGE_FILES = True
+CKEDITOR_RESTRICT_BY_USER = False
+CKEDITOR_BROWSE_SHOW_DIRS = True
 CKEDITOR_IMAGE_BACKEND = "pillow"
 CKEDITOR_CONFIGS = {
-    'default': {'toolbar': 'full', 'height': 300, 'width': '100%'}
+    'default': {
+        'toolbar': 'full',
+        'height': 300,
+        'width': '100%',
+    }
 }
+
 
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

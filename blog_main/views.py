@@ -12,6 +12,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.models import User
 
+
 def home(request):
     categories = Category.objects.all()
     featured_posts = Blog.objects.filter(is_featured=True, status='Published').order_by('-created_at')

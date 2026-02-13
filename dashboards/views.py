@@ -244,6 +244,7 @@ def delete_category(request, pk):
 
 
 
+@login_required
 def posts(request):
     user = request.user
 
@@ -253,13 +254,13 @@ def posts(request):
     category_id = request.GET.get('category', '')
     page_number = request.GET.get('page', 1)
 
-    # 🔐 Role-based access
+    # Role-based access
     if user.is_superuser or user.groups.filter(name__in=['Editor', 'Manager']).exists():
         posts_qs = Blog.objects.select_related('author', 'category').all()
     else:
         posts_qs = Blog.objects.select_related('author', 'category').filter(author=user)
 
-    # 🔍 Search: title, category, author
+    # Search
     if query:
         posts_qs = posts_qs.filter(
             Q(title__icontains=query) |
@@ -269,20 +270,27 @@ def posts(request):
             Q(author__last_name__icontains=query)
         )
 
-    # 🏷 Status filter (Draft / Published)
+    # Status filter
     if status_filter in ['Draft', 'Published']:
         posts_qs = posts_qs.filter(status=status_filter)
 
-    # ⭐ Featured filter
+    # Featured filter
     if featured == '1':
         posts_qs = posts_qs.filter(is_featured=True)
 
-    # 📂 Category filter
+    # Category filter
     if category_id:
-        posts_qs = posts_qs.filter(category_id=category_id)
+        if category_id == '0':
+            posts_qs = posts_qs.filter(category__isnull=True)
+        else:
+            posts_qs = posts_qs.filter(category_id=category_id)
 
-    # 📄 Pagination
+    # Pagination
     paginator = Paginator(posts_qs.order_by('-created_at'), 5)
+    try:
+        page_number = int(page_number)
+    except ValueError:
+        page_number = 1
     page_obj = paginator.get_page(page_number)
 
     context = {
@@ -293,75 +301,60 @@ def posts(request):
         'category_id': category_id,
         'categories': Category.objects.all(),
     }
-
     return render(request, 'posts.html', context)
 
 
-
+@login_required
 def add_post(request):
     if request.method == 'POST':
         form = BlogPostForm(request.POST, request.FILES)
         if form.is_valid():
-            post = form.save(commit=False)  # temporarily saving the form
-            post.author = request.user  # setting the author
+            post = form.save(commit=False)
+            post.author = request.user
             post.save()
-            title = form.cleaned_data['title']
-            post.slug = slugify(title) + "-" + str(post.id)  # generating slug from title
-            post.save()  # saving again to update the slug
-            messages.success(
-                request,
-                f"✅ New Post title '{post.title}' added successfully."
-            )
+            # Generate slug
+            post.slug = f"{slugify(post.title)}-{post.id}"
+            post.save()
+
+            messages.success(request, f"✅ New post '{post.title}' added successfully.")
             return redirect('posts')
         else:
-            messages.error(
-                request,
-                f"✅ Post edited successfully. New title: '{post.title}' successfully."
-            )
+            messages.error(request, "❌ Post not added. Please correct the errors below.")
     else:
         form = BlogPostForm()
-    context = {
-        'form': form,
-    }
+
+    context = {'form': form}
     return render(request, 'add_post.html', context)
 
-def edit_post(request, pk):
-    post = Blog.objects.filter(pk=pk).first()
-    if not post:
-        messages.warning(request, "The post you are trying to edit does not exist.")
-        return redirect('posts')
-    
-    
-    allowed_roles = ['Editor', 'Manager']
 
+@login_required
+def edit_post(request, pk):
+    post = get_object_or_404(Blog, pk=pk)
+
+    allowed_roles = ['Editor', 'Manager']
     can_edit = (
-    request.user == post.author
-    or request.user.is_superuser
-    or request.user.groups.filter(name__in=allowed_roles).exists()
-)
+        request.user == post.author
+        or request.user.is_superuser
+        or request.user.groups.filter(name__in=allowed_roles).exists()
+    )
 
     if not can_edit:
-        messages.error(request, "You are not allowed to edit this post.")
+        messages.error(request, "❌ You are not allowed to edit this post.")
         return redirect('posts')
-    
+
     if request.method == 'POST':
         form = BlogPostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
             post = form.save()
-            title = form.cleaned_data['title']
-            post.slug = slugify(title) + "-" + str(post.id)  # updating slug from title
-            post.save()  # saving again to update the slug
-            messages.success(
-                request,
-                f"✅Post edited to this Title '{post.title}' successfully."
-            )
+            post.slug = f"{slugify(post.title)}-{post.id}"
+            post.save()
+            messages.success(request, f"✅ Post updated to '{post.title}' successfully.")
             return redirect('posts')
         else:
-            messages.error(
-                request,
-                f"✅ Post not edited for title: '{post.title}'."
-            )
-    form = BlogPostForm(instance=post)
+            messages.error(request, "❌ Post not edited. Please correct the errors below.")
+    else:
+        form = BlogPostForm(instance=post)
+
     context = {
         'form': form,
         'post': post,

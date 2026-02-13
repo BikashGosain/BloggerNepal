@@ -20,6 +20,7 @@ from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 from blogs import views as BlogsView
+from blog_main import ckeditor_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -57,7 +58,11 @@ urlpatterns = [
 
     # Dashboard URLs
     path('dashboard/', include('dashboards.urls')),
+
+
+
 # for image uploads
+    path('ckeditor/upload/', ckeditor_views.upload, name='ckeditor_upload'),
     path('ckeditor/', include('ckeditor_uploader.urls')),
     # for contact email
     path('', include('contact.urls')),
