@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'rest_framework',
 
     'cloudinary',
-    'cloudinary_storage'
+    'cloudinary_storage',
 ]
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'

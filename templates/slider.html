@@ -18,9 +18,9 @@
 </div>
 
             <div class="slide-content">
-                <div class="slide-category">
-                    {{ post.category.category_name }}
-                </div>
+                <a href="{{ post.get_category_url }}" class="rbl-category-badge">
+                    <i class="fas fa-tag"></i> {{ post.get_category_name }}
+                </a>
                 <h1 class="slide-title">{{ post.title }}</h1>
                 <p class="slide-description">
                     {{ post.short_description|slice:":150" }}...

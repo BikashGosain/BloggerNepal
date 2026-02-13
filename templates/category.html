@@ -556,7 +556,7 @@ or (shorter)
         </div>
     </form>
 
-    {% if categories %}
+    {% if categories or uncategorized_count > 0 %}
         <!-- Categories Grid -->
         <div class="rcat-grid">
             {% for cate in categories %}

@@ -72,23 +72,31 @@ def contact(request):
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
-        
+
         if form.is_valid():
             username = form.cleaned_data['username']
             email = form.cleaned_data['email']
+            password = form.cleaned_data['password1']
 
-            # Check if there's an inactive user with this username/email
-            user = User.objects.filter(username=username, email=email, is_active=False).first()
+            user = User.objects.filter(username=username).first()
 
-            if not user:
-                # Create new user
-                user = form.save(commit=False)
-                user.is_active = False
+            if user:
+                if user.is_active:
+                    form.add_error('username', 'Username already exists.')
+                    return render(request, 'register.html', {'form': form})
+
+                # Update existing inactive user
+                user.email = email
+                user.set_password(password)
                 user.save()
+
             else:
-                # Update the password for the existing inactive user
-                user.set_password(form.cleaned_data['password1'])
-                user.save()
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password,
+                    is_active=False
+                )
 
             otp = random.randint(100000, 999999)
             request.session['otp'] = str(otp)
@@ -98,15 +106,17 @@ def register(request):
                 'OTP Verification',
                 f'Your OTP is {otp}',
                 settings.EMAIL_HOST_USER,
-                [email],
+                [user.email],
                 fail_silently=False,
             )
 
             return redirect('verify_otp')
+
     else:
         form = RegistrationForm()
 
     return render(request, 'register.html', {'form': form})
+
 
 def verify_otp(request):
     user_id = request.session.get('user_id')
