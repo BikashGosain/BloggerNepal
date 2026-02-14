@@ -164,8 +164,8 @@ Implemented across:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/BloggerNepal.git
-   cd BloggerNepal
+   git clone https://github.com/BikashGosain/Web-Based-Blogging-Platform-with-Content-Recommendation-and-Analytics.git
+   cd Blog
    ```
 
 2. **Create virtual environment**
