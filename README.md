@@ -163,12 +163,36 @@ Implemented across:
 ## 💻 Installation
 
 **Option 1**
-## 📝 easy way to installation withou problems like verson mismatch
+### 🐳 Recommended: Docker Setup (No Version Conflicts!)
 
-See [SETUP.md](SETUP.md) for complete setup instructions.
+The easiest way to run BloggerNepal without any dependency or version issues:
+```bash
+git clone https://github.com/BikashGosain/BloggerNepal.git
+cd BloggerNepal
+cp .env.example .env
+docker-compose up -d
+docker-compose exec web python manage.py migrate
+docker-compose exec web python manage.py createsuperuser
+```
 
+**Access:** https://localhost
+
+📖 **Detailed Docker instructions:** [SETUP.md](SETUP.md)
+
+---
 
 **Option 2**
+
+### 🐍 Alternative: Manual Installation (Traditional Method)
+
+If you prefer to run without Docker:
+
+**Prerequisites:**
+- Python 3.8+
+- PostgreSQL (optional, SQLite works too)
+
+**Steps:**
+
 1. **Clone the repository**
    ```bash
    git clone https://github.com/BikashGosain/Web-Based-Blogging-Platform-with-Content-Recommendation-and-Analytics.git
