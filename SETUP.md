@@ -10,8 +10,8 @@
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/yourusername/BloggerNepal.git
-cd BloggerNepal
+git clone https://github.com/BikashGosain/BloggerNepal.git
+cd blog_main
 ```
 
 ### 2. Setup Environment
