@@ -253,36 +253,82 @@ If you prefer to run without Docker:
    - Admin Panel: `http://127.0.0.1:8000/admin/`
 
 ## 📁 Project Structure
-
 ```
-Blog/
+BloggerNepal/
 │
-├── about_us/              # About Us app
-├── blog_main/             # Main blog application
-│   ├── __pycache__/
-│   ├── static/           # App-specific static files
-│   ├── __init__.py
-│   ├── adapters.py       # Social auth adapters
-│   ├── asgi.py
-│   ├── ckeditor_views.py # Rich text editor views
-│   ├── forms.py          # Form definitions
-│   ├── settings.py       # Project settings
-│   ├── urls.py           # URL configurations
-│   ├── views.py          # View logic
-│   └── wsgi.py
+├── 🐳 Docker Files
+│   ├── Dockerfile                    # Django container definition
+│   ├── docker-compose.yml            # Services orchestration (PostgreSQL, Django, Nginx)
+│   ├── .dockerignore                 # Files excluded from Docker build
+│   └── nginx/                        # Nginx web server configuration
+│       ├── nginx.conf                # Nginx settings (HTTPS, reverse proxy)
+│       ├── cert.pem                  # SSL certificate (auto-generated, not in repo)
+│       └── key.pem                   # SSL private key (auto-generated, not in repo)
 │
-├── blogs/                 # Blog posts management
-├── contact/               # Contact & feedback system
-├── dashboards/            # Role-based dashboards
-├── follow_following/      # Follow system functionality
-├── social_links/          # Social media links management
-├── templates/             # Global HTML templates
+├── 📱 Django Apps
+│   ├── about_us/                     # About Us page app
+│   ├── blog_main/                    # Main Django project configuration
+│   │   ├── settings.py               # Project settings (database, apps, middleware)
+│   │   ├── urls.py                   # URL routing
+│   │   ├── wsgi.py                   # WSGI config for deployment
+│   │   ├── asgi.py                   # ASGI config for async
+│   │   ├── adapters.py               # Social authentication adapters
+│   │   ├── forms.py                  # Global forms
+│   │   └── static/                   # Project-level static files
+│   ├── blogs/                        # Core blogging functionality
+│   ├── contact/                      # Contact form & feedback system
+│   ├── dashboards/                   # Role-based admin dashboards
+│   ├── follow_following/             # User follow/unfollow system
+│   └── social_links/                 # Social media links management
 │
-├── .env                   # Environment variables (not in repo)
-├── manage.py             # Django management script
-├── requirements.txt      # Python dependencies
+├── 🎨 Frontend
+│   ├── templates/                    # Global HTML templates
+│   │   ├── base.html                 # Base template
+│   │   ├── navbar.html               # Navigation bar
+│   │   └── ...
+│   ├── staticfiles/                  # Collected static files (not in repo)
+│   └── media/                        # User uploads (images, etc., not in repo)
+│
+├── 📝 Configuration Files
+│   ├── .env                          # Environment variables (SECRETS - not in repo)
+│   ├── .env.example                  # Environment template (safe to share)
+│   ├── .gitignore                    # Git ignore rules
+│   ├── requirements.txt              # Python dependencies
+│   ├── manage.py                     # Django CLI tool
+│   ├── build.sh                      # Build script
+│   └── start.sh                      # Startup script
+│
+├── 🔧 Utility Scripts
+│   ├── create_groups_on_startup.py   # Auto-create user groups
+│   └── create_superuser_on_startup.py # Auto-create admin user
+│
+└── 📚 Documentation
+    ├── README.md                     # Main documentation
+    └── SETUP.md                      # Docker setup guide
 ```
 
+### 🔑 Key Directories Explained
+
+| Directory | Purpose | In Git? |
+|-----------|---------|---------|
+| `nginx/` | Web server config with HTTPS | ✅ Config only |
+| `blog_main/` | Django project settings | ✅ Yes |
+| `blogs/` | Blog post CRUD operations | ✅ Yes |
+| `dashboards/` | Admin & manager dashboards | ✅ Yes |
+| `staticfiles/` | Compiled static assets | ❌ Generated |
+| `media/` | User uploaded files | ❌ User content |
+| `.env` | Secret credentials | ❌ **NEVER!** |
+| `postgres_data/` | Database files (Docker) | ❌ Docker volume |
+
+### 📦 Important Files
+
+- **`Dockerfile`** - Defines Django container (Python, dependencies, app)
+- **`docker-compose.yml`** - Orchestrates 3 services: PostgreSQL + Django + Nginx
+- **`requirements.txt`** - All Python packages (Django, PostgreSQL driver, etc.)
+- **`.env.example`** - Template for environment variables (safe to share)
+- **`.env`** - Your actual secrets (database passwords, API keys - **never commit!**)
+
+  
 ## 🎯 Future Enhancements
 
 ### Planned Features
