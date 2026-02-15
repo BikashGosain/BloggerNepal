@@ -184,3 +184,17 @@ cython_debug/
 
 # ignoring the  folder created by  me  called  daywisework
 daywisework/
+# Docker
+postgres_data/
+nginx/cert.pem
+nginx/key.pem
+
+# Backups
+backup*.json
+backup*.sql
+'backup_$(date'
+'witch -c recover-category-work 8aa9a37'
+'witch feature-notification'
+
+# Keep example env
+!.env.example
