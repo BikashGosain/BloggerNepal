@@ -161,7 +161,11 @@ Implemented across:
 - Git
 
 ## 💻 Installation
+**Option 1**: ## 📝 easy way to installation withou problems like verson mismatch
 
+See [SETUP.md](SETUP.md) for complete setup instructions.
+
+**Option 2**
 1. **Clone the repository**
    ```bash
    git clone https://github.com/BikashGosain/Web-Based-Blogging-Platform-with-Content-Recommendation-and-Analytics.git
