@@ -135,8 +135,21 @@ WSGI_APPLICATION = 'blog_main.wsgi.application'
 # ---------------------
 # DATABASE
 # ---------------------
+# this databse for connecting render postgres database using DATABASE_URL from .env file
+# DATABASES = {
+#     'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+# }
+# this is for deployment in render.com, render.com automatically sets DATABASE_URL environment variable
+# but i have also added individual database settings in .env file for local development and testing, so if DATABASE_URL is not set, it will fallback to individual settings
 DATABASES = {
-    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+    'default': {
+        'ENGINE': os.getenv('DJANGO_DB_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT', 5432),
+    }
 }
 
 # ---------------------
