@@ -1,4 +1,7 @@
 # BloggerNepal 🇳🇵
+## Live Demo
+
+Check out the live application here: [Live Demo](https://web-based-blogging-platform-with-content.onrender.com)
 
 A community-focused blogging platform designed especially for Nepali audiences, built with Django.
 
