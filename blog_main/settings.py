@@ -1,29 +1,32 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url
 
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Security
+# ---------------------
+# SECURITY
+# ---------------------
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-default-key')
-# DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
-# Add your Render app domain here
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost,192.168.203.132').split(',')
+ALLOWED_HOSTS = os.getenv(
+    'DJANGO_ALLOWED_HOSTS',
+    '127.0.0.1,localhost,your-app.onrender.com'
+).split(',')
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://127.0.0.1",
-    "http://localhost",
-    "https://192.168.203.132"
+    "https://your-app.onrender.com"
 ]
-
 
 SITE_ID = int(os.getenv('DJANGO_SITE_ID', 1))
 
-# Installed apps (same as yours)
+# ---------------------
+# INSTALLED APPS
+# ---------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -57,30 +60,40 @@ INSTALLED_APPS = [
     'cloudinary_storage',
 ]
 
+# ---------------------
+# FILE STORAGE (Cloudinary)
+# ---------------------
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-MEDIA_URL = '/media/'
+
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
 }
 
+# MEDIA_URL is handled by Cloudinary
+MEDIA_URL = '/media/'  # optional placeholder, Cloudinary serves files directly
 
+# ---------------------
+# REST FRAMEWORK
+# ---------------------
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"]
 }
 
+# ---------------------
+# AUTHENTICATION
+# ---------------------
 AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
+# ---------------------
+# MIDDLEWARE
+# ---------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-
-
     'whitenoise.middleware.WhiteNoiseMiddleware',
-
-
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -102,7 +115,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                # Your custom context processors here
+                # custom processors
                 'blogs.context_processors.get_categories',
                 'blogs.context_processors.get_social_links',
                 'blogs.context_processors.user_roles',
@@ -118,54 +131,46 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'blog_main.wsgi.application'
+
+# ---------------------
+# DATABASE
+# ---------------------
 DATABASES = {
-    'default': {
-        'ENGINE': os.getenv('DJANGO_DB_ENGINE', 'django.db.backends.sqlite3'),
-        'NAME': os.getenv('DJANGO_DB_NAME', BASE_DIR / 'db.sqlite3'),
-        'USER': os.getenv('DJANGO_DB_USER', ''),
-        'PASSWORD': os.getenv('DJANGO_DB_PASSWORD', ''),
-        'HOST': os.getenv('DJANGO_DB_HOST', ''),
-        'PORT': os.getenv('DJANGO_DB_PORT', ''),
-    }
+    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
 }
 
-# # PostgreSQL DB for Render
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.getenv("DB_NAME"),
-#         'USER': os.getenv("DB_USER"),
-#         'PASSWORD': os.getenv("DB_PASSWORD"),
-#         'HOST': os.getenv("DB_HOST"),  # Render DB host
-#         'PORT': os.getenv("DB_PORT"),  # usually 5432
-#     }
-# }
-
-# Password validation (same as yours)
+# ---------------------
+# PASSWORD VALIDATION
+# ---------------------
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# ---------------------
+# INTERNATIONALIZATION
+# ---------------------
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = os.getenv('DJANGO_TIME_ZONE', 'UTC')
 USE_I18N = True
 USE_TZ = True
 
+# ---------------------
+# STATIC FILES
+# ---------------------
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'blog_main' / 'static']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
+# ---------------------
+# CKEDITOR CONFIG
+# ---------------------
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
-# CKEditor
-CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_UPLOAD_PATH = ""  # handled by Cloudinary
 CKEDITOR_ALLOW_NONIMAGE_FILES = True
 CKEDITOR_RESTRICT_BY_USER = False
 CKEDITOR_BROWSE_SHOW_DIRS = True
@@ -178,8 +183,9 @@ CKEDITOR_CONFIGS = {
     }
 }
 
-
-# Email
+# ---------------------
+# EMAIL SETTINGS
+# ---------------------
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -187,7 +193,9 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
-# Django Allauth
+# ---------------------
+# ALLAUTH SETTINGS
+# ---------------------
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 SOCIALACCOUNT_PROVIDERS = {
