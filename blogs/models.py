@@ -37,7 +37,14 @@ class Blog(models.Model):
     # author = models.ForeignKey(User, on_delete=models.CASCADE) # on delete user all posts related user will be deleted
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     # featured_image = models.ImageField(upload_to='uploads/%Y/%m/%d/', blank=False, null=False)
-    featured_image = CloudinaryField('featured_image', blank=False, null=False)
+    # for trained dataset bland and null=false comment
+    # featured_image = CloudinaryField('featured_image', blank=False, null=False)
+    featured_image = CloudinaryField(
+    'featured_image',
+    blank=True,
+    null=True
+) #this for temporary because in dataset some blogs have no image and we have to set blank and null true otherwise it will give error while loading dataset
+    # after this makemigrations and migrate then we can set blank and null false for featured_image field
     short_description = models.TextField(max_length=200)
     # blog_body = models.TextField(max_length=5000)
     # blog_body = HTMLField()

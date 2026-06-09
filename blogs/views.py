@@ -1,3 +1,5 @@
+from .similarity import get_similar_posts
+
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
@@ -40,10 +42,22 @@ def posts_by_category(request, category_id):
 def blogs(request, slug):
     user = request.user
     single_blog = get_object_or_404(Blog, slug=slug, status='Published')
-    all_posts = Blog.objects.filter(status='Published').exclude(id=single_blog.id)
+
+
+
+
+
+    # all_posts = Blog.objects.filter(status='Published').exclude(id=single_blog.id)
     
-    # Call the function with both arguments
-    similar_posts = get_similar_posts(single_blog, all_posts, limit=5)
+    # # Call the function with both arguments
+    # similar_posts = get_similar_posts(single_blog, all_posts, limit=5)
+
+
+
+    similar_posts = get_similar_posts(single_blog, limit=5)
+
+
+
     # 🔔 MARK NOTIFICATION AS READ (if coming from notification link)
     notification_id = request.GET.get("notification")
     if request.user.is_authenticated and notification_id:
@@ -122,24 +136,24 @@ def blogs(request, slug):
 
     return render(request, 'blogsdetail.html', context)
 
-def get_similar_posts(current_post, all_posts, limit=5):
-    similarity_score = {}
+# def get_similar_posts(current_post, all_posts, limit=5):
+#     similarity_score = {}
 
-    for post in all_posts:
-        score = 0
-        if post.category == current_post.category:
-            score += 3
+#     for post in all_posts:
+#         score = 0
+#         if post.category == current_post.category:
+#             score += 3
 
-        # Title keyword overlap
-        current_words = set(current_post.title.lower().split())
-        post_words = set(post.title.lower().split())
-        score += len(current_words & post_words)
+#         # Title keyword overlap
+#         current_words = set(current_post.title.lower().split())
+#         post_words = set(post.title.lower().split())
+#         score += len(current_words & post_words)
 
-        similarity_score[post] = score
+#         similarity_score[post] = score
 
-    similar_posts = sorted(similarity_score, key=lambda x: similarity_score[x], reverse=True)
+#     similar_posts = sorted(similarity_score, key=lambda x: similarity_score[x], reverse=True)
 
-    return similar_posts[:limit]
+#     return similar_posts[:limit]
 
 
 

@@ -132,33 +132,47 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'blog_main.wsgi.application'
 
+
+
 # ---------------------
 # DATABASE
 # ---------------------
 # this databse for connecting render postgres database using DATABASE_URL from .env file
 
-DATABASES = {
-    'default': {
-        **dj_database_url.config(default=os.getenv('DATABASE_URL')),
-        'OPTIONS': {
-            'options': '-c search_path=project2'
-        }
-    }
-}
+
+
+# this code for connecting render postgres database using DATABASE_URL from environment variable, and also setting search_path to project2 for render postgres database, but it will fallback to sqlite for local development if DATABASE_URL is not set
+# DATABASES = {
+#     'default': {
+#         **dj_database_url.config(default=os.getenv('DATABASE_URL')),
+#         'OPTIONS': {
+#             'options': '-c search_path=project2'
+#         }
+#     }
+# }
+
+
+
+
+
+
+
+
+
 
 # this is for deployment in render.com, render.com automatically sets DATABASE_URL environment variable
 # but i have also added individual database settings in .env file for local development and testing, so if DATABASE_URL is not set, it will fallback to individual settings
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': os.getenv('DJANGO_DB_ENGINE', 'django.db.backends.postgresql'),
-#         'NAME': os.getenv('DB_NAME'),
-#         'USER': os.getenv('DB_USER'),
-#         'PASSWORD': os.getenv('DB_PASSWORD'),
-#         'HOST': os.getenv('DB_HOST'),
-#         'PORT': os.getenv('DB_PORT', 5432),
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': os.getenv('DJANGO_DB_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT', 5432),
+    }
+}
 
 # ---------------------
 # PASSWORD VALIDATION
