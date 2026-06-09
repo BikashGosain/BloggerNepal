@@ -23,6 +23,8 @@ from blogs import views as BlogsView
 from blog_main import ckeditor_views
 
 urlpatterns = [
+    path('blogs/', include('blogs.urls')),
+    
     path('admin/', admin.site.urls),
 
     path('accounts/', include('allauth.urls')),

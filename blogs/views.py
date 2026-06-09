@@ -15,6 +15,23 @@ from django.contrib import messages
 from django.http import JsonResponse
 
 # Create your views here.
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+from .serializers import BlogSerializer
+
+
+@api_view(['GET'])
+def blog_api(request):
+
+    blogs = Blog.objects.filter(status='Published')
+
+    serializer = BlogSerializer(
+        blogs,
+        many=True
+    )
+
+    return Response(serializer.data)
 
 def posts_by_category(request, category_id):
     if int(category_id) == 0:  # Special case: Uncategorized
