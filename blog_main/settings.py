@@ -15,7 +15,7 @@ DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.getenv(
     'DJANGO_ALLOWED_HOSTS',
-    '127.0.0.1,localhost,your-app.onrender.com'
+    '127.0.0.1,localhost,.onrender.com,bloggernepal-3.onrender.com'
 ).split(',')
 
 CSRF_TRUSTED_ORIGINS = [
