@@ -19,6 +19,7 @@ ALLOWED_HOSTS = os.getenv(
 ).split(',')
 
 CSRF_TRUSTED_ORIGINS = [
+    "https://*.onrender.com",
     "https://bloggernepal-3.onrender.com",
 ]
 
