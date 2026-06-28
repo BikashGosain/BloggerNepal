@@ -19,7 +19,7 @@ ALLOWED_HOSTS = os.getenv(
 ).split(',')
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://your-app.onrender.com"
+    "https://bloggernepal-3.onrender.com",
 ]
 
 SITE_ID = int(os.getenv('DJANGO_SITE_ID', 1))
