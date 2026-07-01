@@ -24,7 +24,7 @@ def get_categories(request):
             category_name__icontains=search_query
         )
 
-    paginator = Paginator(categories_qs, 3)
+    paginator = Paginator(categories_qs, 4)
     page_obj = paginator.get_page(page_number)
 
     uncategorized_count = Blog.objects.filter(
