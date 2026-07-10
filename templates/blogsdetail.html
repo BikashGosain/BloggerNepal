@@ -65,6 +65,11 @@
                         <span class="bd-meta-item">
                             <i class="far fa-eye"></i> {{ single_blog.views|default:0 }} views
                         </span>
+                        <button id="summaryBtn">
+                            Summarize Blog
+                        </button>
+                        
+                        
                     </div>
 
                     <!-- Action Buttons -->
@@ -118,6 +123,7 @@
                     <a class="bd-category" href="{{ single_blog.get_category_url }}">
                         <i class="fas fa-tag"></i> {{ single_blog.get_category_name }}
                     </a>
+                    <div id="summaryResult" style="display:none;"><div></div>
                 </header>
 
                 <!-- Featured Image -->
@@ -280,6 +286,14 @@
 {% endblock %}
 
 {% block extra_js %}
+
 <script src="{% static 'js/blogdetails.js' %}"></script>
 <script src="{% static 'js/similarposts.js' %}"></script>
+
+<script>
+const blogSlug =
+"{{single_blog.slug}}";
+</script>
+<script src="{% static 'js/summarizeblog.js' %}"></script>
+
 {% endblock %}

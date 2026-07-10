@@ -16,4 +16,12 @@ urlpatterns = [
     path('report/<int:blog_id>/', views.report_blog, name='report_blog'),
     # for notification
     path('notifications/', views.notifications, name='notifications'),
+
+
+# for blog summary
+    path(
+    'summary/<slug:slug>/',
+    views.blog_summary,
+    name='blog_summary'
+),
 ]

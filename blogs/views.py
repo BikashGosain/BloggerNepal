@@ -20,6 +20,10 @@ from rest_framework.response import Response
 
 from .serializers import BlogSerializer
 
+from django.utils.html import strip_tags
+from sumy.parsers.plaintext import PlaintextParser
+from sumy.nlp.tokenizers import Tokenizer
+from sumy.summarizers.lsa import LsaSummarizer
 
 @api_view(['GET'])
 def blog_api(request):
@@ -421,3 +425,52 @@ def following_feed(request):
     ).order_by('-created_at')
 
     return render(request, 'blog/following_feed.html', {'blogs': blogs})
+
+
+def blog_summary(request, slug):
+
+    blog = get_object_or_404(
+        Blog,
+        slug=slug,
+        status='Published'
+    )
+
+    # remove html tags
+    clean_text = strip_tags(
+        blog.blog_body or ""
+    )
+
+    if len(clean_text.strip()) < 50:
+        return JsonResponse({
+            "summary":
+            "Blog content is too short to summarize."
+        })
+
+    try:
+
+        parser = PlaintextParser.from_string(
+            clean_text,
+            Tokenizer("english")
+        )
+
+        summarizer = LsaSummarizer()
+
+        summary = summarizer(
+            parser.document,
+            2
+        )
+
+        result = " ".join(
+            str(sentence)
+            for sentence in summary
+        )
+
+        return JsonResponse({
+            "summary": result
+        })
+
+    except Exception as e:
+
+        return JsonResponse({
+            "summary": str(e)
+        })
