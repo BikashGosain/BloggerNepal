@@ -14,13 +14,15 @@ class Command(BaseCommand):
         with open('blogs_data.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
 
-        user = User.objects.first()
+        users = list(User.objects.all())
 
-        for item in data:
+        for index, item in enumerate(data):
 
             category, created = Category.objects.get_or_create(
                 category_name=item['category']
             )
+
+            user = users[index % len(users)]
 
             Blog.objects.create(
                 title=item['title'],
