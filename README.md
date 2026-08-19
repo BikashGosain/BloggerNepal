@@ -15,6 +15,109 @@ BloggerNepal is a community-focused blogging platform designed to provide a simp
 
 Unlike other platforms, BloggerNepal emphasizes **community interaction**. Users can not only publish their own blogs but also follow other authors, like posts, and comment to encourage engagement among writers.
 
+# 🔥 BloggerNepal — Blogging Platform with Docker, Content Recommendation & Analytics
+
+> *"I didn't just build it — I containerized it and deployed it on Azure."*
+
+A fully-featured blogging platform built with **Django**, **PostgreSQL**, and **Docker**.
+
+**BloggerNepal** is a complete content platform featuring blog publishing, user authentication, content recommendations, analytics, categories, Cloudinary media integration, and a production deployment on a **Microsoft Azure Virtual Machine**.
+
+| | |
+| ------------------------- | ---------------------------------------------------------------- |
+| 🐳 **Dockerized** | Containerized with Docker and Docker Compose for consistent environments |
+| ☁️ **Azure Deployment** | Deployed and running on a Microsoft Azure Virtual Machine |
+| 🌐 **Live Website** | [http://104.208.112.16](http://104.208.112.16) |
+| 🚀 **Production Stack** | Nginx + Gunicorn + Django + PostgreSQL |
+| 📊 **Analytics** | Post views, likes, and content engagement tracking |
+| 🤖 **Recommendations** | Content recommendation system for discovering related blogs |
+| 🖼️ **Cloudinary** | Cloud-based media storage and image management |
+
+---
+
+## ✨ Key Features
+
+- 👤 User registration, login, and profile management
+- ✍️ Blog creation and publishing
+- 📝 Rich text blog content
+- 🏷️ Categories and category-based browsing
+- 🔗 SEO-friendly slug-based blog URLs
+- 🤖 Content recommendation system
+- 👁️ Post view tracking
+- ❤️ Post likes and engagement tracking
+- ⭐ Featured posts
+- 🆕 Latest posts
+- 🔥 Popular posts
+- 🔍 Blog discovery and browsing
+- 💬 Comments and interactions
+- 🔔 Notifications
+- 🚩 Blog reporting system
+- 👥 Follow/following functionality
+- 🖼️ Cloudinary media integration
+- 📱 Fully responsive design
+- 🐳 Dockerized development and production environment
+- ☁️ Deployed on Microsoft Azure VM
+- 🌐 Nginx reverse proxy
+- 🚀 Gunicorn application server
+- 🗄️ PostgreSQL production database
+
+---
+
+## ☁️ Azure Production Deployment
+
+BloggerNepal is currently deployed on a **Microsoft Azure Virtual Machine**.
+
+### Deployment Details
+
+| Component | Configuration |
+|---|---|
+| Cloud Provider | Microsoft Azure |
+| Resource Group | `BloggerNepal-RG` |
+| Virtual Machine | `BloggerNepal-VM` |
+| Public IP | `104.208.112.16` |
+| Web Server | Nginx |
+| Application Server | Gunicorn |
+| Framework | Django |
+| Database | PostgreSQL |
+| Containerization | Docker Compose |
+| Operating System | Linux |
+
+### 🌐 Live Application
+
+**http://104.208.112.16**
+Current status: The Azure deployment is currently offline because the Azure subscription reached its available credit/spending limit, and the VM was stopped/deallocated. The deployment was successfully tested and verified before the resources were stopped.
+> The current deployment uses HTTP. HTTPS and a custom domain are planned for a future deployment improvement.
+
+---
+
+## 🏗️ Production Architecture
+
+```text
+                         Internet
+                            │
+                            │ HTTP :80
+                            ▼
+                  ┌────────────────────┐
+                  │    Microsoft Azure │
+                  │     Virtual Machine│
+                  │   BloggerNepal-VM  │
+                  │  104.208.112.16    │
+                  └─────────┬──────────┘
+                            │
+                     Docker Compose
+                            │
+             ┌──────────────┼──────────────┐
+             │              │              │
+             ▼              ▼              ▼
+        ┌─────────┐   ┌────────────┐  ┌──────────┐
+        │  Nginx  │──▶│   Django   │──▶│PostgreSQL│
+        │  :80    │   │ Gunicorn   │  │  :5432   │
+        └─────────┘   └────────────┘  └──────────┘
+             │              │              │
+             ▼              ▼              ▼
+          Static        Application     Database
+           Files          Logic           Data
+
 ### Why BloggerNepal?
 
 - **🎯 Local Focus**: Built specifically for Nepali creators and audiences
