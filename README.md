@@ -27,7 +27,7 @@ A fully-featured blogging platform built with **Django**, **PostgreSQL**, and **
 | ------------------------- | ---------------------------------------------------------------- |
 | 🐳 **Dockerized** | Containerized with Docker and Docker Compose for consistent environments |
 | ☁️ **Azure Deployment** | Deployed and running on a Microsoft Azure Virtual Machine |
-| 🌐 **Live Website** | [http://104.208.112.16](http://104.208.112.16) |
+| 🌐 **Live Website** | [http://104.208.112.16](http://104.208.112.16) > **Note:** Current status: Stoped| 
 | 🚀 **Production Stack** | Nginx + Gunicorn + Django + PostgreSQL |
 | 📊 **Analytics** | Post views, likes, and content engagement tracking |
 | 🤖 **Recommendations** | Content recommendation system for discovering related blogs |
@@ -85,7 +85,7 @@ BloggerNepal is currently deployed on a **Microsoft Azure Virtual Machine**.
 ### 🌐 Live Application
 
 **http://104.208.112.16**
-Current status: The Azure deployment is currently offline because the Azure subscription reached its available credit/spending limit, and the VM was stopped/deallocated. The deployment was successfully tested and verified before the resources were stopped.
+> **Note:** Current status: The Azure deployment is currently offline because the Azure subscription reached its available credit/spending limit, and the VM was stopped/deallocated. The deployment was successfully tested and verified before the resources were stopped.
 > The current deployment uses HTTP. HTTPS and a custom domain are planned for a future deployment improvement.
 
 ---
