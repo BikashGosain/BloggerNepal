@@ -163,15 +163,17 @@ WSGI_APPLICATION = 'blog_main.wsgi.application'
 
 # this is for deployment in render.com, render.com automatically sets DATABASE_URL environment variable
 # but i have also added individual database settings in .env file for local development and testing, so if DATABASE_URL is not set, it will fallback to individual settings
-
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DJANGO_DB_ENGINE', 'django.db.backends.postgresql'),
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT', 5432),
+        'ENGINE': os.getenv(
+            'DJANGO_DB_ENGINE',
+            'django.db.backends.postgresql'
+        ),
+        'NAME': os.getenv('DJANGO_DB_NAME'),
+        'USER': os.getenv('DJANGO_DB_USER'),
+        'PASSWORD': os.getenv('DJANGO_DB_PASSWORD'),
+        'HOST': os.getenv('DJANGO_DB_HOST'),
+        'PORT': os.getenv('DJANGO_DB_PORT', '5432'),
     }
 }
 
