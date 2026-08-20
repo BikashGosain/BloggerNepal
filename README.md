@@ -26,7 +26,7 @@ A fully-featured blogging platform built with **Django**, **PostgreSQL**, and **
 | | |
 | ------------------------- | ---------------------------------------------------------------- |
 | 🐳 **Dockerized** | Containerized with Docker and Docker Compose for consistent environments |
-| ☁️ **Azure Deployment** | Deployed and running on a Microsoft Azure Virtual Machine |
+| ☁️ **Azure Deployment** | Deployed and running on a Microsoft Azure Virtual Machine | CI/CD deployment configured with GitHub Actions.
 | 🌐 **Live Website** | [http://104.208.112.16](http://104.208.112.16) > **Note:** Current status: Stoped| 
 | 🚀 **Production Stack** | Nginx + Gunicorn + Django + PostgreSQL |
 | 📊 **Analytics** | Post views, likes, and content engagement tracking |
