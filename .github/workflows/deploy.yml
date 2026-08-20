@@ -1,0 +1,68 @@
+name: BloggerNepal CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: CI - Test Application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Django system check
+        env:
+          DJANGO_SETTINGS_MODULE: blog_main.settings
+        run: |
+          python manage.py check
+
+  deploy:
+    name: CD - Deploy to Azure VM
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to Azure VM
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_USERNAME }}
+          key: ${{ secrets.AZURE_SSH_KEY }}
+          script: |
+            cd ~/BloggerNepal
+
+            echo "Pulling latest code..."
+            git pull origin main
+
+            echo "Building Docker containers..."
+            docker compose up -d --build
+
+            echo "Running migrations..."
+            docker compose exec -T web python manage.py migrate
+
+            echo "Collecting static files..."
+            docker compose exec -T web python manage.py collectstatic --noinput
+
+            echo "Restarting Nginx..."
+            docker compose restart nginx
+
+            echo "Deployment completed."
+
+            echo "Checking containers..."
+            docker compose ps
