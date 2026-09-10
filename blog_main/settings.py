@@ -178,13 +178,15 @@ WSGI_APPLICATION = 'blog_main.wsgi.application'
 # }
 
 # now for nepn db
-import dj_database_url
 
 DATABASES = {
     "default": dj_database_url.parse(
-        os.getenv("DATABASE_URL")
+        os.getenv("DATABASE_URL"),
+        conn_max_age=0,
     )
 }
+
+DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
 
 # ---------------------
 # PASSWORD VALIDATION
