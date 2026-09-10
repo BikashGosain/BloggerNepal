@@ -1,5 +1,8 @@
 import random
 from django.shortcuts import get_object_or_404, render, redirect
+from django.http import HttpResponse
+
+
 from blogs.models import Blog, Category
 from about_us.models import AboutUs
 from django.contrib import messages
@@ -318,3 +321,5 @@ def custom_403(request, exception):
 def custom_500(request):
     return render(request, '500.html', status=500)
 
+def health_check(request):
+    return HttpResponse("OK")

@@ -30,6 +30,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     
     path('', views.home, name='home'),
+    path('health/', views.health_check, name='health_check'),
 
     path('randomblogs/', views.randomblogs, name='randomblogs'),
     path('latestpost/', views.latestpost, name='latestpost'),
@@ -93,5 +94,3 @@ handler404 = 'blog_main.views.custom_404'
 handler400 = 'blog_main.views.custom_400'
 handler403 = 'blog_main.views.custom_403'
 handler500 = 'blog_main.views.custom_500'
-
-

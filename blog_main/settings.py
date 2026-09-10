@@ -163,18 +163,27 @@ WSGI_APPLICATION = 'blog_main.wsgi.application'
 
 # this is for deployment in render.com, render.com automatically sets DATABASE_URL environment variable
 # but i have also added individual database settings in .env file for local development and testing, so if DATABASE_URL is not set, it will fallback to individual settings
+# DATABASES = {
+#     'default': {
+#         'ENGINE': os.getenv(
+#             'DJANGO_DB_ENGINE',
+#             'django.db.backends.postgresql'
+#         ),
+#         'NAME': os.getenv('DJANGO_DB_NAME'),
+#         'USER': os.getenv('DJANGO_DB_USER'),
+#         'PASSWORD': os.getenv('DJANGO_DB_PASSWORD'),
+#         'HOST': os.getenv('DJANGO_DB_HOST'),
+#         'PORT': os.getenv('DJANGO_DB_PORT', '5432'),
+#     }
+# }
+
+# now for nepn db
+import dj_database_url
+
 DATABASES = {
-    'default': {
-        'ENGINE': os.getenv(
-            'DJANGO_DB_ENGINE',
-            'django.db.backends.postgresql'
-        ),
-        'NAME': os.getenv('DJANGO_DB_NAME'),
-        'USER': os.getenv('DJANGO_DB_USER'),
-        'PASSWORD': os.getenv('DJANGO_DB_PASSWORD'),
-        'HOST': os.getenv('DJANGO_DB_HOST'),
-        'PORT': os.getenv('DJANGO_DB_PORT', '5432'),
-    }
+    "default": dj_database_url.parse(
+        os.getenv("DATABASE_URL")
+    )
 }
 
 # ---------------------
